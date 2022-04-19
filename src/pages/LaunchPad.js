@@ -204,6 +204,12 @@ const LaunchPad = () => {
         }
     }
 
+    const scrollToStepThree = () => {
+        setTimeout(
+        document.getElementById("stepThree").scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start' })
+        , 1000);
+      }
+
     return (
         <Container>
             <Spacer />
@@ -488,6 +494,7 @@ const LaunchPad = () => {
                                             onClick={() => {
                                                 setStepTwo(false)
                                                 setStepThree(true)
+                                                scrollToStepThree()
                                             }}>
                                             Next
                                         </Next>
@@ -497,7 +504,7 @@ const LaunchPad = () => {
                         </Item>
                         <Line></Line>
                         <Item>
-                            <StepperHead onClick={() => toggle(3)}>
+                            <StepperHead id="stepThree" onClick={() => toggle(3)}>
                                 <Step>3</Step>Add your project details
                             </StepperHead>
                             {stepThree && (
