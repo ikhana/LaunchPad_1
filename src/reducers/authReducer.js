@@ -5,7 +5,8 @@ const initialState = {
     shouldConnect: false,
     address: null,
     chainError: false,
-    investmentFactoryContract: null
+    investmentFactoryContract: null,
+    investmentInfoRead: null
 }
 
 export default function authReducer(state = initialState, action) {

@@ -21,21 +21,23 @@ const PreSaleDetail = () => {
             </Row>
             <Spacer />
             <Row>
-                <Column lg={4}>Socisl Profile</Column>
+                <Label lg={4}>Social Profile</Label>
+                <Column lg={8}>
+                    <Icon src="/images/discord.svg"/>
+                    <Icon src="/images/telegram.svg"/>
+                    <Icon src="/images/twitter.png"/>
+                </Column>
+            </Row>
+            <Spacer />
+            <Row>
+                <Label lg={4}>Audi</Label>
                 <Column lg={8}>
                     <InputText />
                 </Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={4}>Audit</Column>
-                <Column lg={8}>
-                    <InputText />
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={4}>KYC</Column>
+                <Label lg={4}>KYC</Label>
                 <Column lg={8}>
                     <InputText />
                 </Column>
@@ -49,13 +51,28 @@ const PreSaleDetail = () => {
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Hard Cap:</Column>
-                <Column lg={6}>Soft Cap:</Column>
+                <Column lg={6}>Hard Cap: <Content>-</Content></Column>
+                <Column lg={6}>Soft Cap: <Content>-</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Maximum Count:</Column>
-                <Column lg={6}>Minimum Count:</Column>
+                <Column lg={6}>Maximum Invest per Address: <Content>-</Content></Column>
+                <Column lg={6}>Minimum Invest per Address: <Content>-</Content></Column>
+            </Row>
+            <Spacer />
+            <Row>
+                <Column lg={6}>Maximum Capital <Content>-</Content></Column>
+                <Column lg={6}>Minimum Capital <Content>-</Content></Column>
+            </Row>
+            <Spacer />
+            <Row>
+                <Column lg={6}>Start Time <Content>-</Content></Column>
+                <Column lg={6}>End Time <Content>-</Content></Column>
+            </Row>
+            <Spacer />
+            <Row>
+                <Column lg={6}> <InputText /> <Button>Invest</Button></Column>
+                <Column lg={6}></Column>
             </Row>
             <Spacer />
             <Row>
@@ -71,7 +88,7 @@ const PreSaleDetail = () => {
             </Row>
             <Spacer />
             <Row>
-                <Column lg={4}>Token Vesting:</Column>
+                <Label lg={4}>Token Vesting:</Label>
                 <Column lg={8}>
                     <InputText />
                 </Column>
@@ -94,6 +111,8 @@ const Wrapper = styled(Container)`
 `
 const Column = styled(Col)`
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
 `
 const Flex = styled(Column)`
     display: flex;
@@ -141,5 +160,17 @@ const Button = styled.a`
     }
 `
 
+const Label = styled(Column)`
+display:flex;
+align-items:center;
+`
+const Icon = styled.img` 
+margin-right:1rem;
+width:2.5rem;`
+
 const Text = styled.p``
+const Content = styled.p`
+margin-left:2rem;
+`
+
 export default PreSaleDetail

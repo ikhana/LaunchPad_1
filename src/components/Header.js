@@ -83,19 +83,19 @@ const Header = (props) => {
             const chainId = await signer.getChainId()
 
             const investmentFactoryContract = new ethers.Contract(investmentFactory.id, investmentFactory.abi, signer)
-           const investmentFactoryRead = new ethers.Contract(investmentFactory.id, investmentFactory.abi, provider)
+        //    const investmentFactoryRead = new ethers.Contract(investmentFactory.id, investmentFactory.abi, provider)
            //  InvetmentInfo mostly Related to Admin work which includes 
            // Developer fee percentage 
            // number of Preslsale made 
            // setting minimum developer fee in wie ==> setMinDevFeeInWei
            // get a presale address against an id 
            //Presale ContractFactory Owner or Admin
-           const InvetmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
-           const devFeeInWei = await InvetmentInfoRead.getMinDevFeeInWei()
-           const _devFeePercentage = await InvetmentInfoRead.getDevFeePercentage();
-           const presaleCount = await InvetmentInfoRead.getPresalesCount()
-           const preSaleAddress = await InvetmentInfoRead.getPresaleAddress("0")
-           const adminOwner = await InvetmentInfoRead.owner();
+           const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
+        //    const devFeeInWei = await InvetmentInfoRead.getMinDevFeeInWei()
+        //    const _devFeePercentage = await InvetmentInfoRead.getDevFeePercentage();
+        //    const presaleCount = await InvetmentInfoRead.getPresalesCount()
+        //    const preSaleAddress = await InvetmentInfoRead.getPresaleAddress("0")
+        //    const adminOwner = await InvetmentInfoRead.owner();
            console.log("Developer fee in percentage==>",_devFeePercentage.toString(), "developer Fee in Wei =>", devFeeInWei.toString(),
             "PreslaeCount", presaleCount.toString(), 'Presale adddress for id 0 ==>',preSaleAddress, "Admin is ==>", adminOwner)
 
@@ -130,7 +130,8 @@ const Header = (props) => {
                     isConnected: isConnected,
                     chainError: false,
                     address: address,
-                    investmentFactoryContract: investmentFactoryContract
+                    investmentFactoryContract: investmentFactoryContract,
+                    investmentInfoRead: investmentInfoRead
                 })
 
                 web3.on('accountsChanged', (accounts) => {

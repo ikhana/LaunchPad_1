@@ -8,6 +8,7 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
+const bytes32 = require('bytes32');
 
 const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
@@ -19,19 +20,19 @@ const LaunchPad = () => {
     const [stepTwo, setStepTwo] = useState(false)
     const [stepThree, setStepThree] = useState(false)
     const [stepFour, setStepFour] = useState(false)
-    const [tokenPrice, settokenPrice] = useState('100000000000000000')
-    const [tokenPriceError, settokenPriceError] = useState(false)
-    const [softCap, setSoftCap] = useState('500000000000000000')
-    const [softCapError, setSoftCapError] = useState(false)
-    const [hardCap, setHardCap] = useState('2000000000000000000')
-    const [hardCapError, setHardCapError] = useState(false)
-    const [minimum, setMinimum] = useState('100000000000000000')
-    const [minimumError, setMinimumError] = useState(false)
-    const [maximum, setMaximum] = useState('500000000000000000')
-    const [maximumError, setMaximumError] = useState(false)
-    const [liquidity, setLiquidity] = useState('99')
-    const [liquidityError, setLiquidityError] = useState(false)
-    const [listingPrice, setListingPrice] = useState('110000000000000000')
+    const [tokenPrice, settokenPrice] = useState('0.1');
+    const [tokenPriceError, settokenPriceError] = useState(false);
+    const [softCap, setSoftCap] = useState('0.5');
+    const [softCapError, setSoftCapError] = useState(false);
+    const [hardCap, setHardCap] = useState('2.0');
+    const [hardCapError, setHardCapError] = useState(false);
+    const [minimum, setMinimum] = useState('0.1');
+    const [minimumError, setMinimumError] = useState(false);
+    const [maximum, setMaximum] = useState('0.5');
+    const [maximumError, setMaximumError] = useState(false);
+    const [liquidity, setLiquidity] = useState('99');
+    const [liquidityError, setLiquidityError] = useState(false);
+    const [listingPrice, setListingPrice] = useState('0.11');
     const [listingPriceError, setListingPriceError] = useState(false)
     const [liquidityLockup, setLiquidityLockup] = useState(new Date())
     const [liquidityLockupError, setLiquidityLockupError] = useState(false)
@@ -40,11 +41,11 @@ const LaunchPad = () => {
     const [startTime, setStartTime] = useState(new Date())
     const [endTime, setEndTime] = useState(new Date())
     const [startTimeError, setStartTimeError] = useState(false)
-    const [saleTitle, setSaleTitle] = useState('0x4c61622070652061617469206861690000000000000000000000000000000000')
-    const [telegramLink, setTelegramLink] = useState('0x4c61622070652061617469206861692064756100000000000000000000000000')
-    const [discord, setDiscord] = useState('0x4c6162207065206161746920686169206475612062616e000000000000000000')
-    const [twitter, setTwitter] = useState('0x4c6162207065206161746920686169206475612062616e206b00000000000000')
-    const [website, setWebsite] = useState('0x4c6162207065206161746920686169206475612062616e206b2074616d616e61')
+    const [saleTitle, setSaleTitle] = useState('')
+    const [telegramLink, setTelegramLink] = useState('') 
+    const [discord, setDiscord] = useState('')
+    const [twitter, setTwitter] = useState('')
+    const [website, setWebsite] = useState('')
 
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
@@ -143,41 +144,52 @@ const LaunchPad = () => {
         if (!investmentFactoryContract) {
             alert('Please connect to chain id 97')
         }
-        let tokensTuple = {}
-        tokensTuple.tokenAddress = '0xbd1EB6a307839a573702C86fA3b91ac8e46042B2'.toLowerCase()
+        const unsoldTokensDumpAddress = "0x000000000000000000000000000000000000dEaD"
+        let tokensTuple = {
+            tokenAddress:tokenAddress,
+            unsoldTokensDumpAddress:unsoldTokensDumpAddress,
+            tokenPrice: ethers.utils.parseUnits(tokenPrice,18).toString(),
+            hardCap: ethers.utils.parseUnits(hardCap, 18).toString(),
+            softCap: ethers.utils.parseUnits(softCap, 18).toString(),
+            maximum: ethers.utils.parseUnits(maximum, 18).toString(),
+            minimum: ethers.utils.parseUnits(minimum,18).toString(),
+            startTime:moment(startTime).unix().toString(),
+            endTime: moment(endTime).unix().toString()
+        }
+       tokensTuple.tokenAddress = '0xbd1EB6a307839a573702C86fA3b91ac8e46042B2'.toLowerCase()
         tokensTuple.unsoldTokensDumpAddress = '0x000000000000000000000000000000000000dead'.toLowerCase()
         tokensTuple.whitelistedAddresses = []
-        tokensTuple.tokenPriceInWei = '100000000000000000'
-        tokensTuple.hardCapInWei = '2000000000000000000'
-        tokensTuple.softCapInWei = '500000000000000000'
-        tokensTuple.maxInvestInWei = '500000000000000000'
-        tokensTuple.minInvestInWei = '100000000000000000'
-        tokensTuple.openTime = '1649991923'
-        tokensTuple.closeTime = '1650027923'
+        tokensTuple.tokenPriceInWei = ethers.utils.parseUnits(tokenPrice,18).toString()   //'100000000000000000'
+        tokensTuple.hardCapInWei = ethers.utils.parseUnits(hardCap, 18).toString()//'2000000000000000000'
+        tokensTuple.softCapInWei = ethers.utils.parseUnits(softCap, 18).toString()//'500000000000000000'
+        tokensTuple.maxInvestInWei = ethers.utils.parseUnits(maximum, 18).toString()//'500000000000000000'
+        tokensTuple.minInvestInWei = ethers.utils.parseUnits(minimum,18).toString()//'100000000000000000'
+        tokensTuple.openTime = moment(startTime).unix().toString() //'1649991923'
+        tokensTuple.closeTime = moment(endTime).unix().toString()//'1650027923'
 
         // tokensTuple = JSON.parse(tokensTuple)
         console.log(tokensTuple)
 
         let infoTuple = {}
-        infoTuple.listingPriceInWei = '110000000000000000'
-        infoTuple.liquidityAddingTime = '1650031523'
-        infoTuple.lpTokensLockDurationInDays = '10'
-        infoTuple.liquidityPercentageAllocation = '99'
+        infoTuple.listingPriceInWei = ethers.utils.parseUnits(listingPrice,18).toString()//'110000000000000000'
+        infoTuple.liquidityAddingTime =  moment(liquidityLockup).unix().toString()//'1650031523'
+        infoTuple.lpTokensLockDurationInDays = lpTokensDurationInDays//'10'
+        infoTuple.liquidityPercentageAllocation = liquidity //'99'
         // infoTuple = JSON.stringify(infoTuple)
 
         let socialTuple = {}
-        socialTuple.saleTitle = '0x4c61622070652061617469206861690000000000000000000000000000000000'.toLowerCase()
-        socialTuple.linkTelegram = '0x4c61622070652061617469206861692064756100000000000000000000000000'.toLowerCase()
-        socialTuple.linkDiscord = '0x4c6162207065206161746920686169206475612062616e000000000000000000'.toLowerCase()
-        socialTuple.linkTwitter = '0x4c6162207065206161746920686169206475612062616e206b00000000000000'.toLowerCase()
-        socialTuple.linkWebsite = '0x4c6162207065206161746920686169206475612062616e206b2074616d616e61'.toLowerCase()
+        socialTuple.saleTitle = bytes32({ input: saleTitle, ignoreLength: true }).toLowerCase()
+        socialTuple.linkTelegram = bytes32({ input: telegramLink, ignoreLength: true }).toLowerCase()
+        socialTuple.linkDiscord = bytes32({ input: discord, ignoreLength: true }).toLowerCase()
+        socialTuple.linkTwitter = bytes32({ input: twitter, ignoreLength: true }).toLowerCase()
+        socialTuple.linkWebsite = bytes32({ input: website, ignoreLength: true }).toLowerCase()
         // socialTuple = JSON.stringify(socialTuple)
 
         // const sss = await investmentFactoryContract.SAFU()
         try {
             const createPresale = await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
         } catch (e) {
-            alert(e.message)
+            alert(e)
         }
     }
 
