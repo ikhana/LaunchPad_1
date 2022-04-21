@@ -1,4 +1,4 @@
-export const InvestementInfo= {
+export const InvestementPreSale= {
 
     id: '0x2A7EdE7Ba8B2B4171f13Ab22ba24C28751D0b7cb',
     abi:[{"inputs": [{"internalType":"address","name":"_FactoryAddress","type":"address"},
@@ -75,12 +75,15 @@ export const InvestementInfo= {
       {"inputs":[],"name":"softCapInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],
       "stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],
       "stateMutability":"view","type":"function"},{"inputs":[],"name":"tokenPriceInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],
-      "stateMutability":"view","type":"function"},{"inputs":[],"name":"tokensLeft","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalCollectedWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      "stateMutability":"view","type":"function"},{"inputs":[],"name":"tokensLeft","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],
+      "stateMutability":"view","type":"function"},
+      {"inputs":[],"name":"totalCollectedWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
       {"inputs":[],"name":"totalInvestorsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],
       "stateMutability":"view","type":"function"},{"inputs":[],"name":"uniLPTokensLockDurationInDays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
       {"inputs":[],"name":"uniLiquidityAdded","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
       {"inputs":[],"name":"uniLiquidityAddingTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
       {"inputs":[],"name":"uniLiquidityPercentageAllocation","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
       {"inputs":[],"name":"uniListingPriceInWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],
-      "name":"unsoldTokensDumpAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelistedAddresses","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]
+      "name":"unsoldTokensDumpAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],
+      "name":"whitelistedAddresses","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]
 }

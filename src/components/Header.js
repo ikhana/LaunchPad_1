@@ -8,6 +8,7 @@ import {ethers} from 'ethers'
 import CreateToken from '../pages/CreateToken'
 import {investmentFactory} from '../config/contracts/InvestmentsFactory'
 import { InvestementInfo } from '../config/contracts/InvetmentInfo'
+import { InvestementPreSale } from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
 import {bindActionCreators, compose} from 'redux'
 import {setConnected, setDisconnected} from '../actions/authActions'
@@ -83,45 +84,20 @@ const Header = (props) => {
             const chainId = await signer.getChainId()
 
             const investmentFactoryContract = new ethers.Contract(investmentFactory.id, investmentFactory.abi, signer)
-        //    const investmentFactoryRead = new ethers.Contract(investmentFactory.id, investmentFactory.abi, provider)
-           //  InvetmentInfo mostly Related to Admin work which includes 
-           // Developer fee percentage 
-           // number of Preslsale made 
-           // setting minimum developer fee in wie ==> setMinDevFeeInWei
-           // get a presale address against an id 
-           //Presale ContractFactory Owner or Admin
-           const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
-        //    const devFeeInWei = await InvetmentInfoRead.getMinDevFeeInWei()
-        //    const _devFeePercentage = await InvetmentInfoRead.getDevFeePercentage();
-        //    const presaleCount = await InvetmentInfoRead.getPresalesCount()
-        //    const preSaleAddress = await InvetmentInfoRead.getPresaleAddress("0")
-        //    const adminOwner = await InvetmentInfoRead.owner();
-           console.log("Developer fee in percentage==>",_devFeePercentage.toString(), "developer Fee in Wei =>", devFeeInWei.toString(),
-            "PreslaeCount", presaleCount.toString(), 'Presale adddress for id 0 ==>',preSaleAddress, "Admin is ==>", adminOwner)
+            const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
+            const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
 
-            //  This Part Deals with Admin Panle writn to the contract which includes admin ownership transfer 
-            // settting developer fee in wie or its percentage 
-            //const setMinDevFeeInWei = await InvetmentInfoRead.setMinDevFeeInWei("500000000")  // Setting Developer Fee in Wei 
-            //await setMinDevFeeInWei.wait()
+            const   hardCapInWei = await investementPreSale.hardCapInWei()
 
-            //const setDevFeeInPercent = await InvetmentInfoRead.setDevFeePercntage('3')   // Percentage e.g 1 , 2 ,3 
-            //await setDevFeeInPercent.wait();
-
-            //const addPresaleAddress = await InvetmentInfoRead.addPresaleAddress("") // address 0x0234er43454322354
-            //await addPresaleAddress.wait();
-
-            //const transferOwnership = await InvetmentInfoRead.transferOwnership("") // adddress of the new owner 
-
-
-
-
-
-
-           // console.log(investmentFactoryRead.address)
-
-            
-
-            if (chainId.toString() == '97') {
+            try {
+                console.log('first Read from the investment contract =>',  hardCapInWei.toString() )
+                
+            } catch (error) {
+                console.log(error)
+                
+            }
+       // console.log(investmentFactoryRead.address)
+       if (chainId.toString() == '97') {
                 const isConnected = Boolean(provider && signer)
                 const chainError = false
                 setIsConnected(isConnected)
@@ -131,7 +107,8 @@ const Header = (props) => {
                     chainError: false,
                     address: address,
                     investmentFactoryContract: investmentFactoryContract,
-                    investmentInfoRead: investmentInfoRead
+                    investmentInfoRead: investmentInfoRead,
+                    investementPreSale : investementPreSale 
                 })
 
                 web3.on('accountsChanged', (accounts) => {

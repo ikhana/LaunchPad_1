@@ -1,9 +1,65 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
+import { useSelector } from 'react-redux'
+import { InvestementPreSale } from '../config/contracts/presaleInvest'
 
 const PreSaleDetail = () => {
+
+    const investementPreSale = useSelector(
+        (state) => state.auth.investementPreSale,
+      )
+
+      const [hardCapInWei,setHardCapInWei] =useState();
+      const [softCapInWei,setSoftCapInWei] = useState()
+      const [closeTime, setCloseTime] = useState()
+      const [openTime, setOpneTime] = useState()
+      const [maxInvestInWei,setMaxInvestInWei] = useState()
+      const [minInvestInWei, setMinInvetsInWei] = useState();
+
+
+
+
+      const logGet = async () => {
+        if (!investementPreSale) {
+          alert('you are trying to connect to a null contract')
+        }
+    
+       
+        //setDevFeeInWie(await investementPreSale.getMinDevFeeInWei())
+        //const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
+
+      setHardCapInWei(await investementPreSale.hardCapInWei())
+       setSoftCapInWei(await investementPreSale.softCapInWei())
+       setCloseTime(await investementPreSale.closeTime())
+      setOpneTime(await investementPreSale.openTime())
+      setMaxInvestInWei(  await investementPreSale.maxInvestInWei())
+      setMinInvetsInWei(  await investementPreSale.minInvestInWei())
+      const investTx = await investementPreSale.invest()
+      await investTx.wait()
+
+      
+
+        try {
+            console.log('hard cap=>',  hardCapInWei.toString() ,"softcap", softCapInWei.toString(), "close Time", closeTime.toString(),
+             "open time", openTime.toString(), "MaxInvest", maxInvestInWei.toString(), "Min Investment")
+            
+        } catch (error) {
+            console.log(error)
+            
+        }
+        
+        
+    
+      }
+
+      const investIn = async () => {
+          const investTx = await investementPreSale.invest()
+          await investTx.wait();
+      }
+
+      
     return (
         <Wrapper>
             <Row>
@@ -30,7 +86,7 @@ const PreSaleDetail = () => {
             </Row>
             <Spacer />
             <Row>
-                <Label lg={4}>Audi</Label>
+                <Label lg={4}>Audit</Label>
                 <Column lg={8}>
                     <InputText />
                 </Column>
@@ -56,22 +112,22 @@ const PreSaleDetail = () => {
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Maximum Invest per Address: <Content>-</Content></Column>
-                <Column lg={6}>Minimum Invest per Address: <Content>-</Content></Column>
+                <Column lg={6}>Maximum Invest per Address: <Content>{maxInvestInWei?.toString()}</Content></Column>
+                <Column lg={6}>Minimum Invest per Address: <Content>{minInvestInWei?.toString()}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Maximum Capital <Content>-</Content></Column>
-                <Column lg={6}>Minimum Capital <Content>-</Content></Column>
+                <Column lg={6}>Maximum Capital <Content>{hardCapInWei?.toString()}</Content></Column>
+                <Column lg={6}>Minimum Capital <Content> {softCapInWei?.toString}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Start Time <Content>-</Content></Column>
-                <Column lg={6}>End Time <Content>-</Content></Column>
+                <Column lg={6}>Start Time <Content>{openTime?.toString()}</Content></Column>
+                <Column lg={6}>End Time <Content>{closeTime?.toString()}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}> <InputText /> <Button>Invest</Button></Column>
+                <Column lg={6}> <InputText /> <Button onClick={logGet}> Invest</Button></Column>
                 <Column lg={6}></Column>
             </Row>
             <Spacer />
