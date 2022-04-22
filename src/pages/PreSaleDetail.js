@@ -4,6 +4,7 @@ import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { InvestementPreSale } from '../config/contracts/presaleInvest'
+import { ethers } from 'ethers'
 
 const PreSaleDetail = () => {
 
@@ -17,6 +18,15 @@ const PreSaleDetail = () => {
       const [openTime, setOpneTime] = useState()
       const [maxInvestInWei,setMaxInvestInWei] = useState()
       const [minInvestInWei, setMinInvetsInWei] = useState();
+      const [telegramLink, setTelegramLink] = useState();
+      const [twitterLink, setTwitterLink] = useState();
+      const [discordLink, setDiscordLink] = useState();
+      const [webisteLink, setWebsiteLink] = useState();
+     
+
+
+
+
 
 
 
@@ -30,20 +40,51 @@ const PreSaleDetail = () => {
         //setDevFeeInWie(await investementPreSale.getMinDevFeeInWei())
         //const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
 
-      setHardCapInWei(await investementPreSale.hardCapInWei())
-       setSoftCapInWei(await investementPreSale.softCapInWei())
-       setCloseTime(await investementPreSale.closeTime())
-      setOpneTime(await investementPreSale.openTime())
-      setMaxInvestInWei(  await investementPreSale.maxInvestInWei())
-      setMinInvetsInWei(  await investementPreSale.minInvestInWei())
-      const investTx = await investementPreSale.invest()
-      await investTx.wait()
+     setHardCapInWei(await investementPreSale.hardCapInWei())
+     setSoftCapInWei(await investementPreSale.softCapInWei())
+     setCloseTime(await investementPreSale.closeTime())
+     setOpneTime(await investementPreSale.openTime())
+     setMaxInvestInWei(  await investementPreSale.maxInvestInWei())
+     setMinInvetsInWei(  await investementPreSale.minInvestInWei())
+
+     const telegramBytes = await investementPreSale.linkTelegram();
+     const twitterBytes = await investementPreSale.linkTwitter();
+     const discordBytes = await investementPreSale.linkDiscord();
+     const websiteBytes = await investementPreSale.linkWebsite();
+     setTelegramLink(ethers.utils.parseBytes32String(telegramBytes))
+     setTwitterLink(ethers.utils.parseBytes32String(twitterBytes))
+     setDiscordLink(ethers.utils.parseBytes32String(discordBytes))
+     setWebsiteLink(ethers.utils.parseBytes32String(websiteBytes))
+
+    
+       
+
+     
+      /*setSoicalProfile(/*socialProfile.telegramLink = await investementPreSale.linkTelegram(),
+      ethers.utils.parseBytes32String(bytes32),
+      socialProfile.TwitterLink = await ethers.utils.parseBytes32String(investementPreSale.) ,
+      socialProfile.discordLink= await investementPreSale.linkDiscord(),
+      socialProfile.websiteLink = await investementPreSale.linkWebsite()
+      )*/
+     
 
       
 
         try {
+           
             console.log('hard cap=>',  hardCapInWei.toString() ,"softcap", softCapInWei.toString(), "close Time", closeTime.toString(),
-             "open time", openTime.toString(), "MaxInvest", maxInvestInWei.toString(), "Min Investment")
+             "open time", openTime.toString(), "MaxInvest", maxInvestInWei.toString(),
+              'telegram bytes', telegramBytes ,
+               'and telegram link', telegramLink,
+               "discordbytes" , discordBytes,
+               "discord Link", discordLink,
+               "twitterBytes", twitterBytes,
+               "websiteBytes", websiteBytes,
+               "website Link", webisteLink
+
+
+             
+             )
             
         } catch (error) {
             console.log(error)
@@ -54,10 +95,8 @@ const PreSaleDetail = () => {
     
       }
 
-      const investIn = async () => {
-          const investTx = await investementPreSale.invest()
-          await investTx.wait();
-      }
+      const investIn = async () => {const investTx = await investementPreSale.invest();await investTx.wait();}
+      const claimTokens = async () =>{ const claimTokens = await investementPreSale.claimTokens();  await claimTokens.wait()}
 
       
     return (
@@ -68,9 +107,7 @@ const PreSaleDetail = () => {
                 </Column>
             </Row>
             <Row>
-                <Column lg={4}>
-                    <Logo />
-                </Column>
+              
                 <Flex lg={8}>
                     <Text>Discription as Submitted</Text>
                 </Flex>
@@ -105,59 +142,33 @@ const PreSaleDetail = () => {
                     <Heading>PreSale Details</Heading>
                 </Column>
             </Row>
-            <Spacer />
-            <Row>
-                <Column lg={6}>Hard Cap: <Content>-</Content></Column>
-                <Column lg={6}>Soft Cap: <Content>-</Content></Column>
-            </Row>
-            <Spacer />
+           
             <Row>
                 <Column lg={6}>Maximum Invest per Address: <Content>{maxInvestInWei?.toString()}</Content></Column>
                 <Column lg={6}>Minimum Invest per Address: <Content>{minInvestInWei?.toString()}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Maximum Capital <Content>{hardCapInWei?.toString()}</Content></Column>
-                <Column lg={6}>Minimum Capital <Content> {softCapInWei?.toString}</Content></Column>
+                <Column lg={6}>Maximum Capital: <Content>{hardCapInWei?.toString()}</Content></Column>
+                <Column lg={6}>Minimum Capital:<Content> {softCapInWei?.toString()}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}>Start Time <Content>{openTime?.toString()}</Content></Column>
-                <Column lg={6}>End Time <Content>{closeTime?.toString()}</Content></Column>
+                <Column lg={6}>Start Time:<Content>{openTime?.toString()}</Content></Column>
+                <Column lg={6}>End Time: <Content>{closeTime?.toString()}</Content></Column>
             </Row>
             <Spacer />
             <Row>
-                <Column lg={6}> <InputText /> <Button onClick={logGet}> Invest</Button></Column>
-                <Column lg={6}></Column>
+                <Flexed lg={12}> 
+                <Button onClick={investIn}>Invest</Button>
+                <Button onClick={claimTokens}>Claim Token</Button>
+                <Button onClick={logGet}>Read Info</Button>
+                </Flexed>
+                
+               
             </Row>
             <Spacer />
-            <Row>
-                <Column lg={8}>Tokenomics:</Column>
-                <Column lg={4}>
-                    {' '}
-                    <Logo />
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={12}>Liquidty Lock:</Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Label lg={4}>Token Vesting:</Label>
-                <Column lg={8}>
-                    <InputText />
-                </Column>
-            </Row>
-            <Spacer />
-            <Spacer />
-            <Row>
-                <ButtonContent lg={12}>
-                    <Button>Cont ... </Button>
-                    <Button>Claim Token</Button>
-                </ButtonContent>
-            </Row>
-            <Spacer />
+          
         </Wrapper>
     )
 }
@@ -174,6 +185,12 @@ const Flex = styled(Column)`
     display: flex;
     align-items: center;
 `
+
+const Flexed = styled(Column)`
+display: flex;
+justify-content: center;
+`
+
 const ButtonContent = styled(Flex)`
     justify-content: center;
 `
