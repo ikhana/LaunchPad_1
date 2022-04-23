@@ -6,7 +6,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import WalletLink from 'walletlink'
 import {ethers} from 'ethers'
 import CreateToken from '../pages/CreateToken'
-import {investmentFactory} from '../config/contracts/InvestmentsFactory'
+import {investmentFactoryContract} from '../config/contracts/InvestmentsFactory'
 import { InvestementInfo } from '../config/contracts/InvetmentInfo'
 import { InvestementPreSale } from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
@@ -83,7 +83,7 @@ const Header = (props) => {
             const address = await signer.getAddress()
             const chainId = await signer.getChainId()
 
-            const investmentFactoryContract = new ethers.Contract(investmentFactory.id, investmentFactory.abi, signer)
+            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer)
             const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
             const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
 
@@ -106,7 +106,7 @@ const Header = (props) => {
                     isConnected: isConnected,
                     chainError: false,
                     address: address,
-                    investmentFactoryContract: investmentFactoryContract,
+                    investmentFactoryContract1: investmentFactoryContract1,
                     investmentInfoRead: investmentInfoRead,
                     investementPreSale : investementPreSale 
                 })

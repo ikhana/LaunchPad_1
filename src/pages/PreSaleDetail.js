@@ -21,7 +21,7 @@ const PreSaleDetail = () => {
       const [telegramLink, setTelegramLink] = useState();
       const [twitterLink, setTwitterLink] = useState();
       const [discordLink, setDiscordLink] = useState();
-      const [webisteLink, setWebsiteLink] = useState();
+      const [webisteLink, setWebsiteLink] = useState('');
      
 
 
@@ -95,7 +95,8 @@ const PreSaleDetail = () => {
     
       }
 
-      const investIn = async () => {const investTx = await investementPreSale.invest();await investTx.wait();}
+      const investIn = async () => {const investTx = await investementPreSale.invest("10000000000000000");
+      await investTx.wait();}
       const claimTokens = async () =>{ const claimTokens = await investementPreSale.claimTokens();  await claimTokens.wait()}
 
       
