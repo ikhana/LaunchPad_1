@@ -8,137 +8,128 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
-const bytes32 = require('bytes32');
+const bytes32 = require('bytes32')
 
 const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
     const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
-    const [tokenAddress, setTokenAddess] = useState('');
-    const [stepOne, setStepOne] = useState(false);
-    const [stepTwo, setStepTwo] = useState(false);
-    const [stepThree, setStepThree] = useState(false);
-    const [stepFour, setStepFour] = useState(false);
-    const [tokenPrice, settokenPrice] = useState('0.1');
-    const [tokenPriceError, settokenPriceError] = useState(false);
-    const [softCap, setSoftCap] = useState('0.5');
-    const [softCapError, setSoftCapError] = useState(false);
-    const [hardCap, setHardCap] = useState('2.0');
-    const [hardCapError, setHardCapError] = useState(false);
-    const [minimum, setMinimum] = useState('0.1');
-    const [minimumError, setMinimumError] = useState(false);
-    const [maximum, setMaximum] = useState('0.5');
-    const [maximumError, setMaximumError] = useState(false);
-    const [liquidity, setLiquidity] = useState('99');
-    const [liquidityError, setLiquidityError] = useState(false);
-    const [listingPrice, setListingPrice] = useState('0.11');
-    const [listingPriceError, setListingPriceError] = useState(false);
-    const [liquidityLockup, setLiquidityLockup] = useState(new Date());
-    const [liquidityLockupError, setLiquidityLockupError] = useState(false);
-    const [lpTokensDurationInDays, setLpTokensDurationInDays] = useState('10');
-    const [lpTokensDurationInDaysError, setLpTokensDurationInDaysError] = useState(false);
-    const [startTime, setStartTime] = useState(new Date());
+    const [tokenAddress, setTokenAddess] = useState('')
+    const [stepOne, setStepOne] = useState(false)
+    const [stepTwo, setStepTwo] = useState(false)
+    const [stepThree, setStepThree] = useState(false)
+    const [stepFour, setStepFour] = useState(false)
+    const [tokenPrice, settokenPrice] = useState('0.1')
+    const [tokenPriceError, settokenPriceError] = useState(false)
+    const [softCap, setSoftCap] = useState('0.5')
+    const [softCapError, setSoftCapError] = useState(false)
+    const [hardCap, setHardCap] = useState('2.0')
+    const [hardCapError, setHardCapError] = useState(false)
+    const [minimum, setMinimum] = useState('0.1')
+    const [minimumError, setMinimumError] = useState(false)
+    const [maximum, setMaximum] = useState('0.5')
+    const [maximumError, setMaximumError] = useState(false)
+    const [liquidity, setLiquidity] = useState('99')
+    const [liquidityError, setLiquidityError] = useState(false)
+    const [listingPrice, setListingPrice] = useState('0.11')
+    const [listingPriceError, setListingPriceError] = useState(false)
+    const [liquidityLockup, setLiquidityLockup] = useState(new Date())
+    const [liquidityLockupError, setLiquidityLockupError] = useState(false)
+    const [lpTokensDurationInDays, setLpTokensDurationInDays] = useState('10')
+    const [lpTokensDurationInDaysError, setLpTokensDurationInDaysError] = useState(false)
+    const [startTime, setStartTime] = useState(new Date())
     const [endTime, setEndTime] = useState(new Date())
-    const [startTimeError, setStartTimeError] = useState(false);
-    const [saleTitle, setSaleTitle] = useState('');
-    const [telegramLink, setTelegramLink] = useState('');
-    const [discord, setDiscord] = useState('');
-    const [twitter,setTwitter] = useState('');
-   const [website, setWebsite] = useState('');
-  
-    const [whiteList,setWhiteList ] = useState( ['0x108BC24F725B3AE247704926dA097349171ef059','0x108BC24F725B3AE247704926dA097349171ef059']);
-    const [name, setName] = useState("");
-  
-    const [presalePrice, setPresalePrice] = useState("");
-    const [presalePriceError, setPresalePriceError] = useState(false);
-    
+    const [startTimeError, setStartTimeError] = useState(false)
+    const [saleTitle, setSaleTitle] = useState('')
+    const [telegramLink, setTelegramLink] = useState('')
+    const [discord, setDiscord] = useState('')
+    const [twitter, setTwitter] = useState('')
+    const [website, setWebsite] = useState('')
+
+    const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
+    const [name, setName] = useState('')
+
+    const [presalePrice, setPresalePrice] = useState('')
+    const [presalePriceError, setPresalePriceError] = useState(false)
+
     const checktokenPrice = () => {
-        if(tokenPrice.trim() === ''){
-          settokenPriceError(true)
-        }}
-  const checkpresalePrice = () => {
-        if(presalePrice.trim() === ''){
-          setPresalePriceError(true)
+        if (tokenPrice.trim() === '') {
+            settokenPriceError(true)
         }
-        else{
-          settokenPriceError(false)
+    }
+    const checkpresalePrice = () => {
+        if (presalePrice.trim() === '') {
+            setPresalePriceError(true)
+        } else {
+            settokenPriceError(false)
         }
     }
     const checksoftCap = () => {
-      if(softCap.trim() === ''){
-        setSoftCapError(true)
-      }
-      else{
-        setSoftCapError(false)
-      }
-  }
-  const checkhardCap = () => {
-      if(hardCap.trim() === ''){
-        setHardCapError(true)
-      }
-      else{
-        setHardCapError(false)
-      }
-  }
-  const checkminimum = () => {
-      if(minimum.trim() === ''){
-        setMinimumError(true)
-      }
-      else{
-        setMinimumError(false)
-      }
-  }
-  const checkmaximum = () => {
-      if(maximum.trim() === ''){
-        setMaximumError(true)
-      }
-      else{
-        setMaximumError(false)
-      }
-  }
-  const checkliquidity = () => {
-      if(liquidity.trim() === ''){
-        setLiquidityError(true)
-      }
-      else{
-        setLiquidityError(false)
-      }
-  }
-  const checklpTokensDurationInDays = () => {
-    if(liquidity.trim() === ''){
-      setLpTokensDurationInDaysError(true)
+        if (softCap.trim() === '') {
+            setSoftCapError(true)
+        } else {
+            setSoftCapError(false)
+        }
     }
-    else{
-      setLpTokensDurationInDaysError(false)
+    const checkhardCap = () => {
+        if (hardCap.trim() === '') {
+            setHardCapError(true)
+        } else {
+            setHardCapError(false)
+        }
     }
-  }
-  const checklistingPrice = () => {
-      if(listingPrice.trim() === ''){
-        setListingPriceError(true)
-      }
-      else{
-        setListingPriceError(false)
-      }
-  }
-  const checkliquidityLockup = () => {
-      if(liquidityLockup.trim() === ''){
-        setLiquidityLockupError(true)
-      }
-      else{
-        setLiquidityLockupError(false)
-      }
-  }
-  const checkstartTime = () => {
-      if(startTime.trim() === ''){
-        setStartTimeError(true)
-      }
-      else{
-        setStartTimeError(false)
-      }
-  }
-  
-  const reg_expression = /^(0x)?[0-9a-f]{40}$/;
-  const reg_for_positive = /^[+]?\d*(?:[.,]\d*)?$/;
+    const checkminimum = () => {
+        if (minimum.trim() === '') {
+            setMinimumError(true)
+        } else {
+            setMinimumError(false)
+        }
+    }
+    const checkmaximum = () => {
+        if (maximum.trim() === '') {
+            setMaximumError(true)
+        } else {
+            setMaximumError(false)
+        }
+    }
+    const checkliquidity = () => {
+        if (liquidity.trim() === '') {
+            setLiquidityError(true)
+        } else {
+            setLiquidityError(false)
+        }
+    }
+    const checklpTokensDurationInDays = () => {
+        if (liquidity.trim() === '') {
+            setLpTokensDurationInDaysError(true)
+        } else {
+            setLpTokensDurationInDaysError(false)
+        }
+    }
+    const checklistingPrice = () => {
+        if (listingPrice.trim() === '') {
+            setListingPriceError(true)
+        } else {
+            setListingPriceError(false)
+        }
+    }
+    const checkliquidityLockup = () => {
+        if (liquidityLockup.trim() === '') {
+            setLiquidityLockupError(true)
+        } else {
+            setLiquidityLockupError(false)
+        }
+    }
+    const checkstartTime = () => {
+        if (startTime.trim() === '') {
+            setStartTimeError(true)
+        } else {
+            setStartTimeError(false)
+        }
+    }
+
+    const reg_expression = /^(0x)?[0-9a-f]{40}$/
+    const reg_for_positive = /^[+]?\d*(?:[.,]\d*)?$/
 
     const getTupleSet = async () => {
         if (!investmentFactoryContract) {
@@ -178,40 +169,40 @@ const LaunchPad = () => {
         // socialTuple = JSON.stringify(socialTuple) */
 
         let tokensTuple = {
-            "tokenAddress":  tokenAddress, //"0x6cf427249491dD807C4b0fa378AbAd082a4e0A81",
-            "unsoldTokensDumpAddress":"0x000000000000000000000000000000000000dEaD",
-            "whitelistedAddresses":[],
-            "tokenPriceInWei":ethers.utils.parseUnits(tokenPrice,18).toString() ,
-            "hardCapInWei":ethers.utils.parseUnits(hardCap, 18).toString(),
-            "softCapInWei":ethers.utils.parseUnits(softCap, 18).toString(),
-            "maxInvestInWei":ethers.utils.parseUnits(maximum, 18).toString(),
-            "minInvestInWei": ethers.utils.parseUnits(minimum,18).toString(),
-            "openTime":moment(startTime).unix().toString(),
-            "closeTime":moment(endTime).unix().toString()}
-        let infoTuple ={
-            "listingPriceInWei":ethers.utils.parseUnits(listingPrice,18).toString(),
-            "liquidityAddingTime":moment(liquidityLockup).unix().toString(),
-            "lpTokensLockDurationInDays":lpTokensDurationInDays,
-            "liquidityPercentageAllocation":liquidity 
+            tokenAddress: tokenAddress, //"0x6cf427249491dD807C4b0fa378AbAd082a4e0A81",
+            unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dEaD',
+            whitelistedAddresses: [],
+            tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
+            hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
+            softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
+            maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
+            minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
+            openTime: moment(startTime).unix().toString(),
+            closeTime: moment(endTime).unix().toString()
         }
-       let socialTuple ={
-           "saleTitle" : bytes32({ input: saleTitle, ignoreLength: true }).toLowerCase(),
-           "linkTelegram":bytes32({ input: telegramLink, ignoreLength: true }).toLowerCase(),
-           "linkDiscord":bytes32({ input: discord, ignoreLength: true }).toLowerCase(),
-           "linkTwitter":bytes32({ input: twitter, ignoreLength: true }).toLowerCase(),
-           "linkWebsite":bytes32({ input: website, ignoreLength: true }).toLowerCase()}
+        let infoTuple = {
+            listingPriceInWei: ethers.utils.parseUnits(listingPrice, 18).toString(),
+            liquidityAddingTime: moment(liquidityLockup).unix().toString(),
+            lpTokensLockDurationInDays: lpTokensDurationInDays,
+            liquidityPercentageAllocation: liquidity
+        }
+        let socialTuple = {
+            saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
+            linkTelegram: bytes32({input: telegramLink, ignoreLength: true}).toLowerCase(),
+            linkDiscord: bytes32({input: discord, ignoreLength: true}).toLowerCase(),
+            linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
+            linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
+        }
 
         // const sss = await investmentFactoryContract.SAFU()
         try {
             const createPresale = await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
-            
+
             await createPresale.wait()
 
             const owner = await investmentFactoryContract.owner()
             console.log(owner.toString())
             //console.log(investmentFactoryContract)
-
-            
         } catch (e) {
             alert(e.message)
         }
@@ -241,10 +232,8 @@ const LaunchPad = () => {
     }
 
     const scrollToStepThree = () => {
-        setTimeout(
-        document.getElementById("stepThree").scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start' })
-        , 1000);
-      }
+        document.getElementById("scrollIntoIssue").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+    }
 
     return (
         <Container>
@@ -406,7 +395,7 @@ const LaunchPad = () => {
                                                     onBlur={checkhardCap}
                                                 />
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
-                                               {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
+                                                {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Minimum Purchase/Buyer (BNB)</Label>
@@ -497,16 +486,16 @@ const LaunchPad = () => {
                                             <CustomCol lg={6}>
                                                 <Label>End Time (LocalTime)</Label>
                                                 <DateTimePicker onChange={setEndTime} value={endTime} />
-                                                <br/>
-                                               {endTime < startTime &&  <Alblur>End Time need to be greater then Start Time</Alblur>}
+                                                <br />
+                                                {endTime < startTime && <Alblur>End Time need to be greater then Start Time</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Liquidity lockup (second)</Label>
                                                 <div>
                                                     {/* <InputText value={liquidityLockup} onChange={(e)=>{setLiquidityLockup(e.target.value)}}  */}
                                                     <DateTimePicker value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
-                                                    <br/>
-                                                    {liquidityLockup < endTime &&  <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
+                                                    <br />
+                                                    {liquidityLockup < endTime && <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
                                                 </div>
                                                 {liquidityLockupError && <Alblur>LockUp Time must be {'>'} 5 Seconds</Alblur>}
                                             </CustomCol>
@@ -533,8 +522,10 @@ const LaunchPad = () => {
                                         </Back>
                                         <Next
                                             onClick={() => {
-                                                setStepTwo(false)
+                                                // setStepTwo(false)
                                                 setStepThree(true)
+                                                scrollToStepThree()
+
                                             }}>
                                             Next
                                         </Next>
@@ -543,7 +534,7 @@ const LaunchPad = () => {
                             )}
                         </Item>
                         <Line></Line>
-                        <Item>
+                        <Item id="scrollIntoIssue">
                             <StepperHead onClick={() => toggle(3)}>
                                 <Step>3</Step>Add your project details
                             </StepperHead>
