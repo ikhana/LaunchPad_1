@@ -156,6 +156,7 @@ const PreSaleDetail = () => {
                     Total Invested Amount in BNB: <Content>{totalInvestedAmount?.toString()}</Content>
                 </Column>
             </Row>
+            <Spacer />
             <Row>
                 <Column lg={6}>
                     Opening Time:<Content>{openTime?.toString()}</Content>
@@ -165,7 +166,7 @@ const PreSaleDetail = () => {
                 </Column>
             </Row>
             <Spacer />
-            {false && <>
+             <>
                 <Spacer />
                 <Row>
                     <Flexed lg={10}>
@@ -180,12 +181,13 @@ const PreSaleDetail = () => {
                         </ButtonContainer>
                         <SecondButtonContainer>
                             <Button1 onClick={claimTokens}>Claim Token</Button1>
+                            <Button1 onClick={logGet}>Add Liquidity</Button1>
                             <Button1 onClick={logGet}>Read Info</Button1>
                         </SecondButtonContainer>
                     </Flexed>
                 </Row>
                 </>
-            }
+            
             
             <Spacer />
         </Wrapper>
@@ -270,7 +272,7 @@ const Button1 = styled.a`
     border-radius: 0.4rem;
     border: none;
     font-size: 1rem;
-    margin: 0rem 3rem 1rem 0rem;
+    margin: 0rem 4.5rem 1rem 0rem;
     text-decoration: none;
     cursor:pointer;
     &:hover {
