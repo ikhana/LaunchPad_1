@@ -42,6 +42,7 @@ const LaunchPad = () => {
     const [startTimeError, setStartTimeError] = useState(false)
     const [saleTitle, setSaleTitle] = useState('')
     const [telegramLink, setTelegramLink] = useState('')
+    const [totalInvestes, setTotalInvesters] = useState()
     const [discord, setDiscord] = useState('')
     const [twitter, setTwitter] = useState('')
     const [website, setWebsite] = useState('')
@@ -135,41 +136,10 @@ const LaunchPad = () => {
         if (!investmentFactoryContract) {
             alert('Please connect to chain id 97')
         }
-        //const unsoldTokensDumpAddress = "0x000000000000000000000000000000000000dEaD"
-        /*let tokensTuple = {
-           
-        }
-       tokensTuple.tokenAddress = '0xbd1EB6a307839a573702C86fA3b91ac8e46042B2'.toLowerCase()
-        tokensTuple.unsoldTokensDumpAddress = '0x000000000000000000000000000000000000dead'.toLowerCase()
-        tokensTuple.whitelistedAddresses = []
-        tokensTuple.tokenPriceInWei = ethers.utils.parseUnits(tokenPrice,18).toString()   //'100000000000000000'
-        tokensTuple.hardCapInWei = ethers.utils.parseUnits(hardCap, 18).toString()//'2000000000000000000'
-        tokensTuple.softCapInWei = ethers.utils.parseUnits(softCap, 18).toString()//'500000000000000000'
-        tokensTuple.maxInvestInWei = ethers.utils.parseUnits(maximum, 18).toString()//'500000000000000000'
-        tokensTuple.minInvestInWei = ethers.utils.parseUnits(minimum,18).toString()//'100000000000000000'
-        tokensTuple.openTime = moment(startTime).unix().toString() //'1649991923'
-        tokensTuple.closeTime = moment(endTime).unix().toString()//'1650027923'
-
-        // tokensTuple = JSON.parse(tokensTuple)
-        console.log(tokensTuple)
-
-        let infoTuple = {}
-        infoTuple.listingPriceInWei = ethers.utils.parseUnits(listingPrice,18).toString()//'110000000000000000'
-        infoTuple.liquidityAddingTime =  moment(liquidityLockup).unix().toString()//'1650031523'
-        infoTuple.lpTokensLockDurationInDays = lpTokensDurationInDays//'10'
-        infoTuple.liquidityPercentageAllocation = liquidity //'99'
-        // infoTuple = JSON.stringify(infoTuple)
-
-        let socialTuple = {}
-        socialTuple.saleTitle = bytes32({ input: saleTitle, ignoreLength: true }).toLowerCase()
-        socialTuple.linkTelegram = bytes32({ input: telegramLink, ignoreLength: true }).toLowerCase()
-        socialTuple.linkDiscord = bytes32({ input: discord, ignoreLength: true }).toLowerCase()
-        socialTuple.linkTwitter = bytes32({ input: twitter, ignoreLength: true }).toLowerCase()
-        socialTuple.linkWebsite = bytes32({ input: website, ignoreLength: true }).toLowerCase()
-        // socialTuple = JSON.stringify(socialTuple) */
+      
 
         let tokensTuple = {
-            tokenAddress: tokenAddress, //"0x6cf427249491dD807C4b0fa378AbAd082a4e0A81",
+            tokenAddress: tokenAddress, 
             unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dEaD',
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),

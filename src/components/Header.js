@@ -83,7 +83,7 @@ const Header = (props) => {
             const address = await signer.getAddress()
             const chainId = await signer.getChainId()
 
-            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer)
+            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer )
             const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
             const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
 
@@ -212,6 +212,7 @@ const Button = styled.div`
     font-size: 0.7rem;
     text-align: center;
     margin: 0rem 0.5rem;
+    cursor:pointer;
     &:hover {
         background: #05b5cc;
     }

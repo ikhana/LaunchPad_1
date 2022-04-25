@@ -9,6 +9,7 @@ import {getLocal} from 'web3modal'
 
 const PreSaleDetail = () => {
     const investementPreSale = useSelector((state) => state.auth.investementPreSale)
+    
 
     const [hardCapInWei, setHardCapInWei] = useState()
     const [softCapInWei, setSoftCapInWei] = useState()
@@ -21,6 +22,8 @@ const PreSaleDetail = () => {
     const [discordLink, setDiscordLink] = useState()
     const [webisteLink, setWebsiteLink] = useState('')
     const [investAmount, setInvestAmount] = useState('')
+    const [investerCount, setInvesterCount] = useState('')
+    const  [totalInvestedAmount, setTotalInvestment] = useState('')
 
     const logGet = async () => {
         if (!investementPreSale) {
@@ -30,13 +33,27 @@ const PreSaleDetail = () => {
         //setDevFeeInWie(await investementPreSale.getMinDevFeeInWei())
         //const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
         const hardCapInWei = await investementPreSale.hardCapInWei()
+        const softCapInWei = await investementPreSale.softCapInWei()
+        const maxInvestInWei = await investementPreSale.maxInvestInWei()
+        const minInvestInWei = await investementPreSale.minInvestInWei()
+        const totalCollectedWei = await investementPreSale.totalCollectedWei()
+        const startTime = await investementPreSale.openTime()
+        const endTime = await investementPreSale.closeTime()
+        setInvesterCount(await investementPreSale.totalInvestorsCount())
+  
+        const startDate = new Date(startTime*1000);
+        const endDate = new Date(endTime*1000);
+        
+
 
         setHardCapInWei(ethers.utils.formatEther(hardCapInWei))
-        setSoftCapInWei(await investementPreSale.softCapInWei())
-        setCloseTime(await investementPreSale.closeTime())
-        setOpneTime(await investementPreSale.openTime())
-        setMaxInvestInWei(await investementPreSale.maxInvestInWei())
-        setMinInvetsInWei(await investementPreSale.minInvestInWei())
+        setSoftCapInWei(ethers.utils.formatEther(softCapInWei))
+        setCloseTime(endDate)
+        setOpneTime(startDate)
+        setMaxInvestInWei(ethers.utils.formatEther(maxInvestInWei))
+        setMinInvetsInWei(ethers.utils.formatEther(minInvestInWei))
+        setTotalInvestment(ethers.utils.formatEther(totalCollectedWei))
+
 
         const telegramBytes = await investementPreSale.linkTelegram()
         const twitterBytes = await investementPreSale.linkTwitter()
@@ -47,12 +64,7 @@ const PreSaleDetail = () => {
         setDiscordLink(ethers.utils.parseBytes32String(discordBytes))
         setWebsiteLink(ethers.utils.parseBytes32String(websiteBytes))
 
-        /*setSoicalProfile(/*socialProfile.telegramLink = await investementPreSale.linkTelegram(),
-      ethers.utils.parseBytes32String(bytes32),
-      socialProfile.TwitterLink = await ethers.utils.parseBytes32String(investementPreSale.) ,
-      socialProfile.discordLink= await investementPreSale.linkDiscord(),
-      socialProfile.websiteLink = await investementPreSale.linkWebsite()
-      )*/
+  
 
         try {
             console.log('hard cap=>', hardCapInWei.toString(), 'softcap', softCapInWei.toString(), 'close Time', closeTime.toString(), 'open time', openTime.toString(), 'MaxInvest', maxInvestInWei.toString(), 'telegram bytes', telegramBytes, 'and telegram link', telegramLink, 'discordbytes', discordBytes, 'discord Link', discordLink, 'twitterBytes', twitterBytes, 'websiteBytes', websiteBytes, 'website Link', webisteLink)
@@ -62,6 +74,9 @@ const PreSaleDetail = () => {
     }
 
     const investIn = async () => {
+        if (!investAmount) {
+            alert('Please enter the amount for investment')
+        }
         try {
             const investTx = await investementPreSale.invest({value: ethers.utils.parseEther(investAmount)})
             await investTx.wait()
@@ -89,14 +104,14 @@ const PreSaleDetail = () => {
             <Spacer />
             <Row>
                 <Label lg={4}>
-                    Social Profile: <Content>{hardCapInWei?.toString()}</Content>
+                    Social Profile:
                 </Label>
                 <Column lg={8}>
 
-                    <a href={webisteLink}> <Icon src="/images/discord.svg" /></a>
+                    <a href={webisteLink}> <Icon src="/images/discord.svg" target="_blank" rel="noopener noreferrer"/></a>
                     <a href={webisteLink}> <Icon src="/images/telegram.svg" /></a>
                     <a href={webisteLink}> <Icon  src="/images/twitter.png" /></a>
-                    <Link to={{ pathname: webisteLink }} target="_blank" ><Icon src="/images/discord.svg" /></Link>
+                 
                     
                        
                    
@@ -117,48 +132,61 @@ const PreSaleDetail = () => {
 
             <Row>
                 <Column lg={6}>
-                    Maximum Invest per Address: <Content>{maxInvestInWei?.toString()}</Content>
+                    Maximum Invest per Address (BNB): <Content>{maxInvestInWei?.toString()}</Content>
                 </Column>
                 <Column lg={6}>
-                    Minimum Invest per Address: <Content>{minInvestInWei?.toString()}</Content>
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={6}>
-                    Maximum Capital: <Content>{hardCapInWei?.toString()}</Content>
-                </Column>
-                <Column lg={6}>
-                    Minimum Capital:<Content> {softCapInWei?.toString()}</Content>
+                    Minimum Invest per Address (BNB): <Content>{minInvestInWei?.toString()}</Content>
                 </Column>
             </Row>
             <Spacer />
             <Row>
                 <Column lg={6}>
-                    Start Time:<Content>{openTime?.toString()}</Content>
+                    Maximum Capital (BNB): <Content>{hardCapInWei?.toString()}</Content>
+                </Column>
+                <Column lg={6}>
+                    Minimum Capital (BNB):<Content> {softCapInWei?.toString()}</Content>
+                </Column>
+            </Row>
+            <Spacer />
+            <Row>
+                <Column lg={6}>
+                    Total Investors :<Content>{investerCount?.toString()}</Content>
+                </Column>
+                <Column lg={6}>
+                    Total Invested Amount in BNB: <Content>{totalInvestedAmount?.toString()}</Content>
+                </Column>
+            </Row>
+            <Row>
+                <Column lg={6}>
+                    Opening Time:<Content>{openTime?.toString()}</Content>
                 </Column>
                 <Column lg={6}>
                     End Time: <Content>{closeTime?.toString()}</Content>
                 </Column>
             </Row>
             <Spacer />
-            <Row>
-                <Flexed lg={10}>
-                    <ButtonContainer>
-                        <Button onClick={investIn}>Invest</Button>
-                        <InputText
-                            value={investAmount.toString()}
-                            onChange={(e) => {
-                                setInvestAmount(e.target.value)
-                            }}
-                        />
-                    </ButtonContainer>
-                    <SecondButtonContainer>
-                        <Button1 onClick={claimTokens}>Claim Token</Button1>
-                        <Button1 onClick={logGet}>Read Info</Button1>
-                    </SecondButtonContainer>
-                </Flexed>
-            </Row>
+            {false && <>
+                <Spacer />
+                <Row>
+                    <Flexed lg={10}>
+                        <ButtonContainer>
+                            <Button onClick={investIn}>Invest</Button>
+                            <InputText
+                                value={investAmount.toString()}
+                                onChange={(e) => {
+                                    setInvestAmount(e.target.value)
+                                }}
+                            />
+                        </ButtonContainer>
+                        <SecondButtonContainer>
+                            <Button1 onClick={claimTokens}>Claim Token</Button1>
+                            <Button1 onClick={logGet}>Read Info</Button1>
+                        </SecondButtonContainer>
+                    </Flexed>
+                </Row>
+                </>
+            }
+            
             <Spacer />
         </Wrapper>
     )
@@ -226,14 +254,15 @@ const Button = styled.a`
     border-radius: 0.4rem;
     border: none;
     font-size: 1rem;
-    margin: 0rem 0.5rem 1rem 0;
+    margin: 0rem 1rem 1rem 0;
     text-decoration: none;
+    cursor:pointer;
     &:hover {
         background: #05b5cc;
     }
 `
 const Button1 = styled.a`
-    width: 7rem;
+    width: 6.5rem;
     text-align: center;
     padding: 0.5rem;
     background: #00bcd4;
@@ -241,8 +270,9 @@ const Button1 = styled.a`
     border-radius: 0.4rem;
     border: none;
     font-size: 1rem;
-    margin: 0rem 3.5rem 1rem 0rem;
+    margin: 0rem 3rem 1rem 0rem;
     text-decoration: none;
+    cursor:pointer;
     &:hover {
         background: #05b5cc;
     }
