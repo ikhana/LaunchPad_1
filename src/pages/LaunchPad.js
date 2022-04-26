@@ -201,8 +201,18 @@ const LaunchPad = () => {
         }
     }
 
-    const scrollToStepThree = () => {
-        document.getElementById("scrollIntoIssue").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+    const scrollToStepFirst = () => {
+        document.getElementById("firstStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+    }
+
+    const scrollToStepSecond = () => {
+       var elementPosition = document.getElementById('id').offsetTop;
+       debugger
+        document.getElementById("secondStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+    }
+
+    const scrollToStepThird = () => {
+        document.getElementById("thirdStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
     }
 
     return (
@@ -248,6 +258,7 @@ const LaunchPad = () => {
                     <Button
                         onClick={() => {
                             setStepOne(true)
+                            scrollToStepFirst()
                         }}>
                         Begin
                     </Button>
@@ -257,7 +268,7 @@ const LaunchPad = () => {
             <Row>
                 <Col lg={8} offset={2}>
                     <Stepper>
-                        <Item>
+                    <Item id="firstStep">
                             <StepperHead onClick={() => toggle(1)}>
                                 <Step>1</Step>Add Token Address
                             </StepperHead>
@@ -283,6 +294,7 @@ const LaunchPad = () => {
                                             onClick={() => {
                                                 setStepOne(false)
                                                 setStepTwo(true)
+                                                scrollToStepSecond()
                                             }}>
                                             Next
                                         </Next>
@@ -291,7 +303,7 @@ const LaunchPad = () => {
                             )}
                         </Item>
                         <Line></Line>
-                        <Item>
+                        <Item id="secondStep">
                             <StepperHead onClick={() => toggle(2)}>
                                 <Step>2</Step>Defi Launchpad Info
                             </StepperHead>
@@ -300,19 +312,7 @@ const LaunchPad = () => {
                                     <Container>
                                         <Row>
                                             <CustomCol lg={12}>
-                                                <Label>Presale Price</Label>
-                                                <InputText
-                                                    value={presalePrice}
-                                                    type="number"
-                                                    min="0"
-                                                    step="1"
-                                                    pattern="\d+"
-                                                    onChange={(e) => {
-                                                        setPresalePrice(e.target.value)
-                                                    }}
-                                                    onBlur={checktokenPrice}
-                                                />
-                                                {presalePrice && reg_for_positive.test(presalePrice) == false && <Alblur>Presale Price must be Positive Number</Alblur>}
+                                             
                                                 <Label>Token Price</Label>
                                                 <InputText
                                                     value={tokenPrice}
@@ -327,14 +327,6 @@ const LaunchPad = () => {
                                                 />
                                                 {tokenPrice && reg_for_positive.test(tokenPrice) === false && <Alblur>Token Price must be Positive Number</Alblur>}
                                             </CustomCol>
-                                            <CustomCol lg={12}>
-                                                <Label>WhiteList</Label>
-                                                <input type="radio" id="Enable" name="drone" value="Enable" checked />
-                                                <label for="huey">Enable</label>
-                                                <input type="radio" id="Disable" name="drone" value="Disable" />
-                                                <label for="dewey">Disable</label> <Text>You can Enable/Disable Whitelist</Text>
-                                            </CustomCol>
-
                                             <CustomCol lg={6}>
                                                 <Label>Softcap</Label>
                                                 <InputText
@@ -398,15 +390,7 @@ const LaunchPad = () => {
                                                 {maximum && reg_for_positive.test(maximum) == false && <Alblur>Maximum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
-                                                <Label>Router</Label>
-                                                <Select
-                                                    value={name}
-                                                    onChange={(e) => {
-                                                        setName(e.target.value)
-                                                    }}>
-                                                    <option value="Pancakeswap">Pancakeswap</option>
-                                                    <option value="SSSTestnetSwap">SSSTestnetSwap</option>
-                                                </Select>
+                                              
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>{name + 'Liquidity (%)'} </Label>
@@ -485,6 +469,7 @@ const LaunchPad = () => {
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
+                                                scrollToStepFirst()
                                                 setStepOne(true)
                                                 setStepTwo(false)
                                             }}>
@@ -492,10 +477,9 @@ const LaunchPad = () => {
                                         </Back>
                                         <Next
                                             onClick={() => {
-                                                // setStepTwo(false)
+                                                setStepTwo(false)
                                                 setStepThree(true)
-                                                scrollToStepThree()
-
+                                                scrollToStepThird()
                                             }}>
                                             Next
                                         </Next>
@@ -504,7 +488,7 @@ const LaunchPad = () => {
                             )}
                         </Item>
                         <Line></Line>
-                        <Item id="scrollIntoIssue">
+                        <Item id="thirdStep">
                             <StepperHead onClick={() => toggle(3)}>
                                 <Step>3</Step>Add your project details
                             </StepperHead>
@@ -562,6 +546,7 @@ const LaunchPad = () => {
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
+                                                scrollToStepSecond()
                                                 setStepTwo(true)
                                                 setStepThree(false)
                                             }}>
@@ -591,8 +576,9 @@ const LaunchPad = () => {
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
-                                                setStepThree(true)
-                                                setStepFour(false)
+                                                scrollToStepThird();
+                                                setStepThree(true);
+                                                setStepFour(false);
                                             }}>
                                             Back
                                         </Back>

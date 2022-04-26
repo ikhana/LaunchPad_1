@@ -87,15 +87,15 @@ const Header = (props) => {
             const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
             const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
 
-            const   hardCapInWei = await investementPreSale.hardCapInWei()
+           // const   hardCapInWei = await investementPreSale.hardCapInWei()
 
-            try {
+          /*  try {
                 console.log('first Read from the investment contract =>',  hardCapInWei.toString() )
                 
             } catch (error) {
                 console.log(error)
                 
-            }
+            }*/
        // console.log(investmentFactoryRead.address)
        if (chainId.toString() == '97') {
                 const isConnected = Boolean(provider && signer)

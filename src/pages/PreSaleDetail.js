@@ -74,9 +74,13 @@ const PreSaleDetail = () => {
     }
 
     const investIn = async () => {
-        if (!investAmount) {
-            alert('Please enter the amount for investment')
+        if(!investementPreSale){
+            alert("please connect your wallet")
+            if (!investAmount) {
+                alert('Please enter the amount for investment')
+            }
         }
+      
         try {
             const investTx = await investementPreSale.invest({value: ethers.utils.parseEther(investAmount)})
             await investTx.wait()
@@ -84,12 +88,63 @@ const PreSaleDetail = () => {
             alert(error.data.message)
         }
     }
+
+    const addLiquidityAndLockLPTokens = async () => {
+
+        try {
+            const addLiquidityAndLockLPTokensTx = await investementPreSale.addLiquidityAndLockLPTokens()
+        await addLiquidityAndLockLPTokensTx.wait()
+            
+        } catch (lolo) {
+            alert(lolo.data.message)
+            
+        }
+        
+    }
     const claimTokens = async () => {
         try {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
             alert(error.data.message)
+        }
+    }
+
+    const cancelAndTransferTokensToPresaleCreator = async () =>{
+        try {
+            const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
+            await cancelAndTransferTokensToPresaleCreatorTx.wait()
+
+            
+        } catch (lolo) {
+            alert(lolo.data.message)
+
+            
+        }
+       
+    }
+
+    const collectFundsRaised = async()=>{
+        try {
+
+            const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
+             await collectFundsRaisedTx.wait()
+            
+        } catch (lolo) {
+            alert(lolo.data.message)
+            
+        }
+    }
+
+    const getRefund = async() =>{
+        try {
+
+           const getRefundTx = await investementPreSale.getRefund()
+           await getRefundTx.wait() 
+            
+        } catch (lolo) {
+            alert(lolo.data.message)
+            
         }
     }
 
@@ -108,7 +163,7 @@ const PreSaleDetail = () => {
                 </Label>
                 <Column lg={8}>
 
-                    <a href={webisteLink}> <Icon src="/images/discord.svg" target="_blank" rel="noopener noreferrer"/></a>
+                    <a href={webisteLink}  target="_blank" rel="noopener noreferrer"> <Icon src="/images/discord.svg"/></a>
                     <a href={webisteLink}> <Icon src="/images/telegram.svg" /></a>
                     <a href={webisteLink}> <Icon  src="/images/twitter.png" /></a>
                  
@@ -180,9 +235,12 @@ const PreSaleDetail = () => {
                             />
                         </ButtonContainer>
                         <SecondButtonContainer>
+                        <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
                             <Button1 onClick={claimTokens}>Claim Token</Button1>
-                            <Button1 onClick={logGet}>Add Liquidity</Button1>
+                            <Button onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button>
                             <Button1 onClick={logGet}>Read Info</Button1>
+                            <Button1 onClick={collectFundsRaised}> Collect Fund Raised</Button1>
+                            <Button1 onClick={getRefund}> Get Refund</Button1>
                         </SecondButtonContainer>
                     </Flexed>
                 </Row>
