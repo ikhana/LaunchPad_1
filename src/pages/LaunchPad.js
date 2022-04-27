@@ -14,7 +14,9 @@ const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
     const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
-    const [tokenAddress, setTokenAddess] = useState('')
+    const [tokenAddress, setTokenAddress] = useState('')
+    const [tokenAddressError, setTokenAddressError] = useState('false')
+    const [activeStep, setActiveStep] = useState(0)
     const [stepOne, setStepOne] = useState(false)
     const [stepTwo, setStepTwo] = useState(false)
     const [stepThree, setStepThree] = useState(false)
@@ -46,6 +48,12 @@ const LaunchPad = () => {
     const [discord, setDiscord] = useState('')
     const [twitter, setTwitter] = useState('')
     const [website, setWebsite] = useState('')
+
+    const [saleTitleError, setSaleTitleError] = useState(false)
+    const [telegramLinkError, setTelegramLinkError] = useState(false)
+    const [discordError, setDiscordError] = useState(false)
+    const [twitterError, setTwitterError] = useState(false)
+    const [websiteError, setWebsiteError] = useState(false)
 
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
@@ -202,18 +210,139 @@ const LaunchPad = () => {
     }
 
     const scrollToStepFirst = () => {
-        document.getElementById("firstStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+        setTimeout(scrollFirst, 100);
     }
 
     const scrollToStepSecond = () => {
-       var elementPosition = document.getElementById('id').offsetTop;
-       debugger
-        document.getElementById("secondStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+        setTimeout(scrollSecond, 100);
     }
 
     const scrollToStepThird = () => {
-        document.getElementById("thirdStep").scrollIntoView({behavior: "smooth", block: "start", inline: "start"})
+        setTimeout(scrollThird, 100);
     }
+
+
+
+const scrollFirst = () =>{
+    document.getElementById('firstStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
+}
+const scrollSecond = () =>{
+    document.getElementById('secondStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
+}
+const scrollThird = () =>{
+    document.getElementById('thirdStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
+}
+
+
+const stepTwoValiation = () => {
+    let _isValid = true;
+    
+        if (tokenPrice.trim() == '') {
+            _isValid = false;
+            settokenPriceError(true)
+        } else {
+            settokenPriceError(false)
+        }
+        if (softCap.trim() == '') {
+            _isValid = false;
+            setSoftCapError(true)
+        } else {
+            setSoftCapError(false)
+        }
+        if (hardCap.trim() == '') {
+            _isValid = false;
+            setHardCapError(true)
+        } else {
+            setHardCapError(false)
+        }
+        if (minimum.trim() == '') {
+            _isValid = false;
+            setMinimumError(true)
+        } else {
+            setMinimumError(false)
+        }
+        if (maximum.trim() == '') {
+            _isValid = false;
+            setMaximumError(true)
+        } else {
+            setMaximumError(false)
+        }
+        if (liquidity.trim() == '') {
+            _isValid = false;
+            setLiquidityError(true)
+        } else {
+            setLiquidityError(false)
+        }
+        if (listingPrice.trim() == '') {
+            _isValid = false;
+            setListingPriceError(true)
+        } else {
+            setListingPriceError(false)
+        }
+        if (liquidityLockup.trim() == '') {
+            _isValid = false;
+            setLiquidityLockupError(true)
+        } else {
+            setLiquidityLockupError(false)
+        }
+        if (lpTokensDurationInDays.trim() == '') {
+            _isValid = false;
+            setLpTokensDurationInDaysError(true)
+        } else {
+            setLpTokensDurationInDaysError(false)
+        }
+        if (startTime.trim() == '') {
+            _isValid = false;
+            setStartTimeError(true)
+        } else {
+            setStartTimeError(false)
+        }
+        if (endTime.trim() == '') {
+            _isValid = false;
+            setEndTimeError(true)
+        } else {
+            setEndTimeError(false)
+        }
+    
+        return _isValid
+    }
+
+const socialValiation = () => {
+let _isValid = true;
+
+    if (saleTitle.trim() == '') {
+        _isValid = false;
+        setSaleTitleError(true)
+    } else {
+        setSaleTitleError(false)
+    }
+    if (telegramLink.trim() == '') {
+        _isValid = false;
+        setTelegramLinkError(true)
+    } else {
+        setTelegramLinkError(false)
+    }
+    if (discord.trim() == '') {
+        _isValid = false;
+        setDiscordError(true)
+    } else {
+        setDiscordError(false)
+    }
+    if (twitter.trim() == '') {
+        _isValid = false;
+        setTwitterError(true)
+    } else {
+        setTwitterError(false)
+    }
+    if (website.trim() == '') {
+        _isValid = false;
+        setWebsiteError(true)
+    } else {
+        setWebsiteError(false)
+    }
+
+    return _isValid
+}
 
     return (
         <Container>
@@ -225,28 +354,28 @@ const LaunchPad = () => {
                 </Col>
                 <CardCol lg={3}>
                     <List>
-                        <Card active={stepOne}>
+                        <Card active={activeStep > 0 || activeStep > 4}>
                             <CardHeading>Add Token Address</CardHeading>
                         </Card>
                     </List>
                 </CardCol>
                 <CardCol lg={3}>
                     <List>
-                        <Card active={stepTwo}>
+                        <Card active={activeStep > 1 || activeStep > 4}>
                             <CardHeading>Defi Launchpad Info</CardHeading>
                         </Card>
                     </List>
                 </CardCol>
                 <CardCol lg={3}>
                     <List>
-                        <Card active={stepThree}>
+                        <Card active={activeStep > 2 || activeStep > 4}>
                             <CardHeading>Add Additional Info </CardHeading>
                         </Card>
                     </List>
                 </CardCol>
                 <CardCol lg={3}>
                     <List>
-                        <Card active={stepFour}>
+                        <Card active={activeStep > 3 || activeStep > 4} >
                             <CardHeading>Finish and Review your information</CardHeading>
                         </Card>
                     </List>
@@ -259,6 +388,7 @@ const LaunchPad = () => {
                         onClick={() => {
                             setStepOne(true)
                             scrollToStepFirst()
+                            setActiveStep(1)
                         }}>
                         Begin
                     </Button>
@@ -281,24 +411,33 @@ const LaunchPad = () => {
                                                 <InputText
                                                     value={tokenAddress}
                                                     onChange={(e) => {
-                                                        setTokenAddess(e.target.value.toLowerCase())
+                                                        setTokenAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
+                                                {tokenAddressError == true && tokenAddress.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
                                         </Row>
                                     </Container>
-                                    <StepperFooter>
+                                    {activeStep > 0 && <StepperFooter>
                                         <Next
                                             onClick={() => {
-                                                setStepOne(false)
-                                                setStepTwo(true)
-                                                scrollToStepSecond()
+                                                if(tokenAddress.trim() != "" && reg_expression.test(tokenAddress)){
+                                                    setTokenAddressError(false)
+                                                    setStepOne(false)
+                                                    setStepTwo(true)
+                                                    scrollToStepSecond()
+                                                    setActiveStep(2)
+                                                }
+                                                else{
+                                                    setTokenAddressError(true)
+                                                }
                                             }}>
                                             Next
                                         </Next>
                                     </StepperFooter>
+                                    }
                                 </StepperBody>
                             )}
                         </Item>
@@ -325,6 +464,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checkpresalePrice}
                                                 />
+                                                 {tokenPriceError == true && tokenPrice.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {tokenPrice && reg_for_positive.test(tokenPrice) === false && <Alblur>Token Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -340,6 +480,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checksoftCap}
                                                 />
+                                                 {softCapError == true && softCap.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
                                                 {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
                                             </CustomCol>
@@ -356,6 +497,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checkhardCap}
                                                 />
+                                                 {hardCapError == true && hardCap.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
                                                 {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
@@ -372,6 +514,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checkminimum}
                                                 />
+                                                {minimumError == true && minimum.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {minimum && reg_for_positive.test(minimum) == false && <Alblur>Minimum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -387,6 +530,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checkmaximum}
                                                 />
+                                                 {maximumError == true && maximum.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {maximum && reg_for_positive.test(maximum) == false && <Alblur>Maximum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -405,7 +549,8 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checkliquidity}
                                                 />
-                                                {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>}
+                                                     {liquidityError == true && liquidity.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                {/* {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>} */}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>{name + 'Listing Price'}</Label>
@@ -420,6 +565,7 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checklistingPrice}
                                                 />
+                                                 {listingPriceError == true && listingPrice.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {listingPriceError && <Alblur>Listing Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={12}>
@@ -433,13 +579,13 @@ const LaunchPad = () => {
                                                 <Label>Start Time (LocalTime)</Label>
                                                 {/*<InputText value={startTime} onChange={(e)=>{setStartTime(e.target.value)}} onBlur={checkstartTime}/>*/}
                                                 {/* <DateTimePicker onSelect={(e)=>{setStartTime(e.target.value)}}  value={startTime} /> */}
-                                                <DateTimePicker onChange={setStartTime} value={startTime} />
+                                                <InputDate onChange={setStartTime} value={startTime} />
 
                                                 {startTimeError && <Alblur>Start Time need to be Before End Time</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>End Time (LocalTime)</Label>
-                                                <DateTimePicker onChange={setEndTime} value={endTime} />
+                                                <InputDate onChange={setEndTime} value={endTime} />
                                                 <br />
                                                 {endTime < startTime && <Alblur>End Time need to be greater then Start Time</Alblur>}
                                             </CustomCol>
@@ -447,7 +593,7 @@ const LaunchPad = () => {
                                                 <Label>Liquidity lockup (second)</Label>
                                                 <div>
                                                     {/* <InputText value={liquidityLockup} onChange={(e)=>{setLiquidityLockup(e.target.value)}}  */}
-                                                    <DateTimePicker value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
+                                                    <InputDate value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
                                                     <br />
                                                     {liquidityLockup < endTime && <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
                                                 </div>
@@ -462,28 +608,37 @@ const LaunchPad = () => {
                                                     }}
                                                     onBlur={checklpTokensDurationInDays}
                                                 />
+                                                 {lpTokensDurationInDaysError == true && lpTokensDurationInDays.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
                                                 {lpTokensDurationInDaysError && <Alblur>Lock lpToken Duration must be {'>'} endTime</Alblur>}
                                             </CustomCol>
                                         </Row>
                                     </Container>
+                                    {activeStep > 1 &&
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
                                                 scrollToStepFirst()
                                                 setStepOne(true)
                                                 setStepTwo(false)
+                                                setActiveStep(1)
+                                               
                                             }}>
                                             Back
                                         </Back>
                                         <Next
                                             onClick={() => {
-                                                setStepTwo(false)
-                                                setStepThree(true)
-                                                scrollToStepThird()
+                                                if(stepTwoValiation())
+                                                {
+                                                    setStepTwo(false)
+                                                    setStepThree(true)
+                                                    scrollToStepThird()
+                                                    setActiveStep(3)
+                                                }
                                             }}>
                                             Next
                                         </Next>
                                     </StepperFooter>
+                                    }
                                 </StepperBody>
                             )}
                         </Item>
@@ -504,6 +659,7 @@ const LaunchPad = () => {
                                                         setSaleTitle(e.target.value)
                                                     }}
                                                 />
+                                                 {saleTitleError == true ? <Alblur>Please fill this field.</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Telegram Link</Label>
@@ -513,6 +669,7 @@ const LaunchPad = () => {
                                                         setTelegramLink(e.target.value)
                                                     }}
                                                 />
+                                                 {telegramLinkError == true ? <Alblur>Please fill this field.</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Discord </Label>
@@ -522,6 +679,7 @@ const LaunchPad = () => {
                                                         setDiscord(e.target.value)
                                                     }}
                                                 />
+                                                    {discordError == true ? <Alblur>Please fill this field.</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Twitter </Label>
@@ -531,6 +689,7 @@ const LaunchPad = () => {
                                                         setTwitter(e.target.value)
                                                     }}
                                                 />
+                                                  {twitterError == true ? <Alblur>Please fill this field.</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={12}>
                                                 <Label>Website</Label>
@@ -540,26 +699,32 @@ const LaunchPad = () => {
                                                         setWebsite(e.target.value)
                                                     }}
                                                 />
+                                                  {websiteError == true ? <Alblur>Please fill this field.</Alblur> :''}
                                             </CustomCol>
                                         </Row>
                                     </Container>
+                                    {activeStep > 2 &&
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
                                                 scrollToStepSecond()
                                                 setStepTwo(true)
                                                 setStepThree(false)
+                                                setActiveStep(2)
                                             }}>
                                             Back
                                         </Back>
                                         <Next
                                             onClick={() => {
-                                                setStepThree(false)
-                                                setStepFour(true)
+                                                if(socialValiation()){
+                                                    setStepThree(false)
+                                                    setStepFour(true)
+                                                    setActiveStep(4)
+                                                }
                                             }}>
                                             Next
                                         </Next>
-                                    </StepperFooter>
+                                    </StepperFooter>}
                                 </StepperBody>
                             )}
                         </Item>
@@ -573,12 +738,14 @@ const LaunchPad = () => {
                                     <Container>
                                         <Row></Row>
                                     </Container>
+                                    {activeStep > 3 &&
                                     <StepperFooter>
                                         <Back
                                             onClick={() => {
                                                 scrollToStepThird();
                                                 setStepThree(true);
                                                 setStepFour(false);
+                                                setActiveStep(3)
                                             }}>
                                             Back
                                         </Back>
@@ -586,10 +753,12 @@ const LaunchPad = () => {
                                             onClick={() => {
                                                 getTupleSet()
                                                 setStepFour(false)
+                                                setActiveStep(0)
                                             }}>
                                             Finish
                                         </Next>
                                     </StepperFooter>
+}
                                 </StepperBodyLast>
                             )}
                         </Item>
@@ -749,6 +918,18 @@ const InputText = styled.input`
     border: 0.09rem solid #e3e2e2;
     border-radius: 0.3rem;
     box-sizing: border-box;
+`
+const InputDate = styled(DateTimePicker)`
+    // outline:none;
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 0.2rem;
+    border: 0.09rem solid #e3e2e2;
+    border-radius: 0.3rem;
+    box-sizing: border-box;
+    & div{
+        border:0rem !important;
+    }
 `
 
 const Text = styled.p`

@@ -20,12 +20,14 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...state,
                 ...action.value,
-                shouldConnect: false
+                shouldConnect: false,
+                address: action.value.address
             }
         case types.DISCONNECTED_SUCCESS:
             return {
                 ...initialState
             }
+            
         default:
             return state
     }

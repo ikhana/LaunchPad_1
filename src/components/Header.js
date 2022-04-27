@@ -11,7 +11,7 @@ import { InvestementInfo } from '../config/contracts/InvetmentInfo'
 import { InvestementPreSale } from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
 import {bindActionCreators, compose} from 'redux'
-import {setConnected, setDisconnected} from '../actions/authActions'
+import {setConnected, setDisconnected } from '../actions/authActions'
 
 const Header = (props) => {
     const [open, setOpen] = useState(false)
@@ -81,6 +81,7 @@ const Header = (props) => {
             const provider = new ethers.providers.Web3Provider(web3)
             const signer = provider.getSigner()
             const address = await signer.getAddress()
+
             const chainId = await signer.getChainId()
 
             const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer )
@@ -227,7 +228,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
     setConnected: (data) => dispatch(setConnected(data)),
-    setDisconnected: (data) => dispatch(setDisconnected(data))
+    setDisconnected: (data) => dispatch(setDisconnected(data)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)

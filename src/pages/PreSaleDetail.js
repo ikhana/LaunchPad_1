@@ -6,11 +6,14 @@ import {useSelector} from 'react-redux'
 import {InvestementPreSale} from '../config/contracts/presaleInvest'
 import {ethers} from 'ethers'
 import {getLocal} from 'web3modal'
+import {connect} from 'react-redux'
+import axios from "axios"
+axios.defaults.headers.post["Content-Type"] = "application/json"
+axios.defaults.headers.post["Accept"] = "application/json"
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
 
-const PreSaleDetail = () => {
+const PreSaleDetail = ({address}) => {
     const investementPreSale = useSelector((state) => state.auth.investementPreSale)
-    
-
     const [hardCapInWei, setHardCapInWei] = useState()
     const [softCapInWei, setSoftCapInWei] = useState()
     const [closeTime, setCloseTime] = useState()
@@ -24,6 +27,8 @@ const PreSaleDetail = () => {
     const [investAmount, setInvestAmount] = useState('')
     const [investerCount, setInvesterCount] = useState('')
     const  [totalInvestedAmount, setTotalInvestment] = useState('')
+    const  [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
+    const  [match, setMatchg] = useState(false)
 
     const logGet = async () => {
         if (!investementPreSale) {
@@ -73,6 +78,14 @@ const PreSaleDetail = () => {
         }
     }
 
+    useEffect(()=>{
+        presaleCreatorAddress()
+    },[])
+
+    useEffect(()=>{
+        checkAddressApi()
+    },[address])
+
     const investIn = async () => {
         if(!investementPreSale){
             alert("please connect your wallet")
@@ -100,6 +113,10 @@ const PreSaleDetail = () => {
             
         }
         
+    }
+    const presaleCreatorAddress = async () =>{
+        const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
+        setPreSaleCreatorAddress(presaleCreatorAddress.toString())
     }
     const claimTokens = async () => {
         try {
@@ -147,6 +164,33 @@ const PreSaleDetail = () => {
             
         }
     }
+    const checkAddressApi = () => {
+        axios.post(
+            `https://56a3-103-162-136-219.ngrok.io/find`,
+            {
+                token: address,
+            }
+        )
+            .then((response) => {
+                debugger
+                console.log(response)
+                setMatchg(true)
+            })
+            .catch(function (error) {})
+    }
+
+    const apiCall = () => {
+        axios.post(
+            `https://56a3-103-162-136-219.ngrok.io/add`,
+            {
+                token: preSaleCreatorAddress,
+            }
+        )
+            .then((response) => {
+                console.log(response)
+            })
+            .catch(function (error) {})
+    }
 
     return (
         <Wrapper>
@@ -166,13 +210,6 @@ const PreSaleDetail = () => {
                     <a href={webisteLink}  target="_blank" rel="noopener noreferrer"> <Icon src="/images/discord.svg"/></a>
                     <a href={webisteLink}> <Icon src="/images/telegram.svg" /></a>
                     <a href={webisteLink}> <Icon  src="/images/twitter.png" /></a>
-                 
-                    
-                       
-                   
-                   
-                   
-                   
                 </Column>
             </Row>
             <Spacer />
@@ -224,6 +261,7 @@ const PreSaleDetail = () => {
              <>
                 <Spacer />
                 <Row>
+                    {match == false && 
                     <Flexed lg={10}>
                         <ButtonContainer>
                             <Button onClick={investIn}>Invest</Button>
@@ -234,15 +272,34 @@ const PreSaleDetail = () => {
                                 }}
                             />
                         </ButtonContainer>
-                        <SecondButtonContainer>
-                        <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                            <Button1 onClick={claimTokens}>Claim Token</Button1>
-                            <Button onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button>
-                            <Button1 onClick={logGet}>Read Info</Button1>
-                            <Button1 onClick={collectFundsRaised}> Collect Fund Raised</Button1>
-                            <Button1 onClick={getRefund}> Get Refund</Button1>
-                        </SecondButtonContainer>
                     </Flexed>
+                }
+                    {match && <> <SecondButtonContainer lg={3}>
+                           <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
+                     </SecondButtonContainer> 
+                      <SecondButtonContainer lg={3}>
+                            <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
+                     </SecondButtonContainer>
+                     <SecondButtonContainer lg={3}>
+                            <Button1 onClick={collectFundsRaised}> Collect Fund Raised</Button1>
+                     </SecondButtonContainer> </>}
+{match == false && <> 
+                     <SecondButtonContainer lg={3}>
+                            <Button1 onClick={claimTokens}>Claim Token</Button1>
+                     </SecondButtonContainer>
+                     <SecondButtonContainer lg={3}>
+                            <Button1 onClick={logGet}>Read Info</Button1>
+                     </SecondButtonContainer>
+                     <SecondButtonContainer lg={3}>
+                            <Button1 onClick={getRefund}> Get Refund</Button1>
+                     </SecondButtonContainer>
+                     <SecondButtonContainer lg={3}>
+                            <Button1 onClick={presaleCreatorAddress}> PresaleCreater Address</Button1>
+                     </SecondButtonContainer>
+                     {/* <SecondButtonContainer lg={3}>
+                            <Button1 onClick={apiCall}> Save</Button1>
+                     </SecondButtonContainer> */}
+                     </>}
                 </Row>
                 </>
             
@@ -259,15 +316,18 @@ const ButtonContainer = styled.div`
     display: flex;
     margin-left: 14.5rem;
 `
-const SecondButtonContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-`
 const Column = styled(Col)`
     box-sizing: border-box;
     display: flex;
     align-items: center;
 `
+const SecondButtonContainer = styled(Column)`
+display:flex;
+justify-content: space-between;
+align-items: center;
+margin-top:0.5rem;
+`
+
 const Flex = styled(Column)`
     display: flex;
     align-items: center;
@@ -322,7 +382,7 @@ const Button = styled.a`
     }
 `
 const Button1 = styled.a`
-    width: 6.5rem;
+    width: 100%;
     text-align: center;
     padding: 0.5rem;
     background: #00bcd4;
@@ -330,9 +390,9 @@ const Button1 = styled.a`
     border-radius: 0.4rem;
     border: none;
     font-size: 1rem;
-    margin: 0rem 4.5rem 1rem 0rem;
     text-decoration: none;
     cursor:pointer;
+    align-items:center;
     &:hover {
         background: #05b5cc;
     }
@@ -351,5 +411,9 @@ const Text = styled.p``
 const Content = styled.p`
     margin-left: 2rem;
 `
-
-export default PreSaleDetail
+const mapStateToProps = (state) => {
+    return {
+        address: state.auth.address
+    }
+}
+export default connect(mapStateToProps, null)(PreSaleDetail)
