@@ -3,6 +3,7 @@ import * as types from '../actions/types'
 const initialState = {
     isConnected: false,
     shouldConnect: false,
+    user:null,
     address: null,
     chainError: false,
     investmentFactoryContract: null,

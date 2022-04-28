@@ -11,10 +11,19 @@ import { InvestementInfo } from '../config/contracts/InvetmentInfo'
 import { InvestementPreSale } from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
 import {bindActionCreators, compose} from 'redux'
+import {api} from '../config/apiBaseUrl'
 import {setConnected, setDisconnected } from '../actions/authActions'
+
+import axios from "axios"
+axios.defaults.headers.post["Content-Type"] = "application/json"
+axios.defaults.headers.post["Accept"] = "application/json"
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
 
 const Header = (props) => {
     const [open, setOpen] = useState(false)
+    const [isUserHasToken, setIsUserHasToken] = useState(false)
+    const [userData, setUserData] = useState(null)
+    //get it via connector
     //get it via connector
     const [isConnected, setIsConnected] = useState(false)
 
@@ -80,8 +89,9 @@ const Header = (props) => {
             const web3 = await web3Modal.connect()
             const provider = new ethers.providers.Web3Provider(web3)
             const signer = provider.getSigner()
-            const address = await signer.getAddress()
-
+            let address = await signer.getAddress()
+            address = address.toLowerCase()
+            const user = await doLogin(address)
             const chainId = await signer.getChainId()
 
             const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer )
@@ -102,10 +112,10 @@ const Header = (props) => {
                 const isConnected = Boolean(provider && signer)
                 const chainError = false
                 setIsConnected(isConnected)
-
                 props.setConnected({
                     isConnected: isConnected,
                     chainError: false,
+                    user: user,
                     address: address,
                     investmentFactoryContract1: investmentFactoryContract1,
                     investmentInfoRead: investmentInfoRead,
@@ -139,6 +149,30 @@ const Header = (props) => {
         }
     }
 
+    const doLogin = async(address) => {
+        const response = await axios.post(`${api}/login`,{address: address})
+                if(response.data.status){
+                const result = await findToken(address)
+                   if(result.data.status){
+                    setIsUserHasToken(true)
+                    response.data.data.token = true
+                   }
+                   else{
+                    response.data.data.token = true
+                    setIsUserHasToken(false)
+                   }
+                   return(response.data.data)
+                }
+                else{
+                   
+                }
+    }
+
+    const findToken = async (address) => {
+         const result = await axios.post(`${api}/pre_sale/find`,{address: address})
+         return result
+    }
+
     return (
         <>
             <Main
@@ -158,7 +192,7 @@ const Header = (props) => {
                         </NavBar>
                     </Col>
                     <FlexRight>
-                        <Button onClick={() => openModel()}>Create Token</Button>
+                        {/* <Button onClick={() => openModel()}>Create Token</Button> */}
                      <Button onClick={() => (!isConnected ? handleConnect() : handleDisconnect())}>{!isConnected ? 'Connect' : 'Disconnect'}</Button>
                     </FlexRight>
                 </Nav>
@@ -222,7 +256,8 @@ const Button = styled.div`
 const mapStateToProps = (state) => {
     return {
         // shouldConnect: state.auth.shouldConnect,
-        // isConnected: state.auth.isConnected
+        // isConnected: state.auth.isConnected,
+        user: state.auth.user,
     }
 }
 

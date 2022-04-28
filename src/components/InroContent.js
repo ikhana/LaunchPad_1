@@ -2,8 +2,10 @@ import React from 'react'
 import styled from 'styled-components'
 import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Link} from 'react-router-dom'
+import {connect} from 'react-redux'
 
-const IntroContent = () => {
+const IntroContent = (props) => {
+
     return (
         <Wrapper>
             <Spacer />
@@ -124,4 +126,9 @@ const Spacer = styled.div`
 const Linking = styled(Link)`
     text-decoration: none;
 `
-export default IntroContent
+const mapStateToProps = (state) => {
+    return {
+        user: state.auth.user,
+    }
+}
+export default connect(mapStateToProps, null)(IntroContent)

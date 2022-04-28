@@ -3,17 +3,19 @@ import styled from 'styled-components'
 import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
 import {useSelector} from 'react-redux'
-import {InvestementPreSale} from '../config/contracts/presaleInvest'
 import {ethers} from 'ethers'
 import {getLocal} from 'web3modal'
 import {connect} from 'react-redux'
+import {api} from '../config/apiBaseUrl'
+import {InvestementPreSale} from '../config/contracts/presaleInvest'
 import axios from "axios"
 axios.defaults.headers.post["Content-Type"] = "application/json"
 axios.defaults.headers.post["Accept"] = "application/json"
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
 
-const PreSaleDetail = ({address}) => {
+const PreSaleDetail = ({address,isConnected}) => {
     const investementPreSale = useSelector((state) => state.auth.investementPreSale)
+    const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
     const [hardCapInWei, setHardCapInWei] = useState()
     const [softCapInWei, setSoftCapInWei] = useState()
     const [closeTime, setCloseTime] = useState()
@@ -29,6 +31,43 @@ const PreSaleDetail = ({address}) => {
     const  [totalInvestedAmount, setTotalInvestment] = useState('')
     const  [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
     const  [match, setMatchg] = useState(false)
+
+useEffect(()=>{
+    if(isConnected){
+        //state.auth.token
+      //  getOwnerandAddress();
+        // presaleCreatorAddress()
+    }
+},[isConnected]);
+
+ useEffect(()=>{
+     if(address != null)
+        checkAddressApi()
+    },[address])
+
+    const getOwnerandAddress = async () => {
+        if (!investmentFactoryContract) {
+            alert("Please connect your wallet !")
+        }
+        try {
+
+            const getPresaleCreaterAndContrat = await investmentFactoryContract.getaddresses()
+            console.log("Owner", getPresaleCreaterAndContrat)
+            addPreSale(getPresaleCreaterAndContrat);
+
+            
+        } catch (lolo) {
+            console.log(lolo.data.message)
+            
+        }
+    }
+    const presaleCreatorAddress = async () =>{
+        const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
+        setPreSaleCreatorAddress(presaleCreatorAddress.toString())
+
+        console.log('presaleCreatorAddress',presaleCreatorAddress.toString())
+        console.log('InvestementPreSale',InvestementPreSale)
+    }
 
     const logGet = async () => {
         if (!investementPreSale) {
@@ -78,14 +117,6 @@ const PreSaleDetail = ({address}) => {
         }
     }
 
-    useEffect(()=>{
-        presaleCreatorAddress()
-    },[])
-
-    useEffect(()=>{
-        checkAddressApi()
-    },[address])
-
     const investIn = async () => {
         if(!investementPreSale){
             alert("please connect your wallet")
@@ -114,10 +145,8 @@ const PreSaleDetail = ({address}) => {
         }
         
     }
-    const presaleCreatorAddress = async () =>{
-        const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
-        setPreSaleCreatorAddress(presaleCreatorAddress.toString())
-    }
+    
+
     const claimTokens = async () => {
         try {
             const claimTokens = await investementPreSale.claimTokens()
@@ -166,24 +195,29 @@ const PreSaleDetail = ({address}) => {
     }
     const checkAddressApi = () => {
         axios.post(
-            `https://56a3-103-162-136-219.ngrok.io/find`,
+            `${api}/user/find`,
             {
                 token: address,
             }
         )
             .then((response) => {
-                debugger
-                console.log(response)
-                setMatchg(true)
+                if(response.data.status){
+                    setMatchg(false)
+                }
+                else{
+                    setMatchg(true)
+                }
+              
             })
             .catch(function (error) {})
     }
 
-    const apiCall = () => {
+    const addPreSale = (data) => {
         axios.post(
-            `https://56a3-103-162-136-219.ngrok.io/add`,
+            `${api}/pre_sale/add`,
             {
-                token: preSaleCreatorAddress,
+                user: data[0],
+                token: data[1]
             }
         )
             .then((response) => {
@@ -413,7 +447,8 @@ const Content = styled.p`
 `
 const mapStateToProps = (state) => {
     return {
-        address: state.auth.address
+        address: state.auth.address,
+        isConnected: state.auth.isConnected
     }
 }
 export default connect(mapStateToProps, null)(PreSaleDetail)

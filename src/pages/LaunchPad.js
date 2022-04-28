@@ -8,7 +8,15 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
+import {api} from '../config/apiBaseUrl'
 const bytes32 = require('bytes32')
+
+
+
+import axios from "axios"
+axios.defaults.headers.post["Content-Type"] = "application/json"
+axios.defaults.headers.post["Accept"] = "application/json"
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
 
 const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
@@ -41,7 +49,10 @@ const LaunchPad = () => {
     const [lpTokensDurationInDaysError, setLpTokensDurationInDaysError] = useState(false)
     const [startTime, setStartTime] = useState(new Date())
     const [endTime, setEndTime] = useState(new Date())
+    const [endTimeError, setEndTimeError] = useState(false)
     const [startTimeError, setStartTimeError] = useState(false)
+    const [endTimeLessError, setEndTimeLessError] = useState(false)
+    const [liquidityLockupLessError, setLiquidityLockupLessError] = useState(false)
     const [saleTitle, setSaleTitle] = useState('')
     const [telegramLink, setTelegramLink] = useState('')
     const [totalInvestes, setTotalInvesters] = useState()
@@ -123,14 +134,14 @@ const LaunchPad = () => {
         }
     }
     const checkliquidityLockup = () => {
-        if (liquidityLockup.trim() === '') {
+        if (liquidityLockup === '') {
             setLiquidityLockupError(true)
         } else {
             setLiquidityLockupError(false)
         }
     }
     const checkstartTime = () => {
-        if (startTime.trim() === '') {
+        if (startTime === '') {
             setStartTimeError(true)
         } else {
             setStartTimeError(false)
@@ -144,8 +155,6 @@ const LaunchPad = () => {
         if (!investmentFactoryContract) {
             alert('Please connect to chain id 97')
         }
-      
-
         let tokensTuple = {
             tokenAddress: tokenAddress, 
             unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dEaD',
@@ -176,11 +185,27 @@ const LaunchPad = () => {
         try {
             const createPresale = await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
 
-            await createPresale.wait()
+            const response = await createPresale.wait()
 
-            const owner = await investmentFactoryContract.owner()
-            console.log(owner.toString())
+            if (response ) {
+            // const owne = await investmentFactoryContract.owner()
+            //console.log(owner.toString())
+debugger
+            axios.post(
+                `${api}/user/add`,
+                {
+                    role:'owner',
+                    address: '',
+                }
+            )
+                .then((response) => {
+                    console.log(response)
+                })
+                .catch(function (error) {})
             //console.log(investmentFactoryContract)
+            } else {
+                //show eror
+            }
         } catch (e) {
             alert(e.message)
         }
@@ -279,7 +304,7 @@ const stepTwoValiation = () => {
         } else {
             setListingPriceError(false)
         }
-        if (liquidityLockup.trim() == '') {
+        if (liquidityLockup == '') {
             _isValid = false;
             setLiquidityLockupError(true)
         } else {
@@ -291,18 +316,31 @@ const stepTwoValiation = () => {
         } else {
             setLpTokensDurationInDaysError(false)
         }
-        if (startTime.trim() == '') {
+        if (startTime == '') {
             _isValid = false;
             setStartTimeError(true)
         } else {
             setStartTimeError(false)
         }
-        if (endTime.trim() == '') {
+        if (endTime == '') {
             _isValid = false;
             setEndTimeError(true)
         } else {
             setEndTimeError(false)
         }
+        if (endTime <= startTime) {
+            _isValid = false;
+            setEndTimeLessError(true)
+        } else {
+            setEndTimeLessError(false)
+        }
+        if (liquidityLockup <= endTime) {
+            _isValid = false;
+            setLiquidityLockupLessError(true)
+        } else {
+            setLiquidityLockupLessError(false)
+        }
+        
     
         return _isValid
     }
@@ -414,7 +452,7 @@ let _isValid = true;
                                                         setTokenAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
-                                                {tokenAddressError == true && tokenAddress.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                {tokenAddressError == true && tokenAddress.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
@@ -464,7 +502,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkpresalePrice}
                                                 />
-                                                 {tokenPriceError == true && tokenPrice.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {tokenPriceError == true && tokenPrice.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {tokenPrice && reg_for_positive.test(tokenPrice) === false && <Alblur>Token Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -480,7 +518,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checksoftCap}
                                                 />
-                                                 {softCapError == true && softCap.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {softCapError == true && softCap.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
                                                 {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
                                             </CustomCol>
@@ -497,7 +535,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkhardCap}
                                                 />
-                                                 {hardCapError == true && hardCap.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {hardCapError == true && hardCap.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
                                                 {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
@@ -514,7 +552,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkminimum}
                                                 />
-                                                {minimumError == true && minimum.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                {minimumError == true && minimum.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {minimum && reg_for_positive.test(minimum) == false && <Alblur>Minimum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -530,7 +568,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkmaximum}
                                                 />
-                                                 {maximumError == true && maximum.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {maximumError == true && maximum.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {maximum && reg_for_positive.test(maximum) == false && <Alblur>Maximum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -549,8 +587,8 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkliquidity}
                                                 />
-                                                     {liquidityError == true && liquidity.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
-                                                {/* {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>} */}
+                                                     {liquidityError == true && liquidity.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>{name + 'Listing Price'}</Label>
@@ -565,7 +603,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checklistingPrice}
                                                 />
-                                                 {listingPriceError == true && listingPrice.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {listingPriceError == true && listingPrice.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {listingPriceError && <Alblur>Listing Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={12}>
@@ -587,7 +625,7 @@ let _isValid = true;
                                                 <Label>End Time (LocalTime)</Label>
                                                 <InputDate onChange={setEndTime} value={endTime} />
                                                 <br />
-                                                {endTime < startTime && <Alblur>End Time need to be greater then Start Time</Alblur>}
+                                                {endTimeLessError == true && <Alblur>End Time need to be greater then Start Time</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Liquidity lockup (second)</Label>
@@ -595,7 +633,7 @@ let _isValid = true;
                                                     {/* <InputText value={liquidityLockup} onChange={(e)=>{setLiquidityLockup(e.target.value)}}  */}
                                                     <InputDate value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
                                                     <br />
-                                                    {liquidityLockup < endTime && <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
+                                                    {liquidityLockupLessError == true && <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
                                                 </div>
                                                 {liquidityLockupError && <Alblur>LockUp Time must be {'>'} 5 Seconds</Alblur>}
                                             </CustomCol>
@@ -608,7 +646,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checklpTokensDurationInDays}
                                                 />
-                                                 {lpTokensDurationInDaysError == true && lpTokensDurationInDays.trim() == "" ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {lpTokensDurationInDaysError == true && lpTokensDurationInDays.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
                                                 {lpTokensDurationInDaysError && <Alblur>Lock lpToken Duration must be {'>'} endTime</Alblur>}
                                             </CustomCol>
                                         </Row>
@@ -659,7 +697,7 @@ let _isValid = true;
                                                         setSaleTitle(e.target.value)
                                                     }}
                                                 />
-                                                 {saleTitleError == true ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {saleTitleError == true ? <Alblur>Please fill this field</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Telegram Link</Label>
@@ -669,7 +707,7 @@ let _isValid = true;
                                                         setTelegramLink(e.target.value)
                                                     }}
                                                 />
-                                                 {telegramLinkError == true ? <Alblur>Please fill this field.</Alblur> :''}
+                                                 {telegramLinkError == true ? <Alblur>Please fill this field</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Discord </Label>
@@ -679,7 +717,7 @@ let _isValid = true;
                                                         setDiscord(e.target.value)
                                                     }}
                                                 />
-                                                    {discordError == true ? <Alblur>Please fill this field.</Alblur> :''}
+                                                    {discordError == true ? <Alblur>Please fill this field</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Twitter </Label>
@@ -689,7 +727,7 @@ let _isValid = true;
                                                         setTwitter(e.target.value)
                                                     }}
                                                 />
-                                                  {twitterError == true ? <Alblur>Please fill this field.</Alblur> :''}
+                                                  {twitterError == true ? <Alblur>Please fill this field</Alblur> :''}
                                             </CustomCol>
                                             <CustomCol lg={12}>
                                                 <Label>Website</Label>
@@ -699,7 +737,7 @@ let _isValid = true;
                                                         setWebsite(e.target.value)
                                                     }}
                                                 />
-                                                  {websiteError == true ? <Alblur>Please fill this field.</Alblur> :''}
+                                                  {websiteError == true ? <Alblur>Please fill this field</Alblur> :''}
                                             </CustomCol>
                                         </Row>
                                     </Container>
