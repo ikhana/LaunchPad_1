@@ -8,6 +8,8 @@ import Admin from './pages/Admin'
 import Footer from './components/Footer'
 
 import {Route, Routes} from 'react-router-dom'
+import {ToastContainer} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 function App() {
     return (
         <>
@@ -15,11 +17,12 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/createLaunchPad" element={<LaunchPad />}></Route>
-                <Route path="/project" element={<PreSaleDetail />}></Route>
-                <Route path="/product" element={<Product />}></Route>
+                <Route path="/viewLaunchPad" element={<PreSaleDetail />}></Route>
+                <Route path="/viewAllLaunchPad" element={<Product />}></Route>
                 <Route path="/admin" element={<Admin />}></Route>
             </Routes>
             <Footer />
+            <ToastContainer position="top-center" autoClose={1000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
         </>
     )
 }

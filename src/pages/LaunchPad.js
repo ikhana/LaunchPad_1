@@ -10,13 +10,12 @@ import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
 import {api} from '../config/apiBaseUrl'
 const bytes32 = require('bytes32')
+import {toast} from 'react-toastify'
 
-
-
-import axios from "axios"
-axios.defaults.headers.post["Content-Type"] = "application/json"
-axios.defaults.headers.post["Accept"] = "application/json"
-axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
+import axios from 'axios'
+axios.defaults.headers.post['Content-Type'] = 'application/json'
+axios.defaults.headers.post['Accept'] = 'application/json'
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
@@ -156,7 +155,7 @@ const LaunchPad = () => {
             alert('Please connect to chain id 97')
         }
         let tokensTuple = {
-            tokenAddress: tokenAddress, 
+            tokenAddress: tokenAddress,
             unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dEaD',
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
@@ -183,26 +182,26 @@ const LaunchPad = () => {
 
         // const sss = await investmentFactoryContract.SAFU()
         try {
-            const createPresale = await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
+            const createPresale = true //await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
 
-            const response = await createPresale.wait()
+            const response = true //await createPresale.wait()
 
-            if (response ) {
-            // const owne = await investmentFactoryContract.owner()
-            //console.log(owner.toString())
-debugger
-            axios.post(
-                `${api}/user/add`,
-                {
-                    role:'owner',
-                    address: '',
-                }
-            )
-                .then((response) => {
-                    console.log(response)
-                })
-                .catch(function (error) {})
-            //console.log(investmentFactoryContract)
+            if (response) {
+                // const owne = await investmentFactoryContract.owner()
+                //console.log(owner.toString())
+                axios
+                    .post(`${api}/pre_sale/add`, {
+                        address: userAddress,
+                        token: '0x121313231'
+                    })
+                    .then((response) => {
+                        if (response.data.status) {
+                            setStepFour(false)
+                            setActiveStep(0)
+                        }
+                    })
+                    .catch(function (error) {})
+                //console.log(investmentFactoryContract)
             } else {
                 //show eror
             }
@@ -235,152 +234,148 @@ debugger
     }
 
     const scrollToStepFirst = () => {
-        setTimeout(scrollFirst, 100);
+        setTimeout(scrollFirst, 100)
     }
 
     const scrollToStepSecond = () => {
-        setTimeout(scrollSecond, 100);
+        setTimeout(scrollSecond, 100)
     }
 
     const scrollToStepThird = () => {
-        setTimeout(scrollThird, 100);
+        setTimeout(scrollThird, 100)
     }
 
+    const scrollFirst = () => {
+        document.getElementById('firstStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
+    }
+    const scrollSecond = () => {
+        document.getElementById('secondStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
+    }
+    const scrollThird = () => {
+        document.getElementById('thirdStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
+    }
 
+    const stepTwoValiation = () => {
+        let _isValid = true
 
-const scrollFirst = () =>{
-    document.getElementById('firstStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
-}
-const scrollSecond = () =>{
-    document.getElementById('secondStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
-}
-const scrollThird = () =>{
-    document.getElementById('thirdStep').scrollIntoView({behavior: "smooth", block: "center", inline: "start"})
-}
-
-
-const stepTwoValiation = () => {
-    let _isValid = true;
-    
         if (tokenPrice.trim() == '') {
-            _isValid = false;
+            _isValid = false
             settokenPriceError(true)
         } else {
             settokenPriceError(false)
         }
         if (softCap.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setSoftCapError(true)
         } else {
             setSoftCapError(false)
         }
         if (hardCap.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setHardCapError(true)
         } else {
             setHardCapError(false)
         }
         if (minimum.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setMinimumError(true)
         } else {
             setMinimumError(false)
         }
         if (maximum.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setMaximumError(true)
         } else {
             setMaximumError(false)
         }
         if (liquidity.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setLiquidityError(true)
         } else {
             setLiquidityError(false)
         }
         if (listingPrice.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setListingPriceError(true)
         } else {
             setListingPriceError(false)
         }
         if (liquidityLockup == '') {
-            _isValid = false;
+            _isValid = false
             setLiquidityLockupError(true)
         } else {
             setLiquidityLockupError(false)
         }
         if (lpTokensDurationInDays.trim() == '') {
-            _isValid = false;
+            _isValid = false
             setLpTokensDurationInDaysError(true)
         } else {
             setLpTokensDurationInDaysError(false)
         }
         if (startTime == '') {
-            _isValid = false;
+            _isValid = false
             setStartTimeError(true)
         } else {
             setStartTimeError(false)
         }
         if (endTime == '') {
-            _isValid = false;
+            _isValid = false
             setEndTimeError(true)
         } else {
             setEndTimeError(false)
         }
         if (endTime <= startTime) {
-            _isValid = false;
+            _isValid = false
             setEndTimeLessError(true)
         } else {
             setEndTimeLessError(false)
         }
         if (liquidityLockup <= endTime) {
-            _isValid = false;
+            _isValid = false
             setLiquidityLockupLessError(true)
         } else {
             setLiquidityLockupLessError(false)
         }
-        
-    
+
         return _isValid
     }
 
-const socialValiation = () => {
-let _isValid = true;
+    const socialValiation = () => {
+        let _isValid = true
 
-    if (saleTitle.trim() == '') {
-        _isValid = false;
-        setSaleTitleError(true)
-    } else {
-        setSaleTitleError(false)
-    }
-    if (telegramLink.trim() == '') {
-        _isValid = false;
-        setTelegramLinkError(true)
-    } else {
-        setTelegramLinkError(false)
-    }
-    if (discord.trim() == '') {
-        _isValid = false;
-        setDiscordError(true)
-    } else {
-        setDiscordError(false)
-    }
-    if (twitter.trim() == '') {
-        _isValid = false;
-        setTwitterError(true)
-    } else {
-        setTwitterError(false)
-    }
-    if (website.trim() == '') {
-        _isValid = false;
-        setWebsiteError(true)
-    } else {
-        setWebsiteError(false)
-    }
+        if (saleTitle.trim() == '') {
+            _isValid = false
+            setSaleTitleError(true)
+        } else {
+            setSaleTitleError(false)
+        }
+        if (telegramLink.trim() == '') {
+            _isValid = false
+            setTelegramLinkError(true)
+        } else {
+            setTelegramLinkError(false)
+        }
+        if (discord.trim() == '') {
+            _isValid = false
+            setDiscordError(true)
+        } else {
+            setDiscordError(false)
+        }
+        if (twitter.trim() == '') {
+            _isValid = false
+            setTwitterError(true)
+        } else {
+            setTwitterError(false)
+        }
+        if (website.trim() == '') {
+            _isValid = false
+            setWebsiteError(true)
+        } else {
+            setWebsiteError(false)
+        }
 
-    return _isValid
-}
+        return _isValid
+    }
 
     return (
         <Container>
@@ -413,7 +408,7 @@ let _isValid = true;
                 </CardCol>
                 <CardCol lg={3}>
                     <List>
-                        <Card active={activeStep > 3 || activeStep > 4} >
+                        <Card active={activeStep > 3 || activeStep > 4}>
                             <CardHeading>Finish and Review your information</CardHeading>
                         </Card>
                     </List>
@@ -424,9 +419,13 @@ let _isValid = true;
                 <FlexCenter>
                     <Button
                         onClick={() => {
-                            setStepOne(true)
-                            scrollToStepFirst()
-                            setActiveStep(1)
+                            if (isConnected) {
+                                setStepOne(true)
+                                scrollToStepFirst()
+                                setActiveStep(1)
+                            } else {
+                                toast.error('Please connect your wallet first', {})
+                            }
                         }}>
                         Begin
                     </Button>
@@ -436,7 +435,7 @@ let _isValid = true;
             <Row>
                 <Col lg={8} offset={2}>
                     <Stepper>
-                    <Item id="firstStep">
+                        <Item id="firstStep">
                             <StepperHead onClick={() => toggle(1)}>
                                 <Step>1</Step>Add Token Address
                             </StepperHead>
@@ -452,30 +451,30 @@ let _isValid = true;
                                                         setTokenAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
-                                                {tokenAddressError == true && tokenAddress.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {tokenAddressError == true && tokenAddress.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
                                         </Row>
                                     </Container>
-                                    {activeStep > 0 && <StepperFooter>
-                                        <Next
-                                            onClick={() => {
-                                                if(tokenAddress.trim() != "" && reg_expression.test(tokenAddress)){
-                                                    setTokenAddressError(false)
-                                                    setStepOne(false)
-                                                    setStepTwo(true)
-                                                    scrollToStepSecond()
-                                                    setActiveStep(2)
-                                                }
-                                                else{
-                                                    setTokenAddressError(true)
-                                                }
-                                            }}>
-                                            Next
-                                        </Next>
-                                    </StepperFooter>
-                                    }
+                                    {activeStep > 0 && (
+                                        <StepperFooter>
+                                            <Next
+                                                onClick={() => {
+                                                    if (tokenAddress.trim() != '' && reg_expression.test(tokenAddress)) {
+                                                        setTokenAddressError(false)
+                                                        setStepOne(false)
+                                                        setStepTwo(true)
+                                                        scrollToStepSecond()
+                                                        setActiveStep(2)
+                                                    } else {
+                                                        setTokenAddressError(true)
+                                                    }
+                                                }}>
+                                                Next
+                                            </Next>
+                                        </StepperFooter>
+                                    )}
                                 </StepperBody>
                             )}
                         </Item>
@@ -489,7 +488,6 @@ let _isValid = true;
                                     <Container>
                                         <Row>
                                             <CustomCol lg={12}>
-                                             
                                                 <Label>Token Price</Label>
                                                 <InputText
                                                     value={tokenPrice}
@@ -502,7 +500,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkpresalePrice}
                                                 />
-                                                 {tokenPriceError == true && tokenPrice.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {tokenPriceError == true && tokenPrice.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {tokenPrice && reg_for_positive.test(tokenPrice) === false && <Alblur>Token Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -518,7 +516,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checksoftCap}
                                                 />
-                                                 {softCapError == true && softCap.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {softCapError == true && softCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
                                                 {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
                                             </CustomCol>
@@ -535,7 +533,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkhardCap}
                                                 />
-                                                 {hardCapError == true && hardCap.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {hardCapError == true && hardCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
                                                 {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
@@ -552,7 +550,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkminimum}
                                                 />
-                                                {minimumError == true && minimum.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {minimumError == true && minimum.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {minimum && reg_for_positive.test(minimum) == false && <Alblur>Minimum must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -568,12 +566,10 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkmaximum}
                                                 />
-                                                 {maximumError == true && maximum.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {maximumError == true && maximum.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {maximum && reg_for_positive.test(maximum) == false && <Alblur>Maximum must be Positive Number</Alblur>}
                                             </CustomCol>
-                                            <CustomCol lg={6}>
-                                              
-                                            </CustomCol>
+                                            <CustomCol lg={6}></CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>{name + 'Liquidity (%)'} </Label>
                                                 <InputText
@@ -587,7 +583,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checkliquidity}
                                                 />
-                                                     {liquidityError == true && liquidity.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {liquidityError == true && liquidity.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
@@ -603,7 +599,7 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checklistingPrice}
                                                 />
-                                                 {listingPriceError == true && listingPrice.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {listingPriceError == true && listingPrice.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {listingPriceError && <Alblur>Listing Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={12}>
@@ -646,37 +642,35 @@ let _isValid = true;
                                                     }}
                                                     onBlur={checklpTokensDurationInDays}
                                                 />
-                                                 {lpTokensDurationInDaysError == true && lpTokensDurationInDays.trim() == "" ? <Alblur>Please fill this field</Alblur> :''}
+                                                {lpTokensDurationInDaysError == true && lpTokensDurationInDays.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {lpTokensDurationInDaysError && <Alblur>Lock lpToken Duration must be {'>'} endTime</Alblur>}
                                             </CustomCol>
                                         </Row>
                                     </Container>
-                                    {activeStep > 1 &&
-                                    <StepperFooter>
-                                        <Back
-                                            onClick={() => {
-                                                scrollToStepFirst()
-                                                setStepOne(true)
-                                                setStepTwo(false)
-                                                setActiveStep(1)
-                                               
-                                            }}>
-                                            Back
-                                        </Back>
-                                        <Next
-                                            onClick={() => {
-                                                if(stepTwoValiation())
-                                                {
+                                    {activeStep > 1 && (
+                                        <StepperFooter>
+                                            <Back
+                                                onClick={() => {
+                                                    scrollToStepFirst()
+                                                    setStepOne(true)
                                                     setStepTwo(false)
-                                                    setStepThree(true)
-                                                    scrollToStepThird()
-                                                    setActiveStep(3)
-                                                }
-                                            }}>
-                                            Next
-                                        </Next>
-                                    </StepperFooter>
-                                    }
+                                                    setActiveStep(1)
+                                                }}>
+                                                Back
+                                            </Back>
+                                            <Next
+                                                onClick={() => {
+                                                    if (stepTwoValiation()) {
+                                                        setStepTwo(false)
+                                                        setStepThree(true)
+                                                        scrollToStepThird()
+                                                        setActiveStep(3)
+                                                    }
+                                                }}>
+                                                Next
+                                            </Next>
+                                        </StepperFooter>
+                                    )}
                                 </StepperBody>
                             )}
                         </Item>
@@ -697,7 +691,7 @@ let _isValid = true;
                                                         setSaleTitle(e.target.value)
                                                     }}
                                                 />
-                                                 {saleTitleError == true ? <Alblur>Please fill this field</Alblur> :''}
+                                                {saleTitleError == true ? <Alblur>Please fill this field</Alblur> : ''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Telegram Link</Label>
@@ -707,7 +701,7 @@ let _isValid = true;
                                                         setTelegramLink(e.target.value)
                                                     }}
                                                 />
-                                                 {telegramLinkError == true ? <Alblur>Please fill this field</Alblur> :''}
+                                                {telegramLinkError == true ? <Alblur>Please fill this field</Alblur> : ''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Discord </Label>
@@ -717,7 +711,7 @@ let _isValid = true;
                                                         setDiscord(e.target.value)
                                                     }}
                                                 />
-                                                    {discordError == true ? <Alblur>Please fill this field</Alblur> :''}
+                                                {discordError == true ? <Alblur>Please fill this field</Alblur> : ''}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Twitter </Label>
@@ -727,7 +721,7 @@ let _isValid = true;
                                                         setTwitter(e.target.value)
                                                     }}
                                                 />
-                                                  {twitterError == true ? <Alblur>Please fill this field</Alblur> :''}
+                                                {twitterError == true ? <Alblur>Please fill this field</Alblur> : ''}
                                             </CustomCol>
                                             <CustomCol lg={12}>
                                                 <Label>Website</Label>
@@ -737,32 +731,33 @@ let _isValid = true;
                                                         setWebsite(e.target.value)
                                                     }}
                                                 />
-                                                  {websiteError == true ? <Alblur>Please fill this field</Alblur> :''}
+                                                {websiteError == true ? <Alblur>Please fill this field</Alblur> : ''}
                                             </CustomCol>
                                         </Row>
                                     </Container>
-                                    {activeStep > 2 &&
-                                    <StepperFooter>
-                                        <Back
-                                            onClick={() => {
-                                                scrollToStepSecond()
-                                                setStepTwo(true)
-                                                setStepThree(false)
-                                                setActiveStep(2)
-                                            }}>
-                                            Back
-                                        </Back>
-                                        <Next
-                                            onClick={() => {
-                                                if(socialValiation()){
+                                    {activeStep > 2 && (
+                                        <StepperFooter>
+                                            <Back
+                                                onClick={() => {
+                                                    scrollToStepSecond()
+                                                    setStepTwo(true)
                                                     setStepThree(false)
-                                                    setStepFour(true)
-                                                    setActiveStep(4)
-                                                }
-                                            }}>
-                                            Next
-                                        </Next>
-                                    </StepperFooter>}
+                                                    setActiveStep(2)
+                                                }}>
+                                                Back
+                                            </Back>
+                                            <Next
+                                                onClick={() => {
+                                                    if (socialValiation()) {
+                                                        setStepThree(false)
+                                                        setStepFour(true)
+                                                        setActiveStep(4)
+                                                    }
+                                                }}>
+                                                Next
+                                            </Next>
+                                        </StepperFooter>
+                                    )}
                                 </StepperBody>
                             )}
                         </Item>
@@ -776,27 +771,29 @@ let _isValid = true;
                                     <Container>
                                         <Row></Row>
                                     </Container>
-                                    {activeStep > 3 &&
-                                    <StepperFooter>
-                                        <Back
-                                            onClick={() => {
-                                                scrollToStepThird();
-                                                setStepThree(true);
-                                                setStepFour(false);
-                                                setActiveStep(3)
-                                            }}>
-                                            Back
-                                        </Back>
-                                        <Next
-                                            onClick={() => {
-                                                getTupleSet()
-                                                setStepFour(false)
-                                                setActiveStep(0)
-                                            }}>
-                                            Finish
-                                        </Next>
-                                    </StepperFooter>
-}
+                                    {activeStep > 3 && (
+                                        <StepperFooter>
+                                            <Back
+                                                onClick={() => {
+                                                    scrollToStepThird()
+                                                    setStepThree(true)
+                                                    setStepFour(false)
+                                                    setActiveStep(3)
+                                                }}>
+                                                Back
+                                            </Back>
+                                            <Next
+                                                onClick={() => {
+                                                    if (isConnected) {
+                                                        getTupleSet()
+                                                    } else {
+                                                        toast.error('Please connect your wallet first', {})
+                                                    }
+                                                }}>
+                                                Finish
+                                            </Next>
+                                        </StepperFooter>
+                                    )}
                                 </StepperBodyLast>
                             )}
                         </Item>
@@ -965,8 +962,8 @@ const InputDate = styled(DateTimePicker)`
     border: 0.09rem solid #e3e2e2;
     border-radius: 0.3rem;
     box-sizing: border-box;
-    & div{
-        border:0rem !important;
+    & div {
+        border: 0rem !important;
     }
 `
 

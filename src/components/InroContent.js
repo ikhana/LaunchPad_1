@@ -4,8 +4,8 @@ import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 
-const IntroContent = (props) => {
-
+const IntroContent = ({user}) => {
+    debugger
     return (
         <Wrapper>
             <Spacer />
@@ -15,14 +15,25 @@ const IntroContent = (props) => {
                     <Content>LaunchPad helps everyone to create their own tokens and token sales in few seconds. Tokens created on LaunchPad will be verified and published on explorer websites.</Content>
                 </Col>
                 <Col lg={8} offset={2}>
-                    <Flex>
-                        <Linking to="/createLaunchPad">
-                            <Button>Create your LaunchPad</Button>
-                        </Linking>
-                        <Linking to="/project">
-                            <Button>Checkout Projects</Button>
-                        </Linking>
-                    </Flex>
+                    {user?.token != '' &&  user?.token != undefined? (
+                        <Flex>
+                            <Linking to="/viewLaunchPad">
+                                <Button>View your LaunchPad</Button>
+                            </Linking>
+                            <Linking to="/viewAllLaunchPad">
+                                <Button>Checkout Projects</Button>
+                            </Linking>
+                        </Flex>
+                    ) : (
+                        <Flex>
+                            <Linking to="/createLaunchPad">
+                                <Button>Create your LaunchPad</Button>
+                            </Linking>
+                            <Linking to="/viewAllLaunchPad">
+                                <Button>Checkout Projects</Button>
+                            </Linking>
+                        </Flex>
+                    )}
                 </Col>
                 <Col lg={8} offset={2}>
                     <Content>LaunchPad helps everyone to create their own tokens and token sales in few seconds. Tokens created on LaunchPad will be verified and published on explorer websites.</Content>
@@ -128,7 +139,7 @@ const Linking = styled(Link)`
 `
 const mapStateToProps = (state) => {
     return {
-        user: state.auth.user,
+        user: state.auth.user
     }
 }
 export default connect(mapStateToProps, null)(IntroContent)

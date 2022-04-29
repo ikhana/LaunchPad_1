@@ -14,3 +14,11 @@ code {
 iframe{
   position: relative !important;
 }
+.Toastify__toast--error{
+background-color: #e74c3d !important;
+color:white !important;
+}
+.Toastify__toast--success{
+  background-color: #0abc0a !important;
+  color:white !important;
+  }

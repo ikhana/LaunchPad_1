@@ -7,22 +7,24 @@ import WalletLink from 'walletlink'
 import {ethers} from 'ethers'
 import CreateToken from '../pages/CreateToken'
 import {investmentFactoryContract} from '../config/contracts/InvestmentsFactory'
-import { InvestementInfo } from '../config/contracts/InvetmentInfo'
-import { InvestementPreSale } from '../config/contracts/presaleInvest'
+import {InvestementInfo} from '../config/contracts/InvetmentInfo'
+import {InvestementPreSale} from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
 import {bindActionCreators, compose} from 'redux'
 import {api} from '../config/apiBaseUrl'
-import {setConnected, setDisconnected } from '../actions/authActions'
+import {setConnected, setDisconnected} from '../actions/authActions'
+import {toast} from 'react-toastify'
+import { useNavigate } from "react-router-dom";
 
-import axios from "axios"
-axios.defaults.headers.post["Content-Type"] = "application/json"
-axios.defaults.headers.post["Accept"] = "application/json"
-axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
+import axios from 'axios'
+axios.defaults.headers.post['Content-Type'] = 'application/json'
+axios.defaults.headers.post['Accept'] = 'application/json'
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Header = (props) => {
     const [open, setOpen] = useState(false)
-    const [isUserHasToken, setIsUserHasToken] = useState(false)
     const [userData, setUserData] = useState(null)
+    const navigate = useNavigate();
     //get it via connector
     //get it via connector
     const [isConnected, setIsConnected] = useState(false)
@@ -94,21 +96,21 @@ const Header = (props) => {
             const user = await doLogin(address)
             const chainId = await signer.getChainId()
 
-            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer )
-            const investmentInfoRead = new ethers.Contract( InvestementInfo.id,InvestementInfo.abi, signer)
-            const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
+            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer)
+            const investmentInfoRead = new ethers.Contract(InvestementInfo.id, InvestementInfo.abi, signer)
+            const investementPreSale = new ethers.Contract(InvestementPreSale.id, InvestementPreSale.abi, signer)
 
-           // const   hardCapInWei = await investementPreSale.hardCapInWei()
+            // const   hardCapInWei = await investementPreSale.hardCapInWei()
 
-          /*  try {
+            /*  try {
                 console.log('first Read from the investment contract =>',  hardCapInWei.toString() )
                 
             } catch (error) {
                 console.log(error)
                 
             }*/
-       // console.log(investmentFactoryRead.address)
-       if (chainId.toString() == '97') {
+            // console.log(investmentFactoryRead.address)
+            if (chainId.toString() == '97') {
                 const isConnected = Boolean(provider && signer)
                 const chainError = false
                 setIsConnected(isConnected)
@@ -119,7 +121,7 @@ const Header = (props) => {
                     address: address,
                     investmentFactoryContract1: investmentFactoryContract1,
                     investmentInfoRead: investmentInfoRead,
-                    investementPreSale : investementPreSale 
+                    investementPreSale: investementPreSale
                 })
 
                 web3.on('accountsChanged', (accounts) => {
@@ -149,28 +151,25 @@ const Header = (props) => {
         }
     }
 
-    const doLogin = async(address) => {
-        const response = await axios.post(`${api}/login`,{address: address})
-                if(response.data.status){
-                const result = await findToken(address)
-                   if(result.data.status){
-                    setIsUserHasToken(true)
-                    response.data.data.token = true
-                   }
-                   else{
-                    response.data.data.token = true
-                    setIsUserHasToken(false)
-                   }
-                   return(response.data.data)
-                }
-                else{
-                   
-                }
+    const doLogin = async (address) => {
+        const response = await axios.post(`${api}/login`, {address: address})
+        if (response.data.status) {
+            toast.success('Connect your wallet successfully', {})
+            debugger
+            const result = await findToken(address)
+            debugger
+            if (result.data.status) {
+                response.data.data.token = result.data.data.token
+            }
+
+            return response.data.data
+        } else {
+        }
     }
 
     const findToken = async (address) => {
-         const result = await axios.post(`${api}/pre_sale/find`,{address: address})
-         return result
+        const result = await axios.post(`${api}/pre_sale/find`, {address: address})
+        return result
     }
 
     return (
@@ -183,7 +182,7 @@ const Header = (props) => {
                 <Nav>
                     <Wrapper>
                         <LogoContent>
-                            <Logo src="/images/logo.png" />
+                            <Logo src="/images/logo.png" onClick={()=>{navigate('/')}} />
                         </LogoContent>
                     </Wrapper>
                     <Col>
@@ -193,7 +192,7 @@ const Header = (props) => {
                     </Col>
                     <FlexRight>
                         {/* <Button onClick={() => openModel()}>Create Token</Button> */}
-                     <Button onClick={() => (!isConnected ? handleConnect() : handleDisconnect())}>{!isConnected ? 'Connect' : 'Disconnect'}</Button>
+                        <Button onClick={() => (!isConnected ? handleConnect() : handleDisconnect())}>{!isConnected ? 'Connect' : 'Disconnect'}</Button>
                     </FlexRight>
                 </Nav>
             </Main>
@@ -247,7 +246,7 @@ const Button = styled.div`
     font-size: 0.7rem;
     text-align: center;
     margin: 0rem 0.5rem;
-    cursor:pointer;
+    cursor: pointer;
     &:hover {
         background: #05b5cc;
     }
@@ -257,13 +256,13 @@ const mapStateToProps = (state) => {
     return {
         // shouldConnect: state.auth.shouldConnect,
         // isConnected: state.auth.isConnected,
-        user: state.auth.user,
+        user: state.auth.user
     }
 }
 
 const mapDispatchToProps = (dispatch) => ({
     setConnected: (data) => dispatch(setConnected(data)),
-    setDisconnected: (data) => dispatch(setDisconnected(data)),
+    setDisconnected: (data) => dispatch(setDisconnected(data))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header)

@@ -13,7 +13,7 @@ axios.defaults.headers.post["Content-Type"] = "application/json"
 axios.defaults.headers.post["Accept"] = "application/json"
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
 
-const PreSaleDetail = ({address,isConnected}) => {
+const PreSaleDetail = ({address,isConnected, viewLaunchPadData}) => {
     const investementPreSale = useSelector((state) => state.auth.investementPreSale)
     const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
     const [hardCapInWei, setHardCapInWei] = useState()
@@ -230,7 +230,7 @@ useEffect(()=>{
         <Wrapper>
             <Row>
                 <Column>
-                    <Heading>Project</Heading>
+                    <Heading>LaunchPad</Heading>
                 </Column>
             </Row>
 
