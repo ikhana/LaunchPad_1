@@ -5,7 +5,6 @@ import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 
 const IntroContent = ({user}) => {
-    debugger
     return (
         <Wrapper>
             <Spacer />
@@ -15,25 +14,20 @@ const IntroContent = ({user}) => {
                     <Content>LaunchPad helps everyone to create their own tokens and token sales in few seconds. Tokens created on LaunchPad will be verified and published on explorer websites.</Content>
                 </Col>
                 <Col lg={8} offset={2}>
-                    {user?.token != '' &&  user?.token != undefined? (
-                        <Flex>
+                    <Flex>
+                        {user?.tokens?.length > 0 ? (
                             <Linking to="/viewLaunchPad">
                                 <Button>View your LaunchPad</Button>
                             </Linking>
-                            <Linking to="/viewAllLaunchPad">
-                                <Button>Checkout Projects</Button>
-                            </Linking>
-                        </Flex>
-                    ) : (
-                        <Flex>
+                        ) : (
                             <Linking to="/createLaunchPad">
                                 <Button>Create your LaunchPad</Button>
                             </Linking>
-                            <Linking to="/viewAllLaunchPad">
-                                <Button>Checkout Projects</Button>
-                            </Linking>
-                        </Flex>
-                    )}
+                        )}
+                        <Linking to="/viewAllLaunchPad">
+                            <Button>Checkout Projects</Button>
+                        </Linking>
+                    </Flex>
                 </Col>
                 <Col lg={8} offset={2}>
                     <Content>LaunchPad helps everyone to create their own tokens and token sales in few seconds. Tokens created on LaunchPad will be verified and published on explorer websites.</Content>
@@ -57,7 +51,6 @@ const IntroContent = ({user}) => {
                             <br />
                             <Tag>Comming soon</Tag>
                         </ChainList>
-
                         <ChainList>
                             <CardHeading>FANTOM</CardHeading>
                         </ChainList>

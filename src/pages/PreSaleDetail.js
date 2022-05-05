@@ -1,4 +1,4 @@
-import React, {useEffect, useState,Link} from 'react'
+import React, {useEffect, useState, Link} from 'react'
 import styled from 'styled-components'
 import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
@@ -7,15 +7,16 @@ import {ethers} from 'ethers'
 import {getLocal} from 'web3modal'
 import {connect} from 'react-redux'
 import {api} from '../config/apiBaseUrl'
-import {InvestementPreSale} from '../config/contracts/presaleInvest'
-import axios from "axios"
-axios.defaults.headers.post["Content-Type"] = "application/json"
-axios.defaults.headers.post["Accept"] = "application/json"
-axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*"
+import {PreSaleContract} from '../config/contracts/PreSale'
 
-const PreSaleDetail = ({address,isConnected, viewLaunchPadData}) => {
-    const investementPreSale = useSelector((state) => state.auth.investementPreSale)
-    const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
+import axios from 'axios'
+axios.defaults.headers.post['Content-Type'] = 'application/json'
+axios.defaults.headers.post['Accept'] = 'application/json'
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
+
+const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
+    const signer = useSelector((state) => state.auth.signer)
+    const user = useSelector((state) => state.auth.user)
     const [hardCapInWei, setHardCapInWei] = useState()
     const [softCapInWei, setSoftCapInWei] = useState()
     const [closeTime, setCloseTime] = useState()
@@ -28,54 +29,34 @@ const PreSaleDetail = ({address,isConnected, viewLaunchPadData}) => {
     const [webisteLink, setWebsiteLink] = useState('')
     const [investAmount, setInvestAmount] = useState('')
     const [investerCount, setInvesterCount] = useState('')
-    const  [totalInvestedAmount, setTotalInvestment] = useState('')
-    const  [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
-    const  [match, setMatchg] = useState(false)
+    const [totalInvestedAmount, setTotalInvestment] = useState('')
+    const [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
+    const [match, setMatch] = useState(false)
+    const [investementPreSale, setInvestementPreSale] = useState(null)
 
-useEffect(()=>{
-    if(isConnected){
-        //state.auth.token
-      //  getOwnerandAddress();
-        // presaleCreatorAddress()
-    }
-},[isConnected]);
-
- useEffect(()=>{
-     if(address != null)
-        checkAddressApi()
-    },[address])
-
-    const getOwnerandAddress = async () => {
-        if (!investmentFactoryContract) {
-            alert("Please connect your wallet !")
+    useEffect(async () => {
+        if (signer) {
+            if (user && user.tokens.length > 0) {
+                preSaleViewToken = user.tokens[0].token
+                setMatch(true)
+            } //todo.. if user view the page without login/or directly.. check in user tokens if match then its setmatch(true)
+            const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
+            setInvestementPreSale(_investementPreSale)
         }
-        try {
+    }, [signer])
 
-            const getPresaleCreaterAndContrat = await investmentFactoryContract.getaddresses()
-            console.log("Owner", getPresaleCreaterAndContrat)
-            addPreSale(getPresaleCreaterAndContrat);
-
-            
-        } catch (lolo) {
-            console.log(lolo.data.message)
-            
+    useEffect(async () => {
+        if (investementPreSale) {
+            await readLaunchpadInfo()
         }
-    }
-    const presaleCreatorAddress = async () =>{
+    }, [investementPreSale])
+
+    const presaleCreatorAddress = async () => {
         const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
         setPreSaleCreatorAddress(presaleCreatorAddress.toString())
-
-        console.log('presaleCreatorAddress',presaleCreatorAddress.toString())
-        console.log('InvestementPreSale',InvestementPreSale)
     }
 
-    const logGet = async () => {
-        if (!investementPreSale) {
-            alert('you are trying to connect to a null contract')
-        }
-
-        //setDevFeeInWie(await investementPreSale.getMinDevFeeInWei())
-        //const investementPreSale = new ethers.Contract(InvestementPreSale.id,InvestementPreSale.abi,signer)
+    const readLaunchpadInfo = async () => {
         const hardCapInWei = await investementPreSale.hardCapInWei()
         const softCapInWei = await investementPreSale.softCapInWei()
         const maxInvestInWei = await investementPreSale.maxInvestInWei()
@@ -83,13 +64,13 @@ useEffect(()=>{
         const totalCollectedWei = await investementPreSale.totalCollectedWei()
         const startTime = await investementPreSale.openTime()
         const endTime = await investementPreSale.closeTime()
-        setInvesterCount(await investementPreSale.totalInvestorsCount())
-  
-        const startDate = new Date(startTime*1000);
-        const endDate = new Date(endTime*1000);
-        
+        const _totalInvestorsCount = await investementPreSale.totalInvestorsCount()
+        setInvesterCount(_totalInvestorsCount)
 
+        const startDate = new Date(startTime * 1000)
+        const endDate = new Date(endTime * 1000)
 
+        //todo add it in varaibles
         setHardCapInWei(ethers.utils.formatEther(hardCapInWei))
         setSoftCapInWei(ethers.utils.formatEther(softCapInWei))
         setCloseTime(endDate)
@@ -97,7 +78,6 @@ useEffect(()=>{
         setMaxInvestInWei(ethers.utils.formatEther(maxInvestInWei))
         setMinInvetsInWei(ethers.utils.formatEther(minInvestInWei))
         setTotalInvestment(ethers.utils.formatEther(totalCollectedWei))
-
 
         const telegramBytes = await investementPreSale.linkTelegram()
         const twitterBytes = await investementPreSale.linkTwitter()
@@ -107,24 +87,15 @@ useEffect(()=>{
         setTwitterLink(ethers.utils.parseBytes32String(twitterBytes))
         setDiscordLink(ethers.utils.parseBytes32String(discordBytes))
         setWebsiteLink(ethers.utils.parseBytes32String(websiteBytes))
-
-  
-
-        try {
-            console.log('hard cap=>', hardCapInWei.toString(), 'softcap', softCapInWei.toString(), 'close Time', closeTime.toString(), 'open time', openTime.toString(), 'MaxInvest', maxInvestInWei.toString(), 'telegram bytes', telegramBytes, 'and telegram link', telegramLink, 'discordbytes', discordBytes, 'discord Link', discordLink, 'twitterBytes', twitterBytes, 'websiteBytes', websiteBytes, 'website Link', webisteLink)
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     const investIn = async () => {
-        if(!investementPreSale){
-            alert("please connect your wallet")
+        if (!investementPreSale) {
+            alert('please connect your wallet first')
             if (!investAmount) {
                 alert('Please enter the amount for investment')
             }
         }
-      
         try {
             const investTx = await investementPreSale.invest({value: ethers.utils.parseEther(investAmount)})
             await investTx.wait()
@@ -134,18 +105,13 @@ useEffect(()=>{
     }
 
     const addLiquidityAndLockLPTokens = async () => {
-
         try {
             const addLiquidityAndLockLPTokensTx = await investementPreSale.addLiquidityAndLockLPTokens()
-        await addLiquidityAndLockLPTokensTx.wait()
-            
+            await addLiquidityAndLockLPTokensTx.wait()
         } catch (lolo) {
             alert(lolo.data.message)
-            
         }
-        
     }
-    
 
     const claimTokens = async () => {
         try {
@@ -156,189 +122,156 @@ useEffect(()=>{
         }
     }
 
-    const cancelAndTransferTokensToPresaleCreator = async () =>{
+    const cancelAndTransferTokensToPresaleCreator = async () => {
         try {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
-
-            
-        } catch (lolo) {
-            alert(lolo.data.message)
-
-            
+        } catch (error) {
+            alert(error.data.message)
         }
-       
     }
 
-    const collectFundsRaised = async()=>{
+    const collectFundsRaised = async () => {
         try {
-
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
-             await collectFundsRaisedTx.wait()
-            
-        } catch (lolo) {
-            alert(lolo.data.message)
-            
+            await collectFundsRaisedTx.wait()
+        } catch (error) {
+            alert(error.data.message)
         }
     }
 
-    const getRefund = async() =>{
+    const getRefund = async () => {
         try {
-
-           const getRefundTx = await investementPreSale.getRefund()
-           await getRefundTx.wait() 
-            
-        } catch (lolo) {
-            alert(lolo.data.message)
-            
+            const getRefundTx = await investementPreSale.getRefund()
+            await getRefundTx.wait()
+        } catch (error) {
+            alert(error.data.message)
         }
-    }
-    const checkAddressApi = () => {
-        axios.post(
-            `${api}/user/find`,
-            {
-                token: address,
-            }
-        )
-            .then((response) => {
-                if(response.data.status){
-                    setMatchg(false)
-                }
-                else{
-                    setMatchg(true)
-                }
-              
-            })
-            .catch(function (error) {})
-    }
-
-    const addPreSale = (data) => {
-        axios.post(
-            `${api}/pre_sale/add`,
-            {
-                user: data[0],
-                token: data[1]
-            }
-        )
-            .then((response) => {
-                console.log(response)
-            })
-            .catch(function (error) {})
     }
 
     return (
         <Wrapper>
             <Row>
                 <Column>
-                    <Heading>LaunchPad</Heading>
+                    <Heading>LaunchPad Details</Heading>
                 </Column>
             </Row>
-
-            <Spacer />
-            <Row>
-                <Label lg={4}>
-                    Social Profile:
-                </Label>
-                <Column lg={8}>
-
-                    <a href={webisteLink}  target="_blank" rel="noopener noreferrer"> <Icon src="/images/discord.svg"/></a>
-                    <a href={webisteLink}> <Icon src="/images/telegram.svg" /></a>
-                    <a href={webisteLink}> <Icon  src="/images/twitter.png" /></a>
-                </Column>
-            </Row>
-            <Spacer />
-            <Row></Row>
-            <Spacer />
-            <Spacer />
-            <Row>
-                <Column>
-                    <Heading>PreSale Details</Heading>
-                </Column>
-            </Row>
-
-            <Row>
-                <Column lg={6}>
-                    Maximum Invest per Address (BNB): <Content>{maxInvestInWei?.toString()}</Content>
-                </Column>
-                <Column lg={6}>
-                    Minimum Invest per Address (BNB): <Content>{minInvestInWei?.toString()}</Content>
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={6}>
-                    Maximum Capital (BNB): <Content>{hardCapInWei?.toString()}</Content>
-                </Column>
-                <Column lg={6}>
-                    Minimum Capital (BNB):<Content> {softCapInWei?.toString()}</Content>
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={6}>
-                    Total Investors :<Content>{investerCount?.toString()}</Content>
-                </Column>
-                <Column lg={6}>
-                    Total Invested Amount in BNB: <Content>{totalInvestedAmount?.toString()}</Content>
-                </Column>
-            </Row>
-            <Spacer />
-            <Row>
-                <Column lg={6}>
-                    Opening Time:<Content>{openTime?.toString()}</Content>
-                </Column>
-                <Column lg={6}>
-                    End Time: <Content>{closeTime?.toString()}</Content>
-                </Column>
-            </Row>
-            <Spacer />
-             <>
-                <Spacer />
-                <Row>
-                    {match == false && 
-                    <Flexed lg={10}>
-                        <ButtonContainer>
-                            <Button onClick={investIn}>Invest</Button>
-                            <InputText
-                                value={investAmount.toString()}
-                                onChange={(e) => {
-                                    setInvestAmount(e.target.value)
-                                }}
-                            />
-                        </ButtonContainer>
-                    </Flexed>
-                }
-                    {match && <> <SecondButtonContainer lg={3}>
-                           <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                     </SecondButtonContainer> 
-                      <SecondButtonContainer lg={3}>
-                            <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
-                     </SecondButtonContainer>
-                     <SecondButtonContainer lg={3}>
-                            <Button1 onClick={collectFundsRaised}> Collect Fund Raised</Button1>
-                     </SecondButtonContainer> </>}
-{match == false && <> 
-                     <SecondButtonContainer lg={3}>
-                            <Button1 onClick={claimTokens}>Claim Token</Button1>
-                     </SecondButtonContainer>
-                     <SecondButtonContainer lg={3}>
-                            <Button1 onClick={logGet}>Read Info</Button1>
-                     </SecondButtonContainer>
-                     <SecondButtonContainer lg={3}>
-                            <Button1 onClick={getRefund}> Get Refund</Button1>
-                     </SecondButtonContainer>
-                     <SecondButtonContainer lg={3}>
-                            <Button1 onClick={presaleCreatorAddress}> PresaleCreater Address</Button1>
-                     </SecondButtonContainer>
-                     {/* <SecondButtonContainer lg={3}>
+            {investementPreSale && (
+                <>
+                    <Row>
+                        <Column>
+                            <Heading>PreSale Details</Heading>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <Column lg={6}>
+                            Maximum Invest per Address (BNB): <Content>{maxInvestInWei?.toString()}</Content>
+                        </Column>
+                        <Column lg={6}>
+                            Minimum Invest per Address (BNB): <Content>{minInvestInWei?.toString()}</Content>
+                        </Column>
+                    </Row>
+                    <Spacer />
+                    <Row>
+                        <Column lg={6}>
+                            Maximum Capital (BNB): <Content>{hardCapInWei?.toString()}</Content>
+                        </Column>
+                        <Column lg={6}>
+                            Minimum Capital (BNB):<Content> {softCapInWei?.toString()}</Content>
+                        </Column>
+                    </Row>
+                    <Spacer />
+                    <Row>
+                        <Column lg={6}>
+                            Total Investors :<Content>{investerCount?.toString()}</Content>
+                        </Column>
+                        <Column lg={6}>
+                            Total Invested Amount in BNB: <Content>{totalInvestedAmount?.toString()}</Content>
+                        </Column>
+                    </Row>
+                    <Spacer />
+                    <Row>
+                        <Column lg={6}>
+                            Start Time:<Content>{openTime?.toString()}</Content>
+                        </Column>
+                        <Column lg={6}>
+                            End Time: <Content>{closeTime?.toString()}</Content>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <Column>
+                            <Heading>Social Details</Heading>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <Label lg={4}></Label>
+                        <Column lg={8}>
+                            <a href={webisteLink} target="_blank" rel="noopener noreferrer">
+                                {' '}
+                                <Icon src="/images/discord.svg" />
+                            </a>
+                            <a href={webisteLink}>
+                                {' '}
+                                <Icon src="/images/telegram.svg" />
+                            </a>
+                            <a href={webisteLink}>
+                                {' '}
+                                <Icon src="/images/twitter.png" />
+                            </a>
+                        </Column>
+                    </Row>
+                    <Spacer />
+                    <Row>
+                        {match == false && (
+                            <Flexed lg={10}>
+                                <ButtonContainer>
+                                    <Button onClick={investIn}>Invest</Button>
+                                    <InputText
+                                        value={investAmount.toString()}
+                                        onChange={(e) => {
+                                            setInvestAmount(e.target.value)
+                                        }}
+                                    />
+                                </ButtonContainer>
+                            </Flexed>
+                        )}
+                        {match && (
+                            <>
+                                {' '}
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
+                                </SecondButtonContainer>
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
+                                </SecondButtonContainer>
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
+                                </SecondButtonContainer>{' '}
+                            </>
+                        )}
+                        {match == false && (
+                            <>
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={claimTokens}>Claim Token</Button1>
+                                </SecondButtonContainer>
+                                {/* <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
+                                </SecondButtonContainer> */}
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={getRefund}>Get Refund</Button1>
+                                </SecondButtonContainer>
+                                <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={presaleCreatorAddress}>PresaleCreater Address</Button1>
+                                </SecondButtonContainer>
+                                {/* <SecondButtonContainer lg={3}>
                             <Button1 onClick={apiCall}> Save</Button1>
                      </SecondButtonContainer> */}
-                     </>}
-                </Row>
+                            </>
+                        )}
+                    </Row>
+                    <Spacer />
                 </>
-            
-            
-            <Spacer />
+            )}
         </Wrapper>
     )
 }
@@ -356,10 +289,10 @@ const Column = styled(Col)`
     align-items: center;
 `
 const SecondButtonContainer = styled(Column)`
-display:flex;
-justify-content: space-between;
-align-items: center;
-margin-top:0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
 `
 
 const Flex = styled(Column)`
@@ -410,7 +343,7 @@ const Button = styled.a`
     font-size: 1rem;
     margin: 0rem 1rem 1rem 0;
     text-decoration: none;
-    cursor:pointer;
+    cursor: pointer;
     &:hover {
         background: #05b5cc;
     }
@@ -425,8 +358,8 @@ const Button1 = styled.a`
     border: none;
     font-size: 1rem;
     text-decoration: none;
-    cursor:pointer;
-    align-items:center;
+    cursor: pointer;
+    align-items: center;
     &:hover {
         background: #05b5cc;
     }
@@ -443,7 +376,8 @@ const Icon = styled.img`
 
 const Text = styled.p``
 const Content = styled.p`
-    margin-left: 2rem;
+    margin-left: 0.2rem;
+    font-size: 0.9rem;
 `
 const mapStateToProps = (state) => {
     return {

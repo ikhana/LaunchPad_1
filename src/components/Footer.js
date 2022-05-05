@@ -28,7 +28,7 @@ const Footer = () => {
                     </Column>
                     <Column>
                         <Heading>Contact Us</Heading>
-                        <FooterLink href="#">linchpad@gmail.com</FooterLink>
+                        <FooterLink href="#">launchpad@gmail.com</FooterLink>
                         <FooterLink href="#">042-5555-555-55</FooterLink>
                         <FooterLink href="#">xyz street </FooterLink>
                     </Column>

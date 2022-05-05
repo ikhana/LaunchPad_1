@@ -14,14 +14,15 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Product = () => {
     const [allProducts, setAllProducts] = useState([])
-    const [viewLaunchPadData, setViewLaunchPadData] = useState()
+    const [preSaleViewToken, setPreSaleViewToken] = useState('')
 
     useEffect(() => {
         viewAllProjects()
     }, [])
+
     const viewAllProjects = () => {
         axios
-            .get(`${api}/view_all_projects`)
+            .get(`${api}/user/view_all_projects`)
             .then((response) => {
                 if (response.data.status) {
                     resetAllProducts()
@@ -32,7 +33,9 @@ const Product = () => {
                     })
                 }
             })
-            .catch(function (error) {})
+            .catch(function (error) {
+                //todo..show error to user
+            })
     }
 
     const resetAllProducts = () => {
@@ -41,7 +44,7 @@ const Product = () => {
 
     return (
         <>
-            {viewLaunchPadData == null ? (
+            {preSaleViewToken == '' ? (
                 <>
                     <Wrapper>
                         <Row>
@@ -52,7 +55,6 @@ const Product = () => {
                         <Spacer />
                         <Row>
                             <FilterContent lg={12}>
-                                <Button>VIP Coming </Button>
                                 <Button>Live</Button>
                                 <Button>Completed</Button>
                                 <Button>Faild</Button>
@@ -67,14 +69,14 @@ const Product = () => {
                                         key={index}
                                         lg={6}
                                         onClick={() => {
-                                            setViewLaunchPadData(value)
+                                            setPreSaleViewToken(value.token)
                                         }}>
                                         <Card>
                                             <Content>
-                                                <Label>Token :</Label> {value.token ? value.token : '-'}
+                                                <Label>PreSale:</Label> {value.token ? value.token : '-'}
                                             </Content>
                                             <Content>
-                                                <Label>Address :</Label> {value.address ? value.address : '-'}
+                                                <Label>Owner:</Label> {value.address ? value.address : '-'}
                                             </Content>
                                         </Card>
                                     </CustomCol>
@@ -86,7 +88,7 @@ const Product = () => {
                     </Wrapper>
                 </>
             ) : (
-                <PreSaleDetail viewLaunchPadData={viewLaunchPadData} />
+                <PreSaleDetail preSaleViewToken={preSaleViewToken} />
             )}
         </>
     )
@@ -101,6 +103,7 @@ const Column = styled(Col)`
 
 const CustomCol = styled(Column)`
     margin-bottom: 1rem;
+    cursor: pointer;
 `
 const Flex = styled(Column)`
     display: flex;

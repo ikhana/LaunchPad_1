@@ -6,15 +6,14 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import WalletLink from 'walletlink'
 import {ethers} from 'ethers'
 import CreateToken from '../pages/CreateToken'
-import {investmentFactoryContract} from '../config/contracts/InvestmentsFactory'
+import {LaunchPadContract} from '../config/contracts/LaunchPad'
 import {InvestementInfo} from '../config/contracts/InvetmentInfo'
-import {InvestementPreSale} from '../config/contracts/presaleInvest'
 import {connect} from 'react-redux'
 import {bindActionCreators, compose} from 'redux'
 import {api} from '../config/apiBaseUrl'
 import {setConnected, setDisconnected} from '../actions/authActions'
 import {toast} from 'react-toastify'
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -23,10 +22,8 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Header = (props) => {
     const [open, setOpen] = useState(false)
-    const [userData, setUserData] = useState(null)
-    const navigate = useNavigate();
-    //get it via connector
-    //get it via connector
+    const navigate = useNavigate()
+
     const [isConnected, setIsConnected] = useState(false)
 
     const closeModel = () => {
@@ -94,47 +91,44 @@ const Header = (props) => {
             let address = await signer.getAddress()
             address = address.toLowerCase()
             const user = await doLogin(address)
+            console.log(user)
             const chainId = await signer.getChainId()
+            if (user) {
+                const launchPadContract = new ethers.Contract(LaunchPadContract.id, LaunchPadContract.abi, signer)
+                const investmentInfoRead = new ethers.Contract(InvestementInfo.id, InvestementInfo.abi, signer)
 
-            const investmentFactoryContract1 = new ethers.Contract(investmentFactoryContract.id, investmentFactoryContract.abi, signer)
-            const investmentInfoRead = new ethers.Contract(InvestementInfo.id, InvestementInfo.abi, signer)
-            const investementPreSale = new ethers.Contract(InvestementPreSale.id, InvestementPreSale.abi, signer)
+                if (chainId.toString() == '97') {
+                    const isConnected = Boolean(provider && signer)
+                    const chainError = false
+                    setIsConnected(isConnected)
+                    props.setConnected({
+                        isConnected: isConnected,
+                        chainError: false,
+                        user: user,
+                        signer: signer,
+                        address: address,
+                        launchPadContract: launchPadContract,
+                        investmentInfoRead: investmentInfoRead //its set for admin.. why?
+                    })
 
-            // const   hardCapInWei = await investementPreSale.hardCapInWei()
+                    web3.on('accountsChanged', (accounts) => {
+                        handleDisconnect()
+                    })
 
-            /*  try {
-                console.log('first Read from the investment contract =>',  hardCapInWei.toString() )
-                
-            } catch (error) {
-                console.log(error)
-                
-            }*/
-            // console.log(investmentFactoryRead.address)
-            if (chainId.toString() == '97') {
-                const isConnected = Boolean(provider && signer)
-                const chainError = false
-                setIsConnected(isConnected)
-                props.setConnected({
-                    isConnected: isConnected,
-                    chainError: false,
-                    user: user,
-                    address: address,
-                    investmentFactoryContract1: investmentFactoryContract1,
-                    investmentInfoRead: investmentInfoRead,
-                    investementPreSale: investementPreSale
-                })
+                    web3.on('chainChanged', (chainId) => {
+                        handleDisconnect()
+                    })
 
-                web3.on('accountsChanged', (accounts) => {
-                    handleDisconnect()
-                })
-
-                web3.on('chainChanged', (chainId) => {
-                    handleDisconnect()
-                })
-
-                web3.on('disconnect', (error) => {
-                    handleDisconnect()
-                })
+                    web3.on('disconnect', (error) => {
+                        handleDisconnect()
+                    })
+                } else {
+                    alert('Please connect to chain id 97')
+                    props.setConnected({
+                        isConnected: false,
+                        chainError: true
+                    })
+                }
             } else {
                 alert('Please connect to chain id 97')
                 props.setConnected({
@@ -152,24 +146,13 @@ const Header = (props) => {
     }
 
     const doLogin = async (address) => {
-        const response = await axios.post(`${api}/login`, {address: address})
+        const response = await axios.post(`${api}/user/login`, {address: address})
         if (response.data.status) {
-            toast.success('Connect your wallet successfully', {})
-            debugger
-            const result = await findToken(address)
-            debugger
-            if (result.data.status) {
-                response.data.data.token = result.data.data.token
-            }
-
-            return response.data.data
+            toast.success('Wallet connected successfully')
+            return response.data
         } else {
+            return false
         }
-    }
-
-    const findToken = async (address) => {
-        const result = await axios.post(`${api}/pre_sale/find`, {address: address})
-        return result
     }
 
     return (
@@ -182,7 +165,12 @@ const Header = (props) => {
                 <Nav>
                     <Wrapper>
                         <LogoContent>
-                            <Logo src="/images/logo.png" onClick={()=>{navigate('/')}} />
+                            <Logo
+                                src="/images/logo.png"
+                                onClick={() => {
+                                    navigate('/')
+                                }}
+                            />
                         </LogoContent>
                     </Wrapper>
                     <Col>
@@ -227,6 +215,7 @@ const LogoContent = styled.div`
 const Logo = styled.img`
     width: 14rem;
     padding: 0rem;
+    cursor: pointer;
 `
 const NavBar = styled.div`
     width: 100%;

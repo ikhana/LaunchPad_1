@@ -8,19 +8,21 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
-import {api} from '../config/apiBaseUrl'
 const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
-
 import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
+
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
+import {api} from '../config/apiBaseUrl'
+
 const LaunchPad = () => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
-    const investmentFactoryContract = useSelector((state) => state.auth.investmentFactoryContract1)
+    const launchPadContract = useSelector((state) => state.auth.launchPadContract)
     const [tokenAddress, setTokenAddress] = useState('')
     const [tokenAddressError, setTokenAddressError] = useState('false')
     const [activeStep, setActiveStep] = useState(0)
@@ -58,24 +60,26 @@ const LaunchPad = () => {
     const [discord, setDiscord] = useState('')
     const [twitter, setTwitter] = useState('')
     const [website, setWebsite] = useState('')
-
     const [saleTitleError, setSaleTitleError] = useState(false)
     const [telegramLinkError, setTelegramLinkError] = useState(false)
     const [discordError, setDiscordError] = useState(false)
     const [twitterError, setTwitterError] = useState(false)
     const [websiteError, setWebsiteError] = useState(false)
-
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
-
     const [presalePrice, setPresalePrice] = useState('')
     const [presalePriceError, setPresalePriceError] = useState(false)
+    const navigate = useNavigate()
+
+    const reg_expression = /^(0x)?[0-9a-f]{40}$/
+    const reg_for_positive = /^[+]?\d*(?:[.,]\d*)?$/
 
     const checktokenPrice = () => {
         if (tokenPrice.trim() === '') {
             settokenPriceError(true)
         }
     }
+
     const checkpresalePrice = () => {
         if (presalePrice.trim() === '') {
             setPresalePriceError(true)
@@ -83,6 +87,7 @@ const LaunchPad = () => {
             settokenPriceError(false)
         }
     }
+
     const checksoftCap = () => {
         if (softCap.trim() === '') {
             setSoftCapError(true)
@@ -90,6 +95,7 @@ const LaunchPad = () => {
             setSoftCapError(false)
         }
     }
+
     const checkhardCap = () => {
         if (hardCap.trim() === '') {
             setHardCapError(true)
@@ -97,6 +103,7 @@ const LaunchPad = () => {
             setHardCapError(false)
         }
     }
+
     const checkminimum = () => {
         if (minimum.trim() === '') {
             setMinimumError(true)
@@ -104,6 +111,7 @@ const LaunchPad = () => {
             setMinimumError(false)
         }
     }
+
     const checkmaximum = () => {
         if (maximum.trim() === '') {
             setMaximumError(true)
@@ -111,6 +119,7 @@ const LaunchPad = () => {
             setMaximumError(false)
         }
     }
+
     const checkliquidity = () => {
         if (liquidity.trim() === '') {
             setLiquidityError(true)
@@ -118,6 +127,7 @@ const LaunchPad = () => {
             setLiquidityError(false)
         }
     }
+
     const checklpTokensDurationInDays = () => {
         if (liquidity.trim() === '') {
             setLpTokensDurationInDaysError(true)
@@ -125,6 +135,7 @@ const LaunchPad = () => {
             setLpTokensDurationInDaysError(false)
         }
     }
+
     const checklistingPrice = () => {
         if (listingPrice.trim() === '') {
             setListingPriceError(true)
@@ -132,6 +143,7 @@ const LaunchPad = () => {
             setListingPriceError(false)
         }
     }
+
     const checkliquidityLockup = () => {
         if (liquidityLockup === '') {
             setLiquidityLockupError(true)
@@ -139,74 +151,12 @@ const LaunchPad = () => {
             setLiquidityLockupError(false)
         }
     }
+
     const checkstartTime = () => {
         if (startTime === '') {
             setStartTimeError(true)
         } else {
             setStartTimeError(false)
-        }
-    }
-
-    const reg_expression = /^(0x)?[0-9a-f]{40}$/
-    const reg_for_positive = /^[+]?\d*(?:[.,]\d*)?$/
-
-    const getTupleSet = async () => {
-        if (!investmentFactoryContract) {
-            alert('Please connect to chain id 97')
-        }
-        let tokensTuple = {
-            tokenAddress: tokenAddress,
-            unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dEaD',
-            whitelistedAddresses: [],
-            tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
-            hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
-            softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
-            maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
-            minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
-            openTime: moment(startTime).unix().toString(),
-            closeTime: moment(endTime).unix().toString()
-        }
-        let infoTuple = {
-            listingPriceInWei: ethers.utils.parseUnits(listingPrice, 18).toString(),
-            liquidityAddingTime: moment(liquidityLockup).unix().toString(),
-            lpTokensLockDurationInDays: lpTokensDurationInDays,
-            liquidityPercentageAllocation: liquidity
-        }
-        let socialTuple = {
-            saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
-            linkTelegram: bytes32({input: telegramLink, ignoreLength: true}).toLowerCase(),
-            linkDiscord: bytes32({input: discord, ignoreLength: true}).toLowerCase(),
-            linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
-            linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
-        }
-
-        // const sss = await investmentFactoryContract.SAFU()
-        try {
-            const createPresale = true //await investmentFactoryContract.createPresale(tokensTuple, infoTuple, socialTuple)
-
-            const response = true //await createPresale.wait()
-
-            if (response) {
-                // const owne = await investmentFactoryContract.owner()
-                //console.log(owner.toString())
-                axios
-                    .post(`${api}/pre_sale/add`, {
-                        address: userAddress,
-                        token: '0x121313231'
-                    })
-                    .then((response) => {
-                        if (response.data.status) {
-                            setStepFour(false)
-                            setActiveStep(0)
-                        }
-                    })
-                    .catch(function (error) {})
-                //console.log(investmentFactoryContract)
-            } else {
-                //show eror
-            }
-        } catch (e) {
-            alert(e.message)
         }
     }
 
@@ -248,9 +198,11 @@ const LaunchPad = () => {
     const scrollFirst = () => {
         document.getElementById('firstStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
     }
+
     const scrollSecond = () => {
         document.getElementById('secondStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
     }
+
     const scrollThird = () => {
         document.getElementById('thirdStep').scrollIntoView({behavior: 'smooth', block: 'center', inline: 'start'})
     }
@@ -373,8 +325,64 @@ const LaunchPad = () => {
         } else {
             setWebsiteError(false)
         }
-
         return _isValid
+    }
+
+    const createMyTokenPreSale = async () => {
+        if (!launchPadContract) {
+            alert('Please connect to chain id 97')
+        }
+        let tokensTuple = {
+            tokenAddress: tokenAddress,
+            unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dead', //todo..set it from ui
+            whitelistedAddresses: [],
+            tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
+            hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
+            softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
+            maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
+            minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
+            openTime: moment(startTime).unix().toString(),
+            closeTime: moment(endTime).unix().toString()
+        }
+        let infoTuple = {
+            listingPriceInWei: ethers.utils.parseUnits(listingPrice, 18).toString(),
+            liquidityAddingTime: moment(liquidityLockup).unix().toString(),
+            lpTokensLockDurationInDays: lpTokensDurationInDays,
+            liquidityPercentageAllocation: liquidity
+        }
+        let socialTuple = {
+            saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
+            linkTelegram: bytes32({input: telegramLink, ignoreLength: true}).toLowerCase(),
+            linkDiscord: bytes32({input: discord, ignoreLength: true}).toLowerCase(),
+            linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
+            linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
+        }
+        try {
+            const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
+            console.log(createPresale)
+            const response = await createPresale.wait()
+            const contractCreationToken = response.events[0].args[3]
+            if (contractCreationToken) {
+                axios
+                    .post(`${api}/pre_sale/add`, {
+                        address: userAddress,
+                        token: contractCreationToken
+                    })
+                    .then((response) => {
+                        if (response.data.status) {
+                            toast.success('Presale created successfully')
+                            setStepFour(false)
+                            setActiveStep(0)
+                            navigate('/')
+                        }
+                    })
+                    .catch(function (error) {})
+            } else {
+                //show eror
+            }
+        } catch (e) {
+            alert(e.message)
+        }
     }
 
     return (
@@ -488,7 +496,7 @@ const LaunchPad = () => {
                                     <Container>
                                         <Row>
                                             <CustomCol lg={12}>
-                                                <Label>Token Price</Label>
+                                                <Label>Token Price (BNB)</Label>
                                                 <InputText
                                                     value={tokenPrice}
                                                     type="number"
@@ -569,7 +577,7 @@ const LaunchPad = () => {
                                                 {maximumError == true && maximum.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {maximum && reg_for_positive.test(maximum) == false && <Alblur>Maximum must be Positive Number</Alblur>}
                                             </CustomCol>
-                                            <CustomCol lg={6}></CustomCol>
+                                            {/* <CustomCol lg={6}></CustomCol> */}
                                             <CustomCol lg={6}>
                                                 <Label>{name + 'Liquidity (%)'} </Label>
                                                 <InputText
@@ -587,7 +595,7 @@ const LaunchPad = () => {
                                                 {liquidityError && <Alblur>Liquidity must be{'>'}50%</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
-                                                <Label>{name + 'Listing Price'}</Label>
+                                                <Label>{name + 'Listing Price (BNB)'}</Label>
                                                 <InputText
                                                     value={listingPrice}
                                                     type="number"
@@ -785,7 +793,7 @@ const LaunchPad = () => {
                                             <Next
                                                 onClick={() => {
                                                     if (isConnected) {
-                                                        getTupleSet()
+                                                        createMyTokenPreSale()
                                                     } else {
                                                         toast.error('Please connect your wallet first', {})
                                                     }
@@ -866,13 +874,12 @@ const Button = styled.a`
         background: #05b5cc;
     }
 `
-
 const FlexCenter = styled(Col)`
     display: flex;
     justify-content: center;
 `
-
 const Stepper = styled.ul``
+
 const Item = styled.li`
     list-style: none;
 `
@@ -917,7 +924,6 @@ const Line = styled.span`
     display: flex;
     margin-left: 0.9rem;
 `
-
 const Back = styled(Button)`
     padding: 0.5rem 2rem !important;
     font-size: 0.9rem !important;
@@ -966,12 +972,12 @@ const InputDate = styled(DateTimePicker)`
         border: 0rem !important;
     }
 `
-
 const Text = styled.p`
     width: 100%;
     font-size: 0.8rem;
     color: #00bcd4;
 `
+
 const Alblur = styled.span`
     width: 100%;
     font-size: 0.8rem;

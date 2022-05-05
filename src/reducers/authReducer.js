@@ -3,11 +3,12 @@ import * as types from '../actions/types'
 const initialState = {
     isConnected: false,
     shouldConnect: false,
-    user:null,
+    user: null,
     address: null,
     chainError: false,
-    investmentFactoryContract: null,
-    investmentInfoRead: null
+    launchPadContract: null,
+    investmentInfoRead: null,
+    signer: null
 }
 
 export default function authReducer(state = initialState, action) {
@@ -28,7 +29,7 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...initialState
             }
-            
+
         default:
             return state
     }
