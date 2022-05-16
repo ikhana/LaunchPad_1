@@ -25,6 +25,7 @@ const LaunchPad = () => {
     const launchPadContract = useSelector((state) => state.auth.launchPadContract)
     const [tokenAddress, setTokenAddress] = useState('')
     const [tokenAddressError, setTokenAddressError] = useState('false')
+    const [unsoldTokensDumpAddressError,setUnsoldTokensDumpAddressError] = useState('false')
     const [activeStep, setActiveStep] = useState(0)
     const [stepOne, setStepOne] = useState(false)
     const [stepTwo, setStepTwo] = useState(false)
@@ -57,6 +58,7 @@ const LaunchPad = () => {
     const [saleTitle, setSaleTitle] = useState('')
     const [telegramLink, setTelegramLink] = useState('')
     const [totalInvestes, setTotalInvesters] = useState()
+    const [unsoldTokensDumpAddress, setUnsoldTokensDumpAddress] = useState()
     const [discord, setDiscord] = useState('')
     const [twitter, setTwitter] = useState('')
     const [website, setWebsite] = useState('')
@@ -334,7 +336,7 @@ const LaunchPad = () => {
         }
         let tokensTuple = {
             tokenAddress: tokenAddress,
-            unsoldTokensDumpAddress: '0x000000000000000000000000000000000000dead', //todo..set it from ui
+            unsoldTokensDumpAddress:  unsoldTokensDumpAddress,//'0x000000000000000000000000000000000000dead', //todo..set it from ui
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
             hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
@@ -461,22 +463,34 @@ const LaunchPad = () => {
                                                 />
                                                 {tokenAddressError == true && tokenAddress.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
+                                                <Label>Address for Unsold Tokens (Tokens to be dumpped)</Label>
+                                                <InputText
+                                                    value={unsoldTokensDumpAddress}
+                                                    onChange={(e) => {
+                                                        setUnsoldTokensDumpAddress(e.target.value.toLowerCase())
+                                                    }}
+                                                />
+                                                
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
+                                        
+                                               
                                         </Row>
                                     </Container>
                                     {activeStep > 0 && (
                                         <StepperFooter>
                                             <Next
                                                 onClick={() => {
-                                                    if (tokenAddress.trim() != '' && reg_expression.test(tokenAddress)) {
+                                                    if (tokenAddress.trim() != '' && reg_expression.test(tokenAddress))  {
                                                         setTokenAddressError(false)
+                                                        setUnsoldTokensDumpAddressError(false)
                                                         setStepOne(false)
                                                         setStepTwo(true)
                                                         scrollToStepSecond()
                                                         setActiveStep(2)
                                                     } else {
                                                         setTokenAddressError(true)
+                                                        setUnsoldTokensDumpAddressError(true)
                                                     }
                                                 }}>
                                                 Next
@@ -512,7 +526,7 @@ const LaunchPad = () => {
                                                 {tokenPrice && reg_for_positive.test(tokenPrice) === false && <Alblur>Token Price must be Positive Number</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
-                                                <Label>Softcap</Label>
+                                                <Label>Softcap (BNB)</Label>
                                                 <InputText
                                                     value={softCap}
                                                     type="number"
@@ -529,7 +543,7 @@ const LaunchPad = () => {
                                                 {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
                                             </CustomCol>
                                             <CustomCol lg={6}>
-                                                <Label>Hardcap</Label>
+                                                <Label>Hardcap (BNB)</Label>
                                                 <InputText
                                                     value={hardCap}
                                                     type="number"
