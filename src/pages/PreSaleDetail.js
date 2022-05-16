@@ -151,11 +151,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
     return (
         <Wrapper>
-            <Row>
-                <Column>
-                    <Heading>LaunchPad Details</Heading>
-                </Column>
-            </Row>
+            <Heading>LaunchPad Details</Heading>
             {investementPreSale && (
                 <>
                     <Row>
@@ -165,37 +161,37 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                     </Row>
                     <Row>
                         <Column lg={6}>
-                            Maximum Invest per Address (BNB): <Content>{maxInvestInWei?.toString()}</Content>
+                        <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
                         </Column>
                         <Column lg={6}>
-                            Minimum Invest per Address (BNB): <Content>{minInvestInWei?.toString()}</Content>
-                        </Column>
-                    </Row>
-                    <Spacer />
-                    <Row>
-                        <Column lg={6}>
-                            Maximum Capital (BNB): <Content>{hardCapInWei?.toString()}</Content>
-                        </Column>
-                        <Column lg={6}>
-                            Minimum Capital (BNB):<Content> {softCapInWei?.toString()}</Content>
+                            <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
                         </Column>
                     </Row>
                     <Spacer />
                     <Row>
                         <Column lg={6}>
-                            Total Investors :<Content>{investerCount?.toString()}</Content>
+                        <Text>Maximum Capital (BNB):</Text> <Content>{hardCapInWei?.toString()}</Content>
                         </Column>
                         <Column lg={6}>
-                            Total Invested Amount in BNB: <Content>{totalInvestedAmount?.toString()}</Content>
+                        <Text>Minimum Capital (BNB):</Text><Content> {softCapInWei?.toString()}</Content>
                         </Column>
                     </Row>
                     <Spacer />
                     <Row>
                         <Column lg={6}>
-                            Start Time:<Content>{openTime?.toString()}</Content>
+                        <Text>Total Investors :</Text><Content>{investerCount?.toString()}</Content>
                         </Column>
                         <Column lg={6}>
-                            End Time: <Content>{closeTime?.toString()}</Content>
+                        <Text>Total Invested Amount in BNB: </Text><Content>{totalInvestedAmount?.toString()}</Content>
+                        </Column>
+                    </Row>
+                    <Spacer />
+                    <Row>
+                        <Column lg={6}>
+                        <Text>Start Time:</Text><Content>{openTime?.toString()}</Content>
+                        </Column>
+                        <Column lg={6}>
+                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
                         </Column>
                     </Row>
                     <Row>
@@ -204,8 +200,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                         </Column>
                     </Row>
                     <Row>
-                        <Label lg={4}></Label>
-                        <Column lg={8}>
+                        <Column lg={12}>
                         <a href={webisteLink} target="_blank" rel="noopener noreferrer">
                                 {' '}
                                 <Icon src="/images/website.png" />
@@ -239,6 +234,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 </ButtonContainer>
                             </Flexed>
                         )}
+                        </Row>
+                        <CustomRow>
                         {match && (
                             <>
                                 {' '}
@@ -272,7 +269,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                      </SecondButtonContainer> */}
                             </>
                         )}
-                    </Row>
+                    </CustomRow>
                     <Spacer />
                 </>
             )}
@@ -378,11 +375,19 @@ const Icon = styled.img`
     width: 2.5rem;
 `
 
-const Text = styled.p``
+const Text = styled.span`
+  font-weight: bold;
+`
 const Content = styled.p`
     margin-left: 0.2rem;
     font-size: 0.9rem;
 `
+
+const CustomRow = styled(Row)`
+  display: flex;
+  justify-content: center;
+`
+
 const mapStateToProps = (state) => {
     return {
         address: state.auth.address,

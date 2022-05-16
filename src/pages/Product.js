@@ -55,9 +55,9 @@ const Product = () => {
                         <Spacer />
                         <Row>
                             <FilterContent lg={12}>
-                                <Button>Live</Button>
-                                <Button>Completed</Button>
-                                <Button>Faild</Button>
+                                <Button active={true}>Live</Button>
+                                <Button disabled={true}>Completed</Button>
+                                <Button disabled={true}>Faild</Button>
                             </FilterContent>
                         </Row>
                         <Spacer />
@@ -123,7 +123,6 @@ const Card = styled.div`
     padding: 1rem;
     box-sizing: border-box;
     width: 100%;
-    height: 12rem;
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
 `
 const Button = styled.a`
@@ -131,20 +130,24 @@ const Button = styled.a`
     text-align: center;
     padding: 0.8rem;
     background: #00bcd4;
+    background: ${({active, disabled}) => (active ? '#07bc0c' : disabled ? '#b9b6b6' : '#00bcd4')};
     color: white;
     border-radius: 0.4rem;
     border: none;
     font-size: 1rem;
     margin: 0rem 0.5rem;
     text-decoration: none;
+    cursor: ${({disabled}) => (disabled ? 'no-drop' : 'pointer')};
     &:hover {
-        background: #05b5cc;
+        background: ${({active, disabled}) => (active ? '#06b30b' : disabled ? '#b9b6b6' : '#00bcd4')};
     }
 `
 
 const Content = styled.span`
     display: flex;
-    margin-bottom: 1rem;
+    &:not(:last-child) {
+        margin-bottom: 1rem;
+    }
 `
 
 const Label = styled.span`
