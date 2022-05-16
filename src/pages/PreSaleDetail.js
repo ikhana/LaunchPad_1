@@ -206,15 +206,19 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                     <Row>
                         <Label lg={4}></Label>
                         <Column lg={8}>
-                            <a href={webisteLink} target="_blank" rel="noopener noreferrer">
+                        <a href={webisteLink} target="_blank" rel="noopener noreferrer">
+                                {' '}
+                                <Icon src="/images/website.png" />
+                            </a>
+                             <a href={discordLink} target="_blank" rel="noopener noreferrer">
                                 {' '}
                                 <Icon src="/images/discord.svg" />
                             </a>
-                            <a href={webisteLink}>
+                            <a href={telegramLink}>
                                 {' '}
                                 <Icon src="/images/telegram.svg" />
                             </a>
-                            <a href={webisteLink}>
+                            <a href={twitterLink}>
                                 {' '}
                                 <Icon src="/images/twitter.png" />
                             </a>
