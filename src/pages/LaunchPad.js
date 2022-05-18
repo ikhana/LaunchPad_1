@@ -25,7 +25,7 @@ const LaunchPad = () => {
     const launchPadContract = useSelector((state) => state.auth.launchPadContract)
     const [tokenAddress, setTokenAddress] = useState('')
     const [tokenAddressError, setTokenAddressError] = useState('false')
-    const [unsoldTokensDumpAddressError,setUnsoldTokensDumpAddressError] = useState('false')
+    const [unsoldTokensDumpAddressError, setUnsoldTokensDumpAddressError] = useState('false')
     const [activeStep, setActiveStep] = useState(0)
     const [stepOne, setStepOne] = useState(false)
     const [stepTwo, setStepTwo] = useState(false)
@@ -336,7 +336,7 @@ const LaunchPad = () => {
         }
         let tokensTuple = {
             tokenAddress: tokenAddress,
-            unsoldTokensDumpAddress:  unsoldTokensDumpAddress,//'0x000000000000000000000000000000000000dead', //todo..set it from ui
+            unsoldTokensDumpAddress: unsoldTokensDumpAddress, 
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
             hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
@@ -359,6 +359,7 @@ const LaunchPad = () => {
             linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
             linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
         }
+        debugger
         try {
             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
             console.log(createPresale)
@@ -470,18 +471,16 @@ const LaunchPad = () => {
                                                         setUnsoldTokensDumpAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
-                                                
+
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
-                                        
-                                               
                                         </Row>
                                     </Container>
                                     {activeStep > 0 && (
                                         <StepperFooter>
                                             <Next
                                                 onClick={() => {
-                                                    if (tokenAddress.trim() != '' && reg_expression.test(tokenAddress))  {
+                                                    if (tokenAddress.trim() != '' && reg_expression.test(tokenAddress)) {
                                                         setTokenAddressError(false)
                                                         setUnsoldTokensDumpAddressError(false)
                                                         setStepOne(false)
@@ -771,6 +770,7 @@ const LaunchPad = () => {
                                             <Next
                                                 onClick={() => {
                                                     if (socialValiation()) {
+                                                        debugger
                                                         setStepThree(false)
                                                         setStepFour(true)
                                                         setActiveStep(4)

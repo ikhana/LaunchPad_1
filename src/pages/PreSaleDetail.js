@@ -8,6 +8,7 @@ import {getLocal} from 'web3modal'
 import {connect} from 'react-redux'
 import {api} from '../config/apiBaseUrl'
 import {PreSaleContract} from '../config/contracts/PreSale'
+import {toast} from 'react-toastify'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -34,6 +35,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [match, setMatch] = useState(false)
     const [investementPreSale, setInvestementPreSale] = useState(null)
 
+    const [loading, setLoading] = useState(false)
+
     useEffect(async () => {
         if (signer) {
             if (user && user.tokens.length > 0) {
@@ -42,12 +45,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             } //todo.. if user view the page without login/or directly.. check in user tokens if match then its setmatch(true)
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
             setInvestementPreSale(_investementPreSale)
+
         }
     }, [signer])
 
     useEffect(async () => {
         if (investementPreSale) {
+            setLoading(true)
             await readLaunchpadInfo()
+            setLoading(false)
         }
     }, [investementPreSale])
 
@@ -100,7 +106,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const investTx = await investementPreSale.invest({value: ethers.utils.parseEther(investAmount)})
             await investTx.wait()
         } catch (error) {
-            alert(error.data.message)
+            if (error.data.message.includes('insufficient funds for transfer')) {
+                toast.error('Your wallet don`t have enough funds to invest')
+            } else if(error.data.message.includes('Closed')) {
+                toast.error('Presale is closed')
+            }
         }
     }
 
@@ -108,8 +118,28 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         try {
             const addLiquidityAndLockLPTokensTx = await investementPreSale.addLiquidityAndLockLPTokens()
             await addLiquidityAndLockLPTokensTx.wait()
-        } catch (lolo) {
-            alert(lolo.data.message)
+        } catch (error) {
+            if (error.data.message.includes('Liquidity already added')) {
+                toast.error('Liquidity already added')
+            } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
+                toast.error('Make sure you are adding liquidity from presale creator address')
+            }
+            else if (error.data.message.includes('Not presale creator')){
+                toast.error('Make sure you are adding liquidity from presale creator address')
+
+            }
+            else if (error.data.message.includes('Not presale creator or investor')){
+                toast.error('Only Presale Creator or Investor can add liquidity')
+            }
+            else if (error.data.message.includes('Soft cap not reached')){
+                toast.error('Project has not reahced to minimum investment goal')
+            }
+            else if (error.data.message.includes('Liquidity cannot be added yet')){
+                toast.error('Can not add liquidity')
+            }
+            else {
+                toast.error('No investment made, Liquidity can not be added')
+            }
         }
     }
 
@@ -118,7 +148,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
-            alert(error.data.message)
+          
+            if (error.data.message.includes('Not an investor')){
+                toast.error('Only investors are aligible to claim tokens')
+                }
+                else   {
+                    toast.error(error.data.message)
+                    
+                }
         }
     }
 
@@ -127,7 +164,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
         } catch (error) {
-            alert(error.data.message)
+            toast.error("Only Pre sale creator may cancel the PreSale")
         }
     }
 
@@ -136,7 +173,13 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
             await collectFundsRaisedTx.wait()
         } catch (error) {
-            alert(error.data.message)
+            if (error.data.message.includes('Not presale creator')){
+                toast.error('Only presale creater can withdraw funds')
+                }
+                else if (error.data.message.includes('execution reverted')) {
+                    toast.error('No funds to with draw')
+                }
+            
         }
     }
 
@@ -145,135 +188,151 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const getRefundTx = await investementPreSale.getRefund()
             await getRefundTx.wait()
         } catch (error) {
-            alert(error.data.message)
+            if (error.data.message.includes('Not an investor')){
+                toast.error('Only investors are aligible to be refunded')
+                }
+                else   {
+                    toast.error(error.data.message)
+                    
+                }
         }
     }
 
     return (
-        <Wrapper>
-            <Heading>LaunchPad Details</Heading>
-            {investementPreSale && (
-                <>
-                    <Row>
-                        <Column>
-                            <Heading>PreSale Details</Heading>
-                        </Column>
-                    </Row>
-                    <Row>
-                        <Column lg={6}>
-                        <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
-                        </Column>
-                        <Column lg={6}>
-                            <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
-                        </Column>
-                    </Row>
-                    <Spacer />
-                    <Row>
-                        <Column lg={6}>
-                        <Text>Maximum Capital (BNB):</Text> <Content>{hardCapInWei?.toString()}</Content>
-                        </Column>
-                        <Column lg={6}>
-                        <Text>Minimum Capital (BNB):</Text><Content> {softCapInWei?.toString()}</Content>
-                        </Column>
-                    </Row>
-                    <Spacer />
-                    <Row>
-                        <Column lg={6}>
-                        <Text>Total Investors :</Text><Content>{investerCount?.toString()}</Content>
-                        </Column>
-                        <Column lg={6}>
-                        <Text>Total Invested Amount in BNB: </Text><Content>{totalInvestedAmount?.toString()}</Content>
-                        </Column>
-                    </Row>
-                    <Spacer />
-                    <Row>
-                        <Column lg={6}>
-                        <Text>Start Time:</Text><Content>{openTime?.toString()}</Content>
-                        </Column>
-                        <Column lg={6}>
-                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
-                        </Column>
-                    </Row>
-                    <Row>
-                        <Column>
-                            <Heading>Social Details</Heading>
-                        </Column>
-                    </Row>
-                    <Row>
-                        <Column lg={12}>
-                        <a href={webisteLink} target="_blank" rel="noopener noreferrer">
-                                {' '}
-                                <Icon src="/images/website.png" />
-                            </a>
-                             <a href={discordLink} target="_blank" rel="noopener noreferrer">
-                                {' '}
-                                <Icon src="/images/discord.svg" />
-                            </a>
-                            <a href={telegramLink}>
-                                {' '}
-                                <Icon src="/images/telegram.svg" />
-                            </a>
-                            <a href={twitterLink}>
-                                {' '}
-                                <Icon src="/images/twitter.png" />
-                            </a>
-                        </Column>
-                    </Row>
-                    <Spacer />
-                    <Row>
-                        {match == false && (
-                            <Flexed lg={10}>
-                                <ButtonContainer>
-                                    <Button onClick={investIn}>Invest</Button>
-                                    <InputText
-                                        value={investAmount.toString()}
-                                        onChange={(e) => {
-                                            setInvestAmount(e.target.value)
-                                        }}
-                                    />
-                                </ButtonContainer>
-                            </Flexed>
-                        )}
+        <>
+            <Wrapper>
+                <Heading>LaunchPad Details</Heading>
+                {(investementPreSale && !loading) && (
+                    <>
+                        <Row>
+                            <Column>
+                                <Heading>PreSale Details</Heading>
+                            </Column>
+                        </Row>
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Maximum Capital (BNB):</Text> <Content>{hardCapInWei?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Minimum Capital (BNB):</Text>
+                                <Content> {softCapInWei?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Total Investors :</Text>
+                                <Content>{investerCount?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Total Invested Amount in BNB: </Text>
+                                <Content>{totalInvestedAmount?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Start Time:</Text>
+                                <Content>{openTime?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Row>
+                            <Column>
+                                <Heading>Social Details</Heading>
+                            </Column>
+                        </Row>
+                        <Row>
+                            <Column lg={12}>
+                                <a href={webisteLink} target="_blank" rel="noopener noreferrer">
+                                    {' '}
+                                    <Icon src="/images/website.png" />
+                                </a>
+                                <a href={discordLink} target="_blank" rel="noopener noreferrer">
+                                    {' '}
+                                    <Icon src="/images/discord.svg" />
+                                </a>
+                                <a href={telegramLink}>
+                                    {' '}
+                                    <Icon src="/images/telegram.svg" />
+                                </a>
+                                <a href={twitterLink}>
+                                    {' '}
+                                    <Icon src="/images/twitter.png" />
+                                </a>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            {match == false && (
+                                <Flexed lg={10}>
+                                    <ButtonContainer>
+                                        <Button onClick={investIn}>Invest</Button>
+                                        <InputText
+                                            value={investAmount.toString()}
+                                            onChange={(e) => {
+                                                setInvestAmount(e.target.value)
+                                            }}
+                                        />
+                                    </ButtonContainer>
+                                </Flexed>
+                            )}
                         </Row>
                         <CustomRow>
-                        {match && (
-                            <>
-                                {' '}
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                                </SecondButtonContainer>
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
-                                </SecondButtonContainer>
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
-                                </SecondButtonContainer>{' '}
-                            </>
-                        )}
-                        {match == false && (
-                            <>
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={claimTokens}>Claim Token</Button1>
-                                </SecondButtonContainer>
-                                {/* <SecondButtonContainer lg={3}>
+                        <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
+                                    </SecondButtonContainer>
+                            {match && (
+                                <>
+                                    {' '}
+                                   
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
+                                    </SecondButtonContainer>
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
+                                    </SecondButtonContainer>{' '}
+                                </>
+                            )}
+                            {match == false && (
+                                <>
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={claimTokens}>Claim Token</Button1>
+                                    </SecondButtonContainer>
+                                    {/* <SecondButtonContainer lg={3}>
                                     <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
                                 </SecondButtonContainer> */}
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={getRefund}>Get Refund</Button1>
-                                </SecondButtonContainer>
-                                <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={presaleCreatorAddress}>PresaleCreater Address</Button1>
-                                </SecondButtonContainer>
-                                {/* <SecondButtonContainer lg={3}>
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={getRefund}>Get Refund</Button1>
+                                    </SecondButtonContainer>
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={presaleCreatorAddress}>PresaleCreater Address</Button1>
+                                    </SecondButtonContainer>
+                                    {/* <SecondButtonContainer lg={3}>
                             <Button1 onClick={apiCall}> Save</Button1>
                      </SecondButtonContainer> */}
-                            </>
-                        )}
-                    </CustomRow>
-                    <Spacer />
-                </>
-            )}
-        </Wrapper>
+                                </>
+                            )}
+                        </CustomRow>
+                        <Spacer />
+                    </>
+                )}
+            </Wrapper>
+           {loading  && <LoadingPanelContent>
+                <LoadingPanel src="/images/Preloader.gif" />
+            </LoadingPanelContent >}
+        </>
     )
 }
 
@@ -374,9 +433,34 @@ const Icon = styled.img`
     margin-right: 1rem;
     width: 2.5rem;
 `
+const LoadingPanelContent = styled.div`
+width: 100%;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    background:#00000038;
+`
+const LoadingPanel = styled.img`
+    width: 20%;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+`
+
+
 
 const Text = styled.span`
-  font-weight: bold;
+    font-weight: bold;
 `
 const Content = styled.p`
     margin-left: 0.2rem;
@@ -384,8 +468,8 @@ const Content = styled.p`
 `
 
 const CustomRow = styled(Row)`
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 `
 
 const mapStateToProps = (state) => {
