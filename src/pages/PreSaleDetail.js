@@ -123,6 +123,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             } else if(error.data.message.includes('Closed')) {
                 toast.error('Presale is closed')
             }
+            else {
+                toast.error(error.data.message)
+            }
         }
     }
 
