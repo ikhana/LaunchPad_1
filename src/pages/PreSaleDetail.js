@@ -84,27 +84,35 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         setInvesterCount(_totalInvestorsCount)
 
         const startDate = new Date(startTime * 1000)
-        const endDate = new Date(endTime * 1000)
-
-        //todo add it in varaibles
-        setHardCapInWei(ethers.utils.formatEther(hardCapInWei))
-        setSoftCapInWei(ethers.utils.formatEther(softCapInWei))
-        setCloseTime(endDate)
         setOpneTime(startDate)
-        setMaxInvestInWei(ethers.utils.formatEther(maxInvestInWei))
-        setMinInvetsInWei(ethers.utils.formatEther(minInvestInWei))
-        setTotalInvestment(ethers.utils.formatEther(totalCollectedWei))
+        const endDate = new Date(endTime * 1000)
+        setCloseTime(endDate)
+
+        
+        const _softCapInWie = await ethers.utils.formatEther(softCapInWei)
+        setSoftCapInWei(_softCapInWie)
+        const _maxInvestInWei = await ethers.utils.formatEther(maxInvestInWei)
+        setMaxInvestInWei(_maxInvestInWei)
+        const _minInvestInWei = await ethers.utils.formatEther(minInvestInWei)
+        setMinInvetsInWei(_minInvestInWei)
+        const _totalCollectedWei = await ethers.utils.formatEther(totalCollectedWei)
+        setTotalInvestment( _totalCollectedWei)
 
         const telegramBytes = await investementPreSale.linkTelegram()
         const twitterBytes = await investementPreSale.linkTwitter()
         const discordBytes = await investementPreSale.linkDiscord()
         const websiteBytes = await investementPreSale.linkWebsite()
         const saleTitleBytes = await investementPreSale.saleTitle()
-        setTelegramLink(ethers.utils.parseBytes32String(telegramBytes))
-        setTwitterLink(ethers.utils.parseBytes32String(twitterBytes))
-        setDiscordLink(ethers.utils.parseBytes32String(discordBytes))
-        setWebsiteLink(ethers.utils.parseBytes32String(websiteBytes))
-        setSaleTitle(ethers.utils.parseBytes32String(saleTitleBytes))
+        const _telegramLink = await ethers.utils.parseBytes32String(telegramBytes)
+        setTelegramLink(_telegramLink)
+        const _twitterLink = await ethers.utils.parseBytes32String(twitterBytes)
+        setTwitterLink(_twitterLink)
+        const _discordLink = await ethers.utils.parseBytes32String(discordBytes)
+        setDiscordLink(_discordLink)
+        const _websiteLink = await ethers.utils.parseBytes32String(websiteBytes)
+        setWebsiteLink(_websiteLink)
+        const _saleTitle = await ethers.utils.parseBytes32String(saleTitleBytes)
+        setSaleTitle(_saleTitle)
     }
 
     const investIn = async () => {
