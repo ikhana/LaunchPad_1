@@ -226,6 +226,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         <>
             <Wrapper>
                 <Heading>{saleTitle?.toString()}</Heading>
+                <Spacer />
+                <Spacer />
                 {(investementPreSale && !loading) && (
                     <>
                     
