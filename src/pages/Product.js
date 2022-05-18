@@ -6,6 +6,7 @@ import {Collapse} from 'react-bootstrap'
 import {api} from '../config/apiBaseUrl'
 import {toast} from 'react-toastify'
 import PreSaleDetail from './PreSaleDetail'
+import {useSelector} from 'react-redux'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -15,6 +16,7 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 const Product = () => {
     const [allProducts, setAllProducts] = useState([])
     const [preSaleViewToken, setPreSaleViewToken] = useState('')
+    const isConnected = useSelector((state) => state.auth.isConnected)
 
     useEffect(() => {
         viewAllProjects()
@@ -69,7 +71,12 @@ const Product = () => {
                                         key={index}
                                         lg={6}
                                         onClick={() => {
+                                            if (isConnected) {
                                             setPreSaleViewToken(value.token)
+                                            
+                                        } else {
+                                            toast.error('Please connect your wallet first', {})
+                                        }
                                         }}>
                                         <Card>
                                             <Content>
