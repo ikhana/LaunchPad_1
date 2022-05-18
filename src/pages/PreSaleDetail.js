@@ -34,6 +34,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
     const [match, setMatch] = useState(false)
     const [investementPreSale, setInvestementPreSale] = useState(null)
+    const [saleTitle,setSaleTitle] = useState('')
+    const [tokenAddress,setTokenAddress]  = useState('')
+    const [liqLockAddress, setLiqLockAddress] = useState('')
+    const [unsoldTokenAddress,setUnSoldTokenAddress] = useState('')
+   
 
     const [loading, setLoading] = useState(false)
 
@@ -57,10 +62,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         }
     }, [investementPreSale])
 
-    const presaleCreatorAddress = async () => {
-        const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
-        setPreSaleCreatorAddress(presaleCreatorAddress.toString())
-    }
+  
 
     const readLaunchpadInfo = async () => {
         const hardCapInWei = await investementPreSale.hardCapInWei()
@@ -70,6 +72,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const totalCollectedWei = await investementPreSale.totalCollectedWei()
         const startTime = await investementPreSale.openTime()
         const endTime = await investementPreSale.closeTime()
+        const _tokenAddress = await investementPreSale.token()
+        setTokenAddress(_tokenAddress)
+        const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
+        setPreSaleCreatorAddress(presaleCreatorAddress)
+        const liqLockAddress = await investementPreSale.LiqLockAddress()
+        setLiqLockAddress(liqLockAddress);
+        const unsoldTokenAddress = await investementPreSale.unsoldTokensDumpAddress()
+        setUnSoldTokenAddress(unsoldTokenAddress)
         const _totalInvestorsCount = await investementPreSale.totalInvestorsCount()
         setInvesterCount(_totalInvestorsCount)
 
@@ -89,10 +99,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const twitterBytes = await investementPreSale.linkTwitter()
         const discordBytes = await investementPreSale.linkDiscord()
         const websiteBytes = await investementPreSale.linkWebsite()
+        const saleTitleBytes = await investementPreSale.saleTitle()
         setTelegramLink(ethers.utils.parseBytes32String(telegramBytes))
         setTwitterLink(ethers.utils.parseBytes32String(twitterBytes))
         setDiscordLink(ethers.utils.parseBytes32String(discordBytes))
         setWebsiteLink(ethers.utils.parseBytes32String(websiteBytes))
+        setSaleTitle(ethers.utils.parseBytes32String(saleTitleBytes))
     }
 
     const investIn = async () => {
@@ -164,7 +176,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
         } catch (error) {
-            toast.error("Only Pre sale creator may cancel the PreSale")
+            toast.error("Liquidity has not been added yet")
         }
     }
 
@@ -206,7 +218,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                     <>
                         <Row>
                             <Column>
-                                <Heading>PreSale Details</Heading>
+                                <Heading>Pre Sale: {saleTitle?.toString()}</Heading>
                             </Column>
                         </Row>
                         <Row>
@@ -236,6 +248,28 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                             <Column lg={6}>
                                 <Text>Total Invested Amount in BNB: </Text>
                                 <Content>{totalInvestedAmount?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Token Address :</Text>
+                                <Content>{tokenAddress?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>PreSale Creator Adress : </Text>
+                                <Content>{preSaleCreatorAddress?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Liuidity Lock Address :</Text>
+                                <Content>{liqLockAddress?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Unsold Tokens Address: </Text>
+                                <Content>{unsoldTokenAddress?.toString()}</Content>
                             </Column>
                         </Row>
                         <Spacer />
@@ -316,9 +350,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                     <SecondButtonContainer lg={3}>
                                         <Button1 onClick={getRefund}>Get Refund</Button1>
                                     </SecondButtonContainer>
-                                    <SecondButtonContainer lg={3}>
-                                        <Button1 onClick={presaleCreatorAddress}>PresaleCreater Address</Button1>
-                                    </SecondButtonContainer>
+                                  
                                     {/* <SecondButtonContainer lg={3}>
                             <Button1 onClick={apiCall}> Save</Button1>
                      </SecondButtonContainer> */}
