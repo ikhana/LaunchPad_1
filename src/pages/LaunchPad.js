@@ -12,7 +12,7 @@ const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-
+var shortUrl = require('node-url-shortener')
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
@@ -67,6 +67,10 @@ const LaunchPad = () => {
     const [discordError, setDiscordError] = useState(false)
     const [twitterError, setTwitterError] = useState(false)
     const [websiteError, setWebsiteError] = useState(false)
+    const [shortDiscordLink, setShortDiscordLink] = useState('')
+    const [shortTelegramLink, setShortTelegramLink] = useState('')
+    const [shortTwitterLink, setShortTwitterLink] = useState('')
+    const [shortWebsiteLink, setShortWebsiteLink] = useState('')
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
     const [presalePrice, setPresalePrice] = useState('')
@@ -331,12 +335,14 @@ const LaunchPad = () => {
     }
 
     const createMyTokenPreSale = async () => {
+        
         if (!launchPadContract) {
-            alert('Please connect to chain id 97')
+            toast.error('Please connect to chain Id 97')
         }
+
         let tokensTuple = {
             tokenAddress: tokenAddress,
-            unsoldTokensDumpAddress: unsoldTokensDumpAddress, 
+            unsoldTokensDumpAddress: unsoldTokensDumpAddress,
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
             hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
@@ -352,14 +358,14 @@ const LaunchPad = () => {
             lpTokensLockDurationInDays: lpTokensDurationInDays,
             liquidityPercentageAllocation: liquidity
         }
+        debugger
         let socialTuple = {
             saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
-            linkTelegram: bytes32({input: telegramLink, ignoreLength: true}).toLowerCase(),
-            linkDiscord: bytes32({input: discord, ignoreLength: true}).toLowerCase(),
-            linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
-            linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
+            linkTelegram: bytes32({input: shortTelegramLink}).toLowerCase(),
+            linkDiscord: bytes32({input: shortDiscordLink}).toLowerCase(),
+            linkTwitter: bytes32({input: shortTwitterLink}).toLowerCase(),
+            linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
-        debugger
         try {
             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
             console.log(createPresale)
@@ -769,8 +775,22 @@ const LaunchPad = () => {
                                             </Back>
                                             <Next
                                                 onClick={() => {
+                                                    shortUrl.short(discord, function (error, shortDiscordLink) {
+                                                        console.log(shortDiscordLink)
+                                                        setShortDiscordLink(shortDiscordLink)
+                                                    })
+                                                    shortUrl.short(twitter, function (error, shortTwitterLink) {
+                                                        console.log(shortTwitterLink)
+                                                        setShortTwitterLink(shortTwitterLink)
+                                                    })
+                                                    shortUrl.short(telegramLink, function (error, shortTelegramLink) {
+                                                        setShortTelegramLink(shortTelegramLink)
+                                                    })
+                                                    shortUrl.short(website, function (error, shortWebsiteLink) {
+                                                        setShortWebsiteLink(shortWebsiteLink)
+                                                    })
+
                                                     if (socialValiation()) {
-                                                        debugger
                                                         setStepThree(false)
                                                         setStepFour(true)
                                                         setActiveStep(4)

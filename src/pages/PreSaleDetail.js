@@ -1,6 +1,6 @@
 import React, {useEffect, useState, Link} from 'react'
 import styled from 'styled-components'
-import {Container, Row, Col} from 'styled-bootstrap-grid'
+import {Container, Row, Col, media} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
 import {useSelector} from 'react-redux'
 import {ethers} from 'ethers'
@@ -9,11 +9,14 @@ import {connect} from 'react-redux'
 import {api} from '../config/apiBaseUrl'
 import {PreSaleContract} from '../config/contracts/PreSale'
 import {toast} from 'react-toastify'
-
+import moment from 'moment'
+import CountdownTimer from '../components/CountdownTimer'
+import {useNavigate} from 'react-router-dom'
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
+let window
 
 const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const signer = useSelector((state) => state.auth.signer)
@@ -34,23 +37,30 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
     const [match, setMatch] = useState(false)
     const [investementPreSale, setInvestementPreSale] = useState(null)
-    const [saleTitle,setSaleTitle] = useState('')
-    const [tokenAddress,setTokenAddress]  = useState('')
+    const [saleTitle, setSaleTitle] = useState('')
+    const [tokenAddress, setTokenAddress] = useState('')
     const [liqLockAddress, setLiqLockAddress] = useState('')
-    const [unsoldTokenAddress,setUnSoldTokenAddress] = useState('')
-   
-
+    const [unsoldTokenAddress, setUnSoldTokenAddress] = useState('')
     const [loading, setLoading] = useState(false)
+    const [closingTime, setClosingTime] = useState('')
+    const [startingTime, setStartingTime] = useState('')
+    const [balance, setBalance] = useState('')
+    const [saleStartTimeTrue, setSaleStartTimeTrue] = useState(false)
+    const navigate = useNavigate()
+    const preSaleStartTime = startingTime
+    const saleStartingTIme = startingTime
+ 
 
     useEffect(async () => {
         if (signer) {
             if (user && user.tokens.length > 0) {
-                preSaleViewToken = user.tokens[0].token
-                setMatch(true)
+                if (!preSaleViewToken) {
+                    preSaleViewToken = user.tokens[0].token
+                    setMatch(true)
+                }
             } //todo.. if user view the page without login/or directly.. check in user tokens if match then its setmatch(true)
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
             setInvestementPreSale(_investementPreSale)
-
         }
     }, [signer])
 
@@ -62,7 +72,18 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         }
     }, [investementPreSale])
 
-  
+    const getBalance = async () => {
+        try {
+            signer.getBalance().then((result) => {
+                setBalance(ethers.utils.formatEther(result))
+                setInvestAmount(balance)
+            })
+            console.log(balance)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    
 
     const readLaunchpadInfo = async () => {
         const hardCapInWei = await investementPreSale.hardCapInWei()
@@ -71,48 +92,50 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const minInvestInWei = await investementPreSale.minInvestInWei()
         const totalCollectedWei = await investementPreSale.totalCollectedWei()
         const startTime = await investementPreSale.openTime()
+        setStartingTime(startTime * 1000)
         const endTime = await investementPreSale.closeTime()
+        setClosingTime(endTime * 1000)
         const _tokenAddress = await investementPreSale.token()
         setTokenAddress(_tokenAddress)
         const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
         setPreSaleCreatorAddress(presaleCreatorAddress)
         const liqLockAddress = await investementPreSale.LiqLockAddress()
-        setLiqLockAddress(liqLockAddress);
+        setLiqLockAddress(liqLockAddress)
         const unsoldTokenAddress = await investementPreSale.unsoldTokensDumpAddress()
         setUnSoldTokenAddress(unsoldTokenAddress)
         const _totalInvestorsCount = await investementPreSale.totalInvestorsCount()
         setInvesterCount(_totalInvestorsCount)
 
-        const startDate = new Date(startTime * 1000)
+        const startDate = moment.unix(startTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setOpneTime(startDate)
-        const endDate = new Date(endTime * 1000)
+        const endDate = moment.unix(endTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setCloseTime(endDate)
 
-        const _hardCapInWei = await ethers.utils.formatEther(hardCapInWei)
+        const _hardCapInWei = ethers.utils.formatEther(hardCapInWei)
         setHardCapInWei(_hardCapInWei)
-        const _softCapInWie = await ethers.utils.formatEther(softCapInWei)
+        const _softCapInWie = ethers.utils.formatEther(softCapInWei)
         setSoftCapInWei(_softCapInWie)
-        const _maxInvestInWei = await ethers.utils.formatEther(maxInvestInWei)
+        const _maxInvestInWei = ethers.utils.formatEther(maxInvestInWei)
         setMaxInvestInWei(_maxInvestInWei)
-        const _minInvestInWei = await ethers.utils.formatEther(minInvestInWei)
+        const _minInvestInWei = ethers.utils.formatEther(minInvestInWei)
         setMinInvetsInWei(_minInvestInWei)
-        const _totalCollectedWei = await ethers.utils.formatEther(totalCollectedWei)
-        setTotalInvestment( _totalCollectedWei)
+        const _totalCollectedWei = ethers.utils.formatEther(totalCollectedWei)
+        setTotalInvestment(_totalCollectedWei)
 
         const telegramBytes = await investementPreSale.linkTelegram()
         const twitterBytes = await investementPreSale.linkTwitter()
         const discordBytes = await investementPreSale.linkDiscord()
         const websiteBytes = await investementPreSale.linkWebsite()
         const saleTitleBytes = await investementPreSale.saleTitle()
-        const _telegramLink = await ethers.utils.parseBytes32String(telegramBytes)
+        const _telegramLink = ethers.utils.parseBytes32String(telegramBytes)
         setTelegramLink(_telegramLink)
-        const _twitterLink = await ethers.utils.parseBytes32String(twitterBytes)
+        const _twitterLink = ethers.utils.parseBytes32String(twitterBytes)
         setTwitterLink(_twitterLink)
-        const _discordLink = await ethers.utils.parseBytes32String(discordBytes)
+        const _discordLink = ethers.utils.parseBytes32String(discordBytes)
         setDiscordLink(_discordLink)
-        const _websiteLink = await ethers.utils.parseBytes32String(websiteBytes)
+        const _websiteLink = ethers.utils.parseBytes32String(websiteBytes)
         setWebsiteLink(_websiteLink)
-        const _saleTitle = await ethers.utils.parseBytes32String(saleTitleBytes)
+        const _saleTitle = ethers.utils.parseBytes32String(saleTitleBytes)
         setSaleTitle(_saleTitle)
     }
 
@@ -128,12 +151,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             await investTx.wait()
         } catch (error) {
             if (error.data.message.includes('insufficient funds for transfer')) {
-                toast.error('Your wallet don`t have enough funds to invest')
-            } else if(error.data.message.includes('Closed')) {
+                toast.error('Your wallet doesn`t have enough funds to invest')
+            } else if (error.data.message.includes('Closed')) {
                 toast.error('Presale is closed')
+            } else if (error.data.message.includes('Not yet opened')){
+                toast.error('Please wait !! Presale is not open yet')
             }
             else {
-                toast.error(error.data.message)
+                toast.error(error.data.error)
             }
         }
     }
@@ -147,21 +172,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                 toast.error('Liquidity already added')
             } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
                 toast.error('Make sure you are adding liquidity from presale creator address')
-            }
-            else if (error.data.message.includes('Not presale creator')){
+            } else if (error.data.message.includes('Not presale creator')) {
                 toast.error('Make sure you are adding liquidity from presale creator address')
-
-            }
-            else if (error.data.message.includes('Not presale creator or investor')){
+            } else if (error.data.message.includes('Not presale creator or investor')) {
                 toast.error('Only Presale Creator or Investor can add liquidity')
-            }
-            else if (error.data.message.includes('Soft cap not reached')){
+            } else if (error.data.message.includes('Soft cap not reached')) {
                 toast.error('Project has not reahced to minimum investment goal')
-            }
-            else if (error.data.message.includes('Liquidity cannot be added yet')){
+            } else if (error.data.message.includes('Liquidity cannot be added yet')) {
                 toast.error('Can not add liquidity')
-            }
-            else {
+            } else {
                 toast.error('No investment made, Liquidity can not be added')
             }
         }
@@ -172,14 +191,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
-          
-            if (error.data.message.includes('Not an investor')){
+            if (error.data.message.includes('Not an investor')) {
                 toast.error('Only investors are aligible to claim tokens')
-                }
-                else   {
-                    toast.error(error.data.message)
-                    
-                }
+            } else {
+                toast.error(error.data.message)
+            }
         }
     }
 
@@ -188,7 +204,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
         } catch (error) {
-            toast.error("Liquidity has not been added yet")
+            toast.error('Liquidity has not been added yet')
         }
     }
 
@@ -197,13 +213,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
             await collectFundsRaisedTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not presale creator')){
+            if (error.data.message.includes('Not presale creator')) {
                 toast.error('Only presale creater can withdraw funds')
-                }
-                else if (error.data.message.includes('execution reverted')) {
-                    toast.error('No funds to with draw')
-                }
-            
+            } else if (error.data.message.includes('execution reverted')) {
+                toast.error('No funds to with draw')
+            }
         }
     }
 
@@ -212,25 +226,35 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const getRefundTx = await investementPreSale.getRefund()
             await getRefundTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not an investor')){
+            if (error.data.message.includes('Not an investor')) {
                 toast.error('Only investors are aligible to be refunded')
-                }
-                else   {
-                    toast.error(error.data.message)
-                    
-                }
+            } else {
+                toast.error(error.data.message)
+            }
         }
     }
 
     return (
         <>
             <Wrapper>
-                <Heading>{saleTitle?.toString()}</Heading>
-                <Spacer />
-                <Spacer />
-                {(investementPreSale && !loading) && (
+                {investementPreSale && !loading && (
                     <>
-                    
+                    {!isConnected && navigate('/')}
+                        <Heading>
+                            {saleTitle?.toString()}
+                            <Spacer />
+                          
+                        </Heading>
+
+                        <CustomRow>
+                            <ColCenter lg={8}>
+                            {saleStartingTIme < new Date().getTime()*1000 && <><CountdownTimer targetDate={saleStartingTIme}/></>}
+                                
+                            </ColCenter>
+                        </CustomRow>
+                        <Spacer />
+                        <Spacer />
+
                         <Row>
                             <Column lg={6}>
                                 <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
@@ -264,22 +288,42 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                         <Row>
                             <Column lg={6}>
                                 <Text>Token Address :</Text>
-                                <Content>{tokenAddress?.toString()}</Content>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${tokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {tokenAddress?.toString()}
+                                    </a>
+                                </Content>
                             </Column>
                             <Column lg={6}>
                                 <Text>PreSale Creator Adress : </Text>
-                                <Content>{preSaleCreatorAddress?.toString()}</Content>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${preSaleCreatorAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {preSaleCreatorAddress?.toString()}
+                                    </a>
+                                </Content>
                             </Column>
                         </Row>
                         <Spacer />
                         <Row>
                             <Column lg={6}>
                                 <Text>Liuidity Lock Address :</Text>
-                                <Content>{liqLockAddress?.toString()}</Content>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${liqLockAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {liqLockAddress?.toString()}
+                                    </a>
+                                </Content>
                             </Column>
                             <Column lg={6}>
                                 <Text>Unsold Tokens Address: </Text>
-                                <Content>{unsoldTokenAddress?.toString()}</Content>
+
+                                <Content>
+                                    <a href={`https://testnet.bscscan.com/address/${unsoldTokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {unsoldTokenAddress?.toString()}
+                                    </a>
+                                </Content>
                             </Column>
                         </Row>
                         <Spacer />
@@ -323,24 +367,26 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 <Flexed lg={10}>
                                     <ButtonContainer>
                                         <Button onClick={investIn}>Invest</Button>
+                                    </ButtonContainer>
+                                    <div>
                                         <InputText
                                             value={investAmount.toString()}
                                             onChange={(e) => {
                                                 setInvestAmount(e.target.value)
                                             }}
-                                        />
-                                    </ButtonContainer>
+                                        />{' '}
+                                        <MaxButton onClick={getBalance}>MAX</MaxButton>
+                                    </div>
                                 </Flexed>
                             )}
                         </Row>
                         <CustomRow>
-                        <SecondButtonContainer lg={3}>
-                                        <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                                    </SecondButtonContainer>
+                            <SecondButtonContainer lg={3}>
+                                <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
+                            </SecondButtonContainer>
                             {match && (
                                 <>
                                     {' '}
-                                   
                                     <SecondButtonContainer lg={3}>
                                         <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
                                     </SecondButtonContainer>
@@ -360,7 +406,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                     <SecondButtonContainer lg={3}>
                                         <Button1 onClick={getRefund}>Get Refund</Button1>
                                     </SecondButtonContainer>
-                                  
+
                                     {/* <SecondButtonContainer lg={3}>
                             <Button1 onClick={apiCall}> Save</Button1>
                      </SecondButtonContainer> */}
@@ -371,9 +417,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                     </>
                 )}
             </Wrapper>
-           {loading  && <LoadingPanelContent>
-                <LoadingPanel src="/images/Preloader.gif" />
-            </LoadingPanelContent >}
+            {loading && (
+                <LoadingPanelContent>
+                    <LoadingPanel src="/images/Preloader.gif" />
+                </LoadingPanelContent>
+            )}
         </>
     )
 }
@@ -383,7 +431,19 @@ const Wrapper = styled(Container)`
 `
 const ButtonContainer = styled.div`
     display: flex;
+    margin-left: 0rem;
+    ${media.xs`
+    margin-left: 0rem;
+  `}
+    ${media.sm`
     margin-left: 14.5rem;
+  `}
+    ${media.md`
+    margin-left: 14.5rem;
+  `}
+    ${media.lg`
+    margin-left: 14.5rem;
+  `}
 `
 const Column = styled(Col)`
     box-sizing: border-box;
@@ -404,7 +464,7 @@ const Flex = styled(Column)`
 
 const Flexed = styled(Column)`
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
 `
 
 const ButtonContent = styled(Flex)`
@@ -450,6 +510,32 @@ const Button = styled.a`
         background: #05b5cc;
     }
 `
+const MaxButton = styled.a`
+    position: absolute;
+    left: 36.5rem;
+    text-align: center;
+    padding: 0.5rem;
+    font-weight: 500;
+    color: #00bcd4;
+    border-radius: 0.4rem;
+    border: none;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    align-items: center;
+    ${media.xs`
+    left: 22.5rem;
+  `}
+    ${media.sm`
+    left: 22.5rem;
+  `}
+    ${media.md`
+    left: 36.5rem;
+  `}
+    ${media.lg`
+    left: 36.5rem;
+  `}
+`
 const Button1 = styled.a`
     width: 100%;
     text-align: center;
@@ -467,16 +553,16 @@ const Button1 = styled.a`
     }
 `
 
-const Label = styled(Column)`
+const ColCenter = styled(Column)`
     display: flex;
-    align-items: center;
+    justify-content: center;
 `
 const Icon = styled.img`
     margin-right: 1rem;
     width: 2.5rem;
 `
 const LoadingPanelContent = styled.div`
-width: 100%;
+    width: 100%;
     position: fixed;
     z-index: 999;
     top: 0;
@@ -485,7 +571,7 @@ width: 100%;
     margin: auto;
     top: 0;
     bottom: 0;
-    background:#00000038;
+    background: #00000038;
 `
 const LoadingPanel = styled.img`
     width: 20%;
@@ -498,8 +584,6 @@ const LoadingPanel = styled.img`
     top: 0;
     bottom: 0;
 `
-
-
 
 const Text = styled.span`
     font-weight: bold;

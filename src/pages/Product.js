@@ -5,8 +5,9 @@ import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
 import {api} from '../config/apiBaseUrl'
 import {toast} from 'react-toastify'
-import PreSaleDetail from './PreSaleDetail'
 import {useSelector} from 'react-redux'
+import PreSaleDetail from './PreSaleDetail'
+
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -16,6 +17,9 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 const Product = () => {
     const [allProducts, setAllProducts] = useState([])
     const [preSaleViewToken, setPreSaleViewToken] = useState('')
+    const [livePreSales, setLivePreSales] = useState([])
+    const [completedPreSales, setCompletedPreSales] = useState([])
+    const [failesPreSales, setFailedPreSales] = useState([])
     const isConnected = useSelector((state) => state.auth.isConnected)
 
     useEffect(() => {
@@ -57,9 +61,9 @@ const Product = () => {
                         <Spacer />
                         <Row>
                             <FilterContent lg={12}>
-                                <Button active={true}>Live</Button>
+                            <Button active={true} >Live</Button>
                                 <Button disabled={true}>Completed</Button>
-                                <Button disabled={true}>Faild</Button>
+                                <Button  disabled={true}>Faild</Button>
                             </FilterContent>
                         </Row>
                         <Spacer />
@@ -71,12 +75,10 @@ const Product = () => {
                                         key={index}
                                         lg={6}
                                         onClick={() => {
-                                            if (isConnected) {
-                                            setPreSaleViewToken(value.token)
+                                            if(isConnected){
+                                                setPreSaleViewToken(value.token)}
+                                            else{toast.error('Please connect to wallet')}
                                             
-                                        } else {
-                                            toast.error('Please connect your wallet first', {})
-                                        }
                                         }}>
                                         <Card>
                                             <Content>
@@ -133,26 +135,27 @@ const Card = styled.div`
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
 `
 const Button = styled.a`
-    width: 10rem;
-    text-align: center;
-    padding: 0.8rem;
-    background: #00bcd4;
-    background: ${({active, disabled}) => (active ? '#07bc0c' : disabled ? '#b9b6b6' : '#00bcd4')};
-    color: white;
-    border-radius: 0.4rem;
-    border: none;
-    font-size: 1rem;
-    margin: 0rem 0.5rem;
-    text-decoration: none;
-    cursor: ${({disabled}) => (disabled ? 'no-drop' : 'pointer')};
-    &:hover {
-        background: ${({active, disabled}) => (active ? '#06b30b' : disabled ? '#b9b6b6' : '#00bcd4')};
-    }
+width: 10rem;
+text-align: center;
+padding: 0.8rem;
+background: #00bcd4;
+background: ${({ active,disabled }) => (active ? '#07bc0c' : disabled? '#b9b6b6' : '#00bcd4')};
+color: white;
+border-radius: 0.4rem;
+border: none;
+font-size: 1rem;
+margin: 0rem 0.5rem;
+text-decoration: none;
+cursor: ${({ disabled }) => (disabled ? 'no-drop' : 'pointer')};
+&:hover {
+    background: ${({ active,disabled }) => (active ? '#06b30b' : disabled? '#b9b6b6' : '#00bcd4')};
+}
 `
+
 
 const Content = styled.span`
     display: flex;
-    &:not(:last-child) {
+    &:not(:last-child){
         margin-bottom: 1rem;
     }
 `
