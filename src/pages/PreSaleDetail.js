@@ -45,11 +45,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [closingTime, setClosingTime] = useState('')
     const [startingTime, setStartingTime] = useState('')
     const [balance, setBalance] = useState('')
-    const [saleStartTimeTrue, setSaleStartTimeTrue] = useState(false)
     const navigate = useNavigate()
-    const preSaleStartTime = startingTime
+   
     const saleStartingTIme = startingTime
- 
 
     useEffect(async () => {
         if (signer) {
@@ -73,17 +71,18 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     }, [investementPreSale])
 
     const getBalance = async () => {
+        
         try {
             signer.getBalance().then((result) => {
                 setBalance(ethers.utils.formatEther(result))
                 setInvestAmount(balance)
             })
             console.log(balance)
+            console.log(signer)
         } catch (error) {
             console.log(error)
         }
     }
-    
 
     const readLaunchpadInfo = async () => {
         const hardCapInWei = await investementPreSale.hardCapInWei()
@@ -92,9 +91,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const minInvestInWei = await investementPreSale.minInvestInWei()
         const totalCollectedWei = await investementPreSale.totalCollectedWei()
         const startTime = await investementPreSale.openTime()
-        setStartingTime(startTime * 1000)
+        setStartingTime(startTime)
         const endTime = await investementPreSale.closeTime()
-        setClosingTime(endTime * 1000)
+        setClosingTime(endTime)
         const _tokenAddress = await investementPreSale.token()
         setTokenAddress(_tokenAddress)
         const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
@@ -154,10 +153,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                 toast.error('Your wallet doesn`t have enough funds to invest')
             } else if (error.data.message.includes('Closed')) {
                 toast.error('Presale is closed')
-            } else if (error.data.message.includes('Not yet opened')){
+            } else if (error.data.message.includes('Not yet opened')) {
                 toast.error('Please wait !! Presale is not open yet')
-            }
-            else {
+            } else {
                 toast.error(error.data.error)
             }
         }
@@ -233,24 +231,46 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
+    console.log(saleStartingTIme, moment.unix(saleStartingTIme*1000).format('dddd, MMMM Do, YYYY h:mm:ss A'))
 
     return (
         <>
             <Wrapper>
                 {investementPreSale && !loading && (
                     <>
-                    {!isConnected && navigate('/')}
+                        {!isConnected && navigate('/')}
                         <Heading>
                             {saleTitle?.toString()}
                             <Spacer />
-                          
                         </Heading>
 
                         <CustomRow>
                             <ColCenter lg={8}>
-                            {saleStartingTIme < new Date().getTime()*1000 && <><CountdownTimer targetDate={saleStartingTIme}/></>}
-                                
+                                {saleStartingTIme > new Date().getTime() && (
+                                    <>
+                                        Remaining time for Presale opening
+                                        <CountdownTimer targetDate={saleStartingTIme} />
+                                    </>
+                                )}
+                               
                             </ColCenter>
+                            <ColCenter lg={8}>
+                                { /* (closingTime - saleStartingTIme) || !saleStartingTIme   && (
+                                    <>
+                                        Remaining time for Prsale closing
+                                        <CountdownTimer targetDate={closingTime} />
+                                    </>
+                                )*/}
+                                  {    (closingTime - saleStartingTIme)  && (
+                                    <>
+                                        Remaining time for Presale Closing
+                                        <CountdownTimer targetDate={closingTime} />
+                                    </>
+                                )}
+                                
+                               
+                            </ColCenter>
+                       
                         </CustomRow>
                         <Spacer />
                         <Spacer />

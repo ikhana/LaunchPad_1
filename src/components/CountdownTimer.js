@@ -50,6 +50,7 @@ const CountdownTimer = ({ targetDate }) => {
 
   if (days + hours + minutes + seconds <= 0) {
     return <ExpiredNotice />;
+    
   } else {
     return (
       <ShowCounter

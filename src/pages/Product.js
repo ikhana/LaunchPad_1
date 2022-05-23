@@ -86,6 +86,11 @@ const Product = () => {
                                             </Content>
                                             <Content>
                                                 <Label>Owner:</Label> {value.address ? value.address : '-'}
+                                               
+                                            </Content>
+                                            <Content>
+                                               
+                                                <Label> softCap</Label> {value.softCap ? value.softCap : '-'}
                                             </Content>
                                         </Card>
                                     </CustomCol>
