@@ -358,7 +358,7 @@ const LaunchPad = () => {
             lpTokensLockDurationInDays: lpTokensDurationInDays,
             liquidityPercentageAllocation: liquidity
         }
-        debugger
+        
         let socialTuple = {
             saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
             linkTelegram: bytes32({input: shortTelegramLink}).toLowerCase(),
@@ -371,11 +371,14 @@ const LaunchPad = () => {
             console.log(createPresale)
             const response = await createPresale.wait()
             const contractCreationToken = response.events[0].args[3]
+            console.log("=============", response)
             if (contractCreationToken) {
                 axios
                     .post(`${api}/pre_sale/add`, {
                         address: userAddress,
-                        token: contractCreationToken
+                        token: contractCreationToken,
+                        softCap:tokensTuple.softCapInWei,
+                        endTime:tokensTuple.closeTime
                     })
                     .then((response) => {
                         if (response.data.status) {

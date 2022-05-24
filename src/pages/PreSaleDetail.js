@@ -77,11 +77,23 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
     const getBalance = async () => {
         try {
-            signer.getBalance().then((result) => {
-                setBalance(ethers.utils.formatEther(result))
-                setInvestAmount(balance)
+            const _balance = await signer.getBalance()
+            /*const gasFee = await ethers.getDefaultProvider().estimateGas({
+                // Wrapped ETH address
+                to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+
+                // `function deposit() payable`
+                data: '0xd0e30db0',
+
+                // 1 ether
+                value: ethers.utils.parseEther('0.1')
             })
-            console.log(balance)
+            const _estimatedMaxAmount = _balance - gasFee*/
+
+            setBalance(ethers.utils.formatEther(_balance))
+            setInvestAmount(balance)
+
+            // console.log(_estimatedMaxAmount)
         } catch (error) {
             console.log(error)
         }
@@ -158,6 +170,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                 toast.error('Presale is closed')
             } else if (error.data.message.includes('Not yet opened')) {
                 toast.error('Please wait !! Presale is not open yet')
+            } else if (error.data.message.includes('Min investment not reached')) {
+                toast.error('Please see the miminmum investment requirement and enter the right amount')
             } else {
                 toast.error(error.data.error)
             }
@@ -234,7 +248,6 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
-    console.log(closingTime, startingTime)
 
     return (
         <>
@@ -252,20 +265,17 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 {saleStartingTIme > new Date().getTime() && (
                                     <>
                                         Remaining time for Presale opening
+                                        <Spacer />
+                                        <Spacer />
                                         <CountdownTimer targetDate={saleStartingTIme} />
                                     </>
                                 )}
                             </ColCenter>
                             <ColCenter lg={8}>
-                                {/* (closingTime - saleStartingTIme) || !saleStartingTIme   && (
-                                    <>
-                                        Remaining time for Prsale closing
-                                        <CountdownTimer targetDate={closingTime} />
-                                    </>
-                                )*/}
                                 {days + hours + minutes + seconds <= 0 && (
                                     <>
                                         {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
+
                                         <CountdownTimer targetDate={closingTime} />
                                     </>
                                 )}
@@ -382,7 +392,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                         </Row>
                         <Spacer />
                         <Row>
-                            {match == false && (
+                            {match == false && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && days + hours + minutes + seconds <= 0 && (
                                 <Flexed lg={10}>
                                     <ButtonContainer>
                                         <Button onClick={investIn}>Invest</Button>
@@ -399,7 +409,10 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 </Flexed>
                             )}
                         </Row>
-                        <CustomRow>
+                        {days + hours + minutes + seconds <= 0 && (
+                                    <>
+                                        {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
+                                        <CustomRow>
                             <SecondButtonContainer lg={3}>
                                 <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
                             </SecondButtonContainer>
@@ -432,6 +445,10 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 </>
                             )}
                         </CustomRow>
+
+                                    </>
+                                )}
+                     
                         <Spacer />
                     </>
                 )}
