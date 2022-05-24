@@ -12,11 +12,12 @@ import {toast} from 'react-toastify'
 import moment from 'moment'
 import CountdownTimer from '../components/CountdownTimer'
 import {useNavigate} from 'react-router-dom'
+import {useCountdown} from '../hooks/useCountdown'
+
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
-let window
 
 const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const signer = useSelector((state) => state.auth.signer)
@@ -45,9 +46,13 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [closingTime, setClosingTime] = useState('')
     const [startingTime, setStartingTime] = useState('')
     const [balance, setBalance] = useState('')
+    const [saleStartTimeTrue, setSaleStartTimeTrue] = useState(false)
     const navigate = useNavigate()
-   
+    const preSaleStartTime = startingTime
     const saleStartingTIme = startingTime
+
+    const [days, hours, minutes, seconds] = useCountdown(saleStartingTIme)
+    const [closingTimeDays, closingTimeHours, closingTimeMinutes, closingTimeSeconds] = useCountdown(closingTime)
 
     useEffect(async () => {
         if (signer) {
@@ -71,14 +76,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     }, [investementPreSale])
 
     const getBalance = async () => {
-        
         try {
             signer.getBalance().then((result) => {
                 setBalance(ethers.utils.formatEther(result))
                 setInvestAmount(balance)
             })
             console.log(balance)
-            console.log(signer)
         } catch (error) {
             console.log(error)
         }
@@ -91,9 +94,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const minInvestInWei = await investementPreSale.minInvestInWei()
         const totalCollectedWei = await investementPreSale.totalCollectedWei()
         const startTime = await investementPreSale.openTime()
-        setStartingTime(startTime)
+        setStartingTime(startTime * 1000)
         const endTime = await investementPreSale.closeTime()
-        setClosingTime(endTime)
+        setClosingTime(endTime * 1000)
         const _tokenAddress = await investementPreSale.token()
         setTokenAddress(_tokenAddress)
         const presaleCreatorAddress = await investementPreSale.presaleCreatorAddress()
@@ -231,7 +234,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
-    console.log(saleStartingTIme, moment.unix(saleStartingTIme*1000).format('dddd, MMMM Do, YYYY h:mm:ss A'))
+    console.log(closingTime, startingTime)
 
     return (
         <>
@@ -252,25 +255,21 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                         <CountdownTimer targetDate={saleStartingTIme} />
                                     </>
                                 )}
-                               
                             </ColCenter>
                             <ColCenter lg={8}>
-                                { /* (closingTime - saleStartingTIme) || !saleStartingTIme   && (
+                                {/* (closingTime - saleStartingTIme) || !saleStartingTIme   && (
                                     <>
                                         Remaining time for Prsale closing
                                         <CountdownTimer targetDate={closingTime} />
                                     </>
                                 )*/}
-                                  {    (closingTime - saleStartingTIme)  && (
+                                {days + hours + minutes + seconds <= 0 && (
                                     <>
-                                        Remaining time for Presale Closing
+                                        {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
                                         <CountdownTimer targetDate={closingTime} />
                                     </>
                                 )}
-                                
-                               
                             </ColCenter>
-                       
                         </CustomRow>
                         <Spacer />
                         <Spacer />
