@@ -7,7 +7,8 @@ import {api} from '../config/apiBaseUrl'
 import {toast} from 'react-toastify'
 import {useSelector} from 'react-redux'
 import PreSaleDetail from './PreSaleDetail'
-
+import {useCountdown} from '../hooks/useCountdown'
+import moment from 'moment'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -59,45 +60,124 @@ const Product = () => {
                             </Column>
                         </Row>
                         <Spacer />
+
+                        <Spacer />
                         <Row>
-                            <FilterContent lg={12}>
-                            <Button active={true} >Live</Button>
-                                <Button disabled={true}>Completed</Button>
-                                <Button  disabled={true}>Faild</Button>
-                            </FilterContent>
+                            <Column lg={4}>
+                                <NewButton disabled={true}>Upcoming</NewButton>
+                            </Column>
+                            <Column lg={4}>
+                                <NewButton active={true}>Live</NewButton>
+                            </Column>
+                            <Column lg={4}>
+                                <NewButton disabled={true}>Completed</NewButton>
+                            </Column>
                         </Row>
                         <Spacer />
                         <Spacer />
                         <Row>
-                            {allProducts.map((value, index) => {
-                                return (
-                                    <CustomCol
-                                        key={index}
-                                        lg={6}
-                                        onClick={() => {
-                                            if(isConnected){
-                                                setPreSaleViewToken(value.token)}
-                                            else{toast.error('Please connect to wallet')}
-                                            
-                                        }}>
-                                        <Card>
-                                            <Content>
-                                                <Label>PreSale:</Label> {value.token ? value.token : '-'}
-                                            </Content>
-                                            <Content>
-                                                <Label>Owner:</Label> {value.address ? value.address : '-'}
-                                               
-                                            </Content>
-                                            <Content>
-                                               
-                                                <Label> softCap</Label> {value.softCap ? value.softCap : '-'}
-                                            </Content>
-                                        </Card>
-                                    </CustomCol>
-                                )
-                            })}
+                            <Column lg={4}>
+                                {allProducts.map((value, index) => {
+                                    if (value.startTime != undefined) {
+                                        console.log(moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A'))
+                                        console.log(moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A'))
+                                        return (
+                                            <>
+                                                {' '}
+                                                {moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') >= moment().format('dddd, MMMM Do, YYYY h:mm:ss A') && (
+                                                    <Card
+                                                        key={index + 'Upcoming'}
+                                                        lg={12}
+                                                        onClick={() => {
+                                                            if (isConnected) {
+                                                                setPreSaleViewToken(value.token)
+                                                            } else {
+                                                                toast.error('Please connect to wallet')
+                                                            }
+                                                        }}>
+                                                        <Content>
+                                                            <Label> Sale Title</Label> {value.saleTitle? value.saleTitle : '-'}
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> End Time</Label> {value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> Strat Time</Label> {value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
+                                                        </Content>
+                                                    </Card>
+                                                )}{' '}
+                                            </>
+                                        )
+                                    }
+                                })}
+                            </Column>
+                            <Column lg={4}>
+                                {allProducts.map((value, index) => {
+                                    if (value.startTime != undefined) {
+                                        return (
+                                            <>
+                                                {(moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') >= moment().format('dddd, MMMM Do, YYYY h:mm:ss A')) && (moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') <= moment().format('dddd, MMMM Do, YYYY h:mm:ss A')) && (
+                                                    <Card
+                                                        key={index + 'live'}
+                                                        lg={12}
+                                                        onClick={() => {
+                                                            if (isConnected) {
+                                                                setPreSaleViewToken(value.token)
+                                                            } else {
+                                                                toast.error('Please connect to wallet')
+                                                            }
+                                                        }}>
+                                                        <Content>
+                                                            <Label> Sale Title</Label> {value.saleTitle ? value.saleTitle : '-'}
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> End Time</Label> <span>{value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'} </span>
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> Strat Time</Label> <span>{value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}</span>
+                                                        </Content>
+                                                    </Card>
+                                                )}{' '}
+                                            </>
+                                        )
+                                    }
+                                })}
+                            </Column>
+                            <Column lg={4}>
+                                {allProducts.map((value, index) => {
+                                    if (value.startTime != undefined) {
+                                        return (
+                                            <>
+                                                {' '}
+                                                {moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') <= moment().format('dddd, MMMM Do, YYYY h:mm:ss A') && (
+                                                    <Card
+                                                        key={index + 'Completed'}
+                                                        lg={12}
+                                                        onClick={() => {
+                                                            if (isConnected) {
+                                                                setPreSaleViewToken(value.token)
+                                                            } else {
+                                                                toast.error('Please connect to wallet')
+                                                            }
+                                                        }}>
+                                                        <Content>
+                                                            <Label> Sale Title</Label> {value.saleTitle ? value.saleTitle : '-'}
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> End Time</Label> {value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
+                                                        </Content>
+                                                        <Content>
+                                                            <Label> Strat Time</Label> {value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
+                                                        </Content>
+                                                    </Card>
+                                                )}{' '}
+                                            </>
+                                        )
+                                    }
+                                })}
+                            </Column>
                         </Row>
-                        <Spacer />
+
                         <Spacer />
                     </Wrapper>
                 </>
@@ -138,29 +218,34 @@ const Card = styled.div`
     box-sizing: border-box;
     width: 100%;
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
+    cursor:pointer;
 `
 const Button = styled.a`
-width: 10rem;
-text-align: center;
-padding: 0.8rem;
-background: #00bcd4;
-background: ${({ active,disabled }) => (active ? '#07bc0c' : disabled? '#b9b6b6' : '#00bcd4')};
-color: white;
-border-radius: 0.4rem;
-border: none;
-font-size: 1rem;
-margin: 0rem 0.5rem;
-text-decoration: none;
-cursor: ${({ disabled }) => (disabled ? 'no-drop' : 'pointer')};
-&:hover {
-    background: ${({ active,disabled }) => (active ? '#06b30b' : disabled? '#b9b6b6' : '#00bcd4')};
-}
+    width: 10rem;
+    text-align: center;
+    padding: 0.8rem;
+    background: #00bcd4;
+    background: ${({active, disabled}) => (active ? '#07bc0c' : disabled ? '#b9b6b6' : '#00bcd4')};
+    color: white;
+    border-radius: 0.4rem;
+    border: none;
+    font-size: 1rem;
+    margin: 0rem 0.5rem;
+    text-decoration: none;
+    cursor: ${({disabled}) => (disabled ? 'no-drop' : 'pointer')};
+    &:hover {
+        background: ${({active, disabled}) => (active ? '#06b30b' : disabled ? '#b9b6b6' : '#00bcd4')};
+    }
 `
-
+const NewButton = styled(Button)`
+    display: block;
+    width: auto !important;
+    margin: 0rem 0rem;
+`
 
 const Content = styled.span`
     display: flex;
-    &:not(:last-child){
+    &:not(:last-child) {
         margin-bottom: 1rem;
     }
 `

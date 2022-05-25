@@ -378,7 +378,9 @@ const LaunchPad = () => {
                         address: userAddress,
                         token: contractCreationToken,
                         softCap:tokensTuple.softCapInWei,
-                        endTime:tokensTuple.closeTime
+                        endTime:tokensTuple.closeTime,
+                        startTime: tokensTuple.openTime,
+                        saleTitle: tokensTuple.saleTitle
                     })
                     .then((response) => {
                         if (response.data.status) {
