@@ -380,7 +380,7 @@ const LaunchPad = () => {
                         softCap:tokensTuple.softCapInWei,
                         endTime:tokensTuple.closeTime,
                         startTime: tokensTuple.openTime,
-                        saleTitle: tokensTuple.saleTitle
+                        saleTitle: socialTuple.saleTitle
                     })
                     .then((response) => {
                         if (response.data.status) {

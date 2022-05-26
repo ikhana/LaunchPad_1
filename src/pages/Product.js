@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import {Link} from 'react-router-dom'
-import {Container, Row, Col} from 'styled-bootstrap-grid'
+import {Container, Row, Col, media} from 'styled-bootstrap-grid'
 import {Collapse} from 'react-bootstrap'
 import {api} from '../config/apiBaseUrl'
 import {toast} from 'react-toastify'
@@ -9,6 +9,8 @@ import {useSelector} from 'react-redux'
 import PreSaleDetail from './PreSaleDetail'
 import {useCountdown} from '../hooks/useCountdown'
 import moment from 'moment'
+import {TabList, Tab, TabPanel} from 'react-tabs'
+import {ethers} from 'ethers'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -16,6 +18,8 @@ axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Product = () => {
+    const [activeTab, setActiveTab] = useState(1)
+    const [status, setStatus] = useState('success')
     const [allProducts, setAllProducts] = useState([])
     const [preSaleViewToken, setPreSaleViewToken] = useState('')
     const [livePreSales, setLivePreSales] = useState([])
@@ -60,122 +64,170 @@ const Product = () => {
                             </Column>
                         </Row>
                         <Spacer />
+                        <Row>
+                            <STabs>
+                                <STabList>
+                                    <STab
+                                        onClick={() => {
+                                            setActiveTab(1)
+                                        }}
+                                        active={activeTab == 1}>
+                                        Upcoming
+                                    </STab>
+                                    <STab
+                                        onClick={() => {
+                                            setActiveTab(2)
+                                        }}
+                                        active={activeTab == 2}>
+                                        Live
+                                    </STab>
+                                    <STab
+                                        onClick={() => {
+                                            setActiveTab(3)
+                                        }}
+                                        active={activeTab == 3}>
+                                        Completed
+                                    </STab>
+                                </STabList>
+                                {activeTab == 1 && (
+                                    <STabPanel>
+                                        <TabContent>
+                                            <Container>
+                                                <Row>
+                                                    {allProducts.map((value, index) => {
+                                                        if (value.startTime != undefined) {
+                                                            if (moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A')) {
+                                                                console.log(moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A'))
+                                                                console.log(moment().format('DD-MM-YYYY h:mm:ss A'))
+                                                                debugger
+                                                            }
+                                                            return (
+                                                                <>
+                                                                    {' '}
+                                                                    {moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && (
+                                                                        <Column lg={6}>
+                                                                            <Card
+                                                                                key={index + 'Upcoming'}
+                                                                                lg={12}
+                                                                                onClick={() => {
+                                                                                    if (isConnected) {
+                                                                                        setPreSaleViewToken(value.token)
+                                                                                    } else {
+                                                                                        toast.error('Please connect to wallet')
+                                                                                    }
+                                                                                }}>
+                                                                                <Content>
+                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle): '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                </Content>
+                                                                            </Card>
+                                                                        </Column>
+                                                                    )}{' '}
+                                                                </>
+                                                            )
+                                                        }
+                                                    })}
+                                                </Row>
+                                            </Container>
+                                        </TabContent>
+                                    </STabPanel>
+                                )}
 
-                        <Spacer />
-                        <Row>
-                            <Column lg={4}>
-                                <NewButton disabled={true}>Upcoming</NewButton>
-                            </Column>
-                            <Column lg={4}>
-                                <NewButton active={true}>Live</NewButton>
-                            </Column>
-                            <Column lg={4}>
-                                <NewButton disabled={true}>Completed</NewButton>
-                            </Column>
-                        </Row>
-                        <Spacer />
-                        <Spacer />
-                        <Row>
-                            <Column lg={4}>
-                                {allProducts.map((value, index) => {
-                                    if (value.startTime != undefined) {
-                                        console.log(moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A'))
-                                        console.log(moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A'))
-                                        return (
-                                            <>
-                                                {' '}
-                                                {moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') >= moment().format('dddd, MMMM Do, YYYY h:mm:ss A') && (
-                                                    <Card
-                                                        key={index + 'Upcoming'}
-                                                        lg={12}
-                                                        onClick={() => {
-                                                            if (isConnected) {
-                                                                setPreSaleViewToken(value.token)
-                                                            } else {
-                                                                toast.error('Please connect to wallet')
-                                                            }
-                                                        }}>
-                                                        <Content>
-                                                            <Label> Sale Title</Label> {value.saleTitle? value.saleTitle : '-'}
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> End Time</Label> {value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> Strat Time</Label> {value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
-                                                        </Content>
-                                                    </Card>
-                                                )}{' '}
-                                            </>
-                                        )
-                                    }
-                                })}
-                            </Column>
-                            <Column lg={4}>
-                                {allProducts.map((value, index) => {
-                                    if (value.startTime != undefined) {
-                                        return (
-                                            <>
-                                                {(moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') >= moment().format('dddd, MMMM Do, YYYY h:mm:ss A')) && (moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') <= moment().format('dddd, MMMM Do, YYYY h:mm:ss A')) && (
-                                                    <Card
-                                                        key={index + 'live'}
-                                                        lg={12}
-                                                        onClick={() => {
-                                                            if (isConnected) {
-                                                                setPreSaleViewToken(value.token)
-                                                            } else {
-                                                                toast.error('Please connect to wallet')
-                                                            }
-                                                        }}>
-                                                        <Content>
-                                                            <Label> Sale Title</Label> {value.saleTitle ? value.saleTitle : '-'}
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> End Time</Label> <span>{value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'} </span>
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> Strat Time</Label> <span>{value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}</span>
-                                                        </Content>
-                                                    </Card>
-                                                )}{' '}
-                                            </>
-                                        )
-                                    }
-                                })}
-                            </Column>
-                            <Column lg={4}>
-                                {allProducts.map((value, index) => {
-                                    if (value.startTime != undefined) {
-                                        return (
-                                            <>
-                                                {' '}
-                                                {moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') <= moment().format('dddd, MMMM Do, YYYY h:mm:ss A') && (
-                                                    <Card
-                                                        key={index + 'Completed'}
-                                                        lg={12}
-                                                        onClick={() => {
-                                                            if (isConnected) {
-                                                                setPreSaleViewToken(value.token)
-                                                            } else {
-                                                                toast.error('Please connect to wallet')
-                                                            }
-                                                        }}>
-                                                        <Content>
-                                                            <Label> Sale Title</Label> {value.saleTitle ? value.saleTitle : '-'}
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> End Time</Label> {value.endTime ? moment.unix(value.endTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
-                                                        </Content>
-                                                        <Content>
-                                                            <Label> Strat Time</Label> {value.startTime ? moment.unix(value.startTime).format('dddd, MMMM Do, YYYY h:mm:ss A') : '-'}
-                                                        </Content>
-                                                    </Card>
-                                                )}{' '}
-                                            </>
-                                        )
-                                    }
-                                })}
-                            </Column>
+                                {activeTab == 2 && (
+                                    <STabPanel>
+                                        <TabContent>
+                                            <Container>
+                                                <Row>
+                                                    {allProducts.map((value, index) => {
+                                                        if (value.startTime != undefined) {
+                                                            return (
+                                                                <>
+                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') && (
+                                                                        <Column lg={6}>
+                                                                            <Card
+                                                                                key={index + 'live'}
+                                                                                lg={12}
+                                                                                onClick={() => {
+                                                                                    if (isConnected) {
+                                                                                        setPreSaleViewToken(value.token)
+                                                                                    } else {
+                                                                                        toast.error('Please connect to wallet')
+                                                                                    }
+                                                                                }}>
+                                                                                <Content>
+                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                </Content>
+                                                                            </Card>
+                                                                        </Column>
+                                                                    )}{' '}
+                                                                </>
+                                                            )
+                                                        }
+                                                    })}
+                                                </Row>
+                                            </Container>
+                                        </TabContent>
+                                    </STabPanel>
+                                )}
+                                {activeTab == 3 && (
+                                    <STabPanel>
+                                        <TabContent>
+                                            <Container>
+                                                <StatusBar>
+                                                    <StatusSuccess active={status == 'success'} onClick={()=>{setStatus('success')}}>Success</StatusSuccess> <StatusFaild active={status == 'faild'} onClick={()=>{setStatus('faild')}}>Faild</StatusFaild>
+                                                </StatusBar>
+                                                <Row>
+                                                    {allProducts.map((value, index) => {
+                                                        if (value.startTime != undefined) {
+                                                            debugger
+                                                            return (
+                                                                <>
+                                                                    {' '}
+                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') && (
+                                                                        <Column lg={6}>
+                                                                            <Card
+                                                                                key={index + 'Completed'}
+                                                                                lg={12}
+                                                                                onClick={() => {
+                                                                                    if (isConnected) {
+                                                                                        setPreSaleViewToken(value.token)
+                                                                                    } else {
+                                                                                        toast.error('Please connect to wallet')
+                                                                                    }
+                                                                                }}>
+                                                                                 <Content>
+                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                </Content>
+                                                                                <Content>
+                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                </Content>
+                                                                            </Card>
+                                                                        </Column>
+                                                                    )}{' '}
+                                                                </>
+                                                            )
+                                                        }
+                                                    })}
+                                                </Row>
+                                            </Container>
+                                        </TabContent>
+                                    </STabPanel>
+                                )}
+                            </STabs>
                         </Row>
 
                         <Spacer />
@@ -218,7 +270,7 @@ const Card = styled.div`
     box-sizing: border-box;
     width: 100%;
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
-    cursor:pointer;
+    cursor: pointer;
 `
 const Button = styled.a`
     width: 10rem;
@@ -256,4 +308,77 @@ const Label = styled.span`
     width: 6rem;
     display: block;
 `
+
+const Cover = styled.img`
+    width: 100%;
+    object-fit: fill;
+`
+
+const Media = styled.div`
+    position: relative;
+`
+
+const STabs = styled(Tab)`
+    font-size: 1.2rem;
+    width: 100%;
+    color: black;
+    list-style: none;
+`
+
+const STabList = styled(TabList)`
+    list-style-type: none;
+    padding: 0.3rem;
+    display: flex;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+`
+STabList.tabsRole = 'TabList'
+
+const STab = styled(Tab)`
+    letter-spacing: 2px;
+    width:10rem;
+    margin-bottom: -5px;
+    margin-left: -3px;
+    text-align: center;
+    padding: 0.3rem 0rem 1rem 0rem;
+    user-select: none;
+    cursor: arrow;
+    border-bottom: ${({active}) => (active ? `0.2rem solid #00bcd4 !important` : ``)};
+    font-weight ${({active}) => (active ? `bold` : ``)};
+`
+STab.tabsRole = 'Tab'
+
+const STabPanel = styled.div`
+    min-height: 40vh;
+`
+
+const TabContent = styled.div`
+    min-height: 40vh;
+    padding: 1rem;
+`
+
+STabPanel.tabsRole = 'TabPanel'
+
+const StatusBar = styled(Row)`
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+`
+const StatusButton = styled.button`
+width: 7rem;
+border-radius: 3rem;
+padding: 0.5rem 1rem;
+color: white;
+font-size: 1rem;
+border: 0;
+cursor:pointer;
+`;
+const StatusSuccess = styled(StatusButton)`
+    margin-right: 1rem;
+    background: ${({active}) => (active ? `#07bc0c` : `#b9b6b6`)};
+`
+const StatusFaild = styled(StatusButton)`
+background: ${({active}) => (active ? `#d80a0a` : `#b9b6b6`)};
+`
+
 export default Product
