@@ -6,7 +6,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+@font-face { font-family: 'VarinonormalRegular'; 
+  src: local('VarinonormalRegular'), url('./assets/fonts/VarinonormalRegular-1GXaM.ttf') format("truetype") } 
+h2{
+font-family: roboto-regular;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

@@ -64,13 +64,14 @@
   justify-content: center;
   align-items: center;
   font-weight: 700;
+  font-family: 'VarinonormalRegular';
   font-size: 1.25rem;
   line-height: 1.75rem;
-  padding: 0.5rem;
-  border: 1px solid #ebebeb;
+  padding: 1.4rem 0.5rem 0.5rem 0.5rem;
   border-radius: 0.25rem;
   text-decoration: none;
-  color: #000;
+  color: #00bcd4;
+  background: black;
 }
 
 .show-counter .countdown {
@@ -79,14 +80,19 @@
   align-items: center;
   display: flex;
   flex-direction: column;
+  letter-spacing: 1px !important;
 }
 
 .show-counter .countdown.danger {
   color: #ff0000;
 }
 
+
 .show-counter .countdown > p {
   margin: 0;
+  font-size: 2rem;
+  margin-bottom: 1rem !important;
+  font-family: unset;
 }
 
 .show-counter .countdown > span {

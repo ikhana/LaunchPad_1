@@ -21,11 +21,16 @@ const Product = () => {
     const [activeTab, setActiveTab] = useState(1)
     const [status, setStatus] = useState('success')
     const [allProducts, setAllProducts] = useState([])
+    const [upComing, setUpComing] = useState([])
+    const [live, setLive] = useState([])
+    const [completed, setCompleted] = useState([])
     const [preSaleViewToken, setPreSaleViewToken] = useState('')
     const [livePreSales, setLivePreSales] = useState([])
     const [completedPreSales, setCompletedPreSales] = useState([])
     const [failesPreSales, setFailedPreSales] = useState([])
     const isConnected = useSelector((state) => state.auth.isConnected)
+
+    
 
     useEffect(() => {
         viewAllProjects()
@@ -37,10 +42,21 @@ const Product = () => {
             .then((response) => {
                 if (response.data.status) {
                     resetAllProducts()
-                    response.data.data.map((data, index) => {
+                    response.data.data.map((value, index) => {
                         setAllProducts((preValue) => {
-                            return [...preValue, data]
+                            return [...preValue, value]
                         })
+                        if (value.startTime != undefined) {
+                            if(moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A')){
+                                setUpComing(value)
+                            }
+                            if(moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A')){
+                                setLive(value)
+                            }
+                            if(moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A')){
+                                setCompleted(value)
+                            }
+                        }
                     })
                 }
             })
@@ -52,6 +68,8 @@ const Product = () => {
     const resetAllProducts = () => {
         setAllProducts([])
     }
+
+
 
     return (
         <>
@@ -94,18 +112,14 @@ const Product = () => {
                                         <TabContent>
                                             <Container>
                                                 <Row>
-                                                    {allProducts.map((value, index) => {
+                                                {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
-                                                            if (moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A')) {
-                                                                console.log(moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A'))
-                                                                console.log(moment().format('DD-MM-YYYY h:mm:ss A'))
-                                                                debugger
-                                                            }
+                                                           
                                                             return (
                                                                 <>
                                                                     {' '}
-                                                                    {moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && (
-                                                                        <Column lg={6}>
+                                                                    {moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                        <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'Upcoming'}
                                                                                 lg={12}
@@ -117,21 +131,24 @@ const Product = () => {
                                                                                     }
                                                                                 }}>
                                                                                 <Content>
-                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle): '-'}
+                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
                                                                                 </Content>
                                                                             </Card>
-                                                                        </Column>
-                                                                    )}{' '}
+                                                                        </CustomCol>
+                                                                    ) : (
+                                                                        ''
+                                                                    )}
                                                                 </>
                                                             )
                                                         }
                                                     })}
+                                                    {upComing.length == 0 ? <NotFoundText>No UpComing Projects Found</NotFoundText> :''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -143,12 +160,12 @@ const Product = () => {
                                         <TabContent>
                                             <Container>
                                                 <Row>
-                                                    {allProducts.map((value, index) => {
+                                                {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
                                                             return (
                                                                 <>
-                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') && (
-                                                                        <Column lg={6}>
+                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                        <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'live'}
                                                                                 lg={12}
@@ -163,18 +180,22 @@ const Product = () => {
                                                                                     <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
                                                                                 </Content>
                                                                             </Card>
-                                                                        </Column>
-                                                                    )}{' '}
+                                                                        </CustomCol>
+                                                                    ) : (
+                                                                         ''
+                                                                    )}
                                                                 </>
                                                             )
                                                         }
+                                                    
                                                     })}
+                                                   {live.length == 0 ? <NotFoundText>No Live Projects Found</NotFoundText> :''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -185,17 +206,29 @@ const Product = () => {
                                         <TabContent>
                                             <Container>
                                                 <StatusBar>
-                                                    <StatusSuccess active={status == 'success'} onClick={()=>{setStatus('success')}}>Success</StatusSuccess> <StatusFaild active={status == 'faild'} onClick={()=>{setStatus('faild')}}>Faild</StatusFaild>
+                                                    <StatusSuccess
+                                                        active={status == 'success'}
+                                                        onClick={() => {
+                                                            setStatus('success')
+                                                        }}>
+                                                        Success
+                                                    </StatusSuccess>{' '}
+                                                    <StatusFaild
+                                                        active={status == 'faild'}
+                                                        onClick={() => {
+                                                            setStatus('faild')
+                                                        }}>
+                                                        Faild
+                                                    </StatusFaild>
                                                 </StatusBar>
                                                 <Row>
+                                                   
                                                     {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
-                                                            debugger
                                                             return (
                                                                 <>
-                                                                    {' '}
-                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') && (
-                                                                        <Column lg={6}>
+                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                        <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'Completed'}
                                                                                 lg={12}
@@ -206,22 +239,25 @@ const Product = () => {
                                                                                         toast.error('Please connect to wallet')
                                                                                     }
                                                                                 }}>
-                                                                                 <Content>
+                                                                                <Content>
                                                                                     <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address: '-'}
+                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
                                                                                 </Content>
                                                                                 <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token:  '-'}
+                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
                                                                                 </Content>
                                                                             </Card>
-                                                                        </Column>
-                                                                    )}{' '}
+                                                                        </CustomCol>
+                                                                    ) : (
+                                                                       ''
+                                                                    )}
                                                                 </>
                                                             )
                                                         }
                                                     })}
+                                                   {completed.length == 0 ? <NotFoundText>No Completed Projects Found</NotFoundText> :''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -297,6 +333,7 @@ const NewButton = styled(Button)`
 
 const Content = styled.span`
     display: flex;
+    font-size: 1rem;
     &:not(:last-child) {
         margin-bottom: 1rem;
     }
@@ -365,20 +402,27 @@ const StatusBar = styled(Row)`
     margin-bottom: 2rem;
 `
 const StatusButton = styled.button`
-width: 7rem;
-border-radius: 3rem;
-padding: 0.5rem 1rem;
-color: white;
-font-size: 1rem;
-border: 0;
-cursor:pointer;
-`;
+    width: 7rem;
+    border-radius: 3rem;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-size: 1rem;
+    border: 0;
+    cursor: pointer;
+`
 const StatusSuccess = styled(StatusButton)`
     margin-right: 1rem;
     background: ${({active}) => (active ? `#07bc0c` : `#b9b6b6`)};
 `
 const StatusFaild = styled(StatusButton)`
-background: ${({active}) => (active ? `#d80a0a` : `#b9b6b6`)};
+    background: ${({active}) => (active ? `#d80a0a` : `#b9b6b6`)};
 `
-
+const NotFoundText = styled.div`
+   width:100%;
+   text-align:center;
+   display:flex;
+   align-items:center;
+   color:gray;
+   justify-content:center;
+`
 export default Product
