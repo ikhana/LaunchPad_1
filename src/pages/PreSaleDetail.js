@@ -88,7 +88,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const endDate = new Date(endTime * 1000)
         setCloseTime(endDate)
 
-        
+        const _hardCapInWei = await ethers.utils.formatEther(hardCapInWei)
+        setHardCapInWei(_hardCapInWei)
         const _softCapInWie = await ethers.utils.formatEther(softCapInWei)
         setSoftCapInWei(_softCapInWie)
         const _maxInvestInWei = await ethers.utils.formatEther(maxInvestInWei)
@@ -224,14 +225,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     return (
         <>
             <Wrapper>
-                <Heading>LaunchPad Details</Heading>
+                <Heading>{saleTitle?.toString()}</Heading>
+                <Spacer />
+                <Spacer />
                 {(investementPreSale && !loading) && (
                     <>
-                        <Row>
-                            <Column>
-                                <Heading>Pre Sale: {saleTitle?.toString()}</Heading>
-                            </Column>
-                        </Row>
+                    
                         <Row>
                             <Column lg={6}>
                                 <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
