@@ -13,17 +13,15 @@ import moment from 'moment'
 import CountdownTimer from '../components/CountdownTimer'
 import {useNavigate} from 'react-router-dom'
 import {useCountdown} from '../hooks/useCountdown'
-import EditPreSale from './EditPreSale'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
-const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
+const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
     const signer = useSelector((state) => state.auth.signer)
     const user = useSelector((state) => state.auth.user)
-    const [editPreSale, setEditPreSale] = useState(false)
     const [hardCapInWei, setHardCapInWei] = useState()
     const [softCapInWei, setSoftCapInWei] = useState()
     const [closeTime, setCloseTime] = useState()
@@ -48,12 +46,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [closingTime, setClosingTime] = useState('')
     const [startingTime, setStartingTime] = useState('')
     const [balance, setBalance] = useState('')
-    const [totalTokens, setTotalTokens] = useState('555000')
+    const [saleStartTimeTrue, setSaleStartTimeTrue] = useState(false)
     const navigate = useNavigate()
     const preSaleStartTime = startingTime
-    const saleStartingTIme = startingTime
+    const saleStartingTime = startingTime
 
-    const [days, hours, minutes, seconds] = useCountdown(saleStartingTIme)
+    const [days, hours, minutes, seconds] = useCountdown(saleStartingTime)
     const [closingTimeDays, closingTimeHours, closingTimeMinutes, closingTimeSeconds] = useCountdown(closingTime)
 
     useEffect(async () => {
@@ -79,7 +77,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
     const getBalance = async () => {
         try {
-            const _balance = await signer.getBalance()
+            const _balance = await signer.getBalance()   // to do .... get Gas Price 
             /*const gasFee = await ethers.getDefaultProvider().estimateGas({
                 // Wrapped ETH address
                 to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -154,16 +152,6 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const _saleTitle = ethers.utils.parseBytes32String(saleTitleBytes)
         setSaleTitle(_saleTitle)
     }
-    // let updateTokensTuple = {
-    //     totalTokens: totalTokens,
-    //     tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
-    //     hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
-    //     softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
-    //     maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
-    //     minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
-    //     openTime: moment(startTime).unix().toString(),
-    //     closeTime: moment(endTime).unix().toString()
-    // }
 
     const investIn = async () => {
         if (!investementPreSale) {
@@ -260,230 +248,215 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
-    const editGenralInfo = async () => {
-        try {
-            const getRefundTx = await investementPreSale._setGenralInfo()
-            await getRefundTx.wait()
-        } catch (error) {}
-    }
 
     return (
         <>
-            {!editPreSale ? (
-                <>
-                    <Wrapper>
-                        {investementPreSale && !loading && (
-                            <>
-                                {!isConnected && navigate('/')}
-                                <Heading>
-                                    {saleTitle?.toString()}
-                                    <Spacer />
-                                    <EditButton
-                                        onClick={() => {
-                                            setEditPreSale(true)
-                                        }}>
-                                        Edit
-                                    </EditButton>
-                                </Heading>
+            <Wrapper>
+                {investementPreSale && !loading && ( 
+               
+                    <>
+                        {!isConnected && navigate('/')}
+                        <Heading>
+                            {saleTitle?.toString()}
+                            <Spacer />
+                        </Heading>
 
-                                <CustomRow>
-                                    {saleStartingTIme > new Date().getTime() && (
-                                        <>
-                                            <ColCenter lg={8}>Remaining time for Presale opening</ColCenter>
-                                            <ColCenter lg={8}>
-                                                <CountdownTimer targetDate={saleStartingTIme} />
-                                            </ColCenter>
-                                        </>
-                                    )}
-                                    <ColCenter lg={8}>
-                                        {days + hours + minutes + seconds <= 0 && (
-                                            <>
-                                                {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
-
-                                                <CountdownTimer targetDate={closingTime} />
-                                            </>
-                                        )}
-                                    </ColCenter>
-                                </CustomRow>
-                                <Spacer />
-                                <Spacer />
-
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Maximum Capital (BNB):</Text> <Content>{hardCapInWei?.toString()}</Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>Minimum Capital (BNB):</Text>
-                                        <Content> {softCapInWei?.toString()}</Content>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Total Investors :</Text>
-                                        <Content>{investerCount?.toString()}</Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>Total Invested Amount in BNB: </Text>
-                                        <Content>{totalInvestedAmount?.toString()}</Content>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Token Address :</Text>
-                                        <Content>
-                                            {' '}
-                                            <a href={`https://testnet.bscscan.com/address/${tokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
-                                                {tokenAddress?.toString()}
-                                            </a>
-                                        </Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>PreSale Creator Adress : </Text>
-                                        <Content>
-                                            {' '}
-                                            <a href={`https://testnet.bscscan.com/address/${preSaleCreatorAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
-                                                {preSaleCreatorAddress?.toString()}
-                                            </a>
-                                        </Content>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Liuidity Lock Address :</Text>
-                                        <Content>
-                                            {' '}
-                                            <a href={`https://testnet.bscscan.com/address/${liqLockAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
-                                                {liqLockAddress?.toString()}
-                                            </a>
-                                        </Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>Unsold Tokens Address: </Text>
-
-                                        <Content>
-                                            <a href={`https://testnet.bscscan.com/address/${unsoldTokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
-                                                {unsoldTokenAddress?.toString()}
-                                            </a>
-                                        </Content>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    <Column lg={6}>
-                                        <Text>Start Time:</Text>
-                                        <Content>{openTime?.toString()}</Content>
-                                    </Column>
-                                    <Column lg={6}>
-                                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
-                                    </Column>
-                                </Row>
-                                <Row>
-                                    <Column>
-                                        <Heading>Social Details</Heading>
-                                    </Column>
-                                </Row>
-                                <Row>
-                                    <Column lg={12}>
-                                        <a href={webisteLink} target="_blank" rel="noopener noreferrer">
-                                            {' '}
-                                            <Icon src="/images/website.png" />
-                                        </a>
-                                        <a href={discordLink} target="_blank" rel="noopener noreferrer">
-                                            {' '}
-                                            <Icon src="/images/discord.svg" />
-                                        </a>
-                                        <a href={telegramLink}>
-                                            {' '}
-                                            <Icon src="/images/telegram.svg" />
-                                        </a>
-                                        <a href={twitterLink}>
-                                            {' '}
-                                            <Icon src="/images/twitter.png" />
-                                        </a>
-                                    </Column>
-                                </Row>
-                                <Spacer />
-                                <Row>
-                                    {match == false && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && days + hours + minutes + seconds <= 0 && (
-                                        <Flexed lg={10}>
-                                            <ButtonContainer>
-                                                <Button onClick={investIn}>Invest</Button>
-                                            </ButtonContainer>
-                                            <div>
-                                                <InputText
-                                                    value={investAmount.toString()}
-                                                    onChange={(e) => {
-                                                        setInvestAmount(e.target.value)
-                                                    }}
-                                                />{' '}
-                                                <MaxButton onClick={getBalance}>MAX</MaxButton>
-                                            </div>
-                                        </Flexed>
-                                    )}
-                                </Row>
+                        <CustomRow>
+                            <ColCenter lg={8}>
+                                {saleStartingTime > new Date().getTime() && (
+                                    <>
+                                        Remaining time for Presale opening
+                                        <Spacer />
+                                        <Spacer />
+                                        <CountdownTimer targetDate={saleStartingTime} />
+                                    </>
+                                )}
+                            </ColCenter>
+                            <ColCenter lg={8}>
                                 {days + hours + minutes + seconds <= 0 && (
                                     <>
                                         {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
-                                        <CustomRow>
-                                            <SecondButtonContainer lg={3}>
-                                                <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                                            </SecondButtonContainer>
-                                            {match && (
-                                                <>
-                                                    {' '}
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
-                                                    </SecondButtonContainer>
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
-                                                    </SecondButtonContainer>{' '}
-                                                </>
-                                            )}
-                                            {match == false && (
-                                                <>
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={claimTokens}>Claim Token</Button1>
-                                                    </SecondButtonContainer>
-                                                    {/* <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
-                                </SecondButtonContainer> */}
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={getRefund}>Get Refund</Button1>
-                                                    </SecondButtonContainer>
 
-                                                    {/* <SecondButtonContainer lg={3}>
-                            <Button1 onClick={apiCall}> Save</Button1>
-                     </SecondButtonContainer> */}
-                                                </>
-                                            )}
-                                        </CustomRow>
+                                        <CountdownTimer targetDate={closingTime} />
                                     </>
                                 )}
+                            </ColCenter>
+                        </CustomRow>
+                        <Spacer />
+                        <Spacer />
 
-                                <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Maximum Capital (BNB):</Text> <Content>{hardCapInWei?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Minimum Capital (BNB):</Text>
+                                <Content> {softCapInWei?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Total Investors :</Text>
+                                <Content>{investerCount?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Total Invested Amount in BNB: </Text>
+                                <Content>{totalInvestedAmount?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Token Address :</Text>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${tokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {tokenAddress?.toString()}
+                                    </a>
+                                </Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>PreSale Creator Adress : </Text>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${preSaleCreatorAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {preSaleCreatorAddress?.toString()}
+                                    </a>
+                                </Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Liuidity Lock Address :</Text>
+                                <Content>
+                                    {' '}
+                                    <a href={`https://testnet.bscscan.com/address/${liqLockAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {liqLockAddress?.toString()}
+                                    </a>
+                                </Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>Unsold Tokens Address: </Text>
+
+                                <Content>
+                                    <a href={`https://testnet.bscscan.com/address/${unsoldTokenAddress}`} target="_blank" rel="noopener noreferrer" style={{color: '#2dc0cc'}}>
+                                        {unsoldTokenAddress?.toString()}
+                                    </a>
+                                </Content>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            <Column lg={6}>
+                                <Text>Start Time:</Text>
+                                <Content>{openTime?.toString()}</Content>
+                            </Column>
+                            <Column lg={6}>
+                                <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
+                            </Column>
+                        </Row>
+                        <Row>
+                            <Column>
+                                <Heading>Social Details</Heading>
+                            </Column>
+                        </Row>
+                        <Row>
+                            <Column lg={12}>
+                                <a href={webisteLink} target="_blank" rel="noopener noreferrer">
+                                    {' '}
+                                    <Icon src="/images/website.png" />
+                                </a>
+                                <a href={discordLink} target="_blank" rel="noopener noreferrer">
+                                    {' '}
+                                    <Icon src="/images/discord.svg" />
+                                </a>
+                                <a href={telegramLink}>
+                                    {' '}
+                                    <Icon src="/images/telegram.svg" />
+                                </a>
+                                <a href={twitterLink}>
+                                    {' '}
+                                    <Icon src="/images/twitter.png" />
+                                </a>
+                            </Column>
+                        </Row>
+                        <Spacer />
+                        <Row>
+                            {match == false && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && days + hours + minutes + seconds <= 0 && (
+                                <Flexed lg={10}>
+                                    <ButtonContainer>
+                                        <Button onClick={investIn}>Invest</Button>
+                                    </ButtonContainer>
+                                    <div>
+                                        <InputText
+                                            value={investAmount.toString()}
+                                            onChange={(e) => {
+                                                setInvestAmount(e.target.value)
+                                            }}
+                                        />{' '}
+                                        <MaxButton onClick={getBalance}>MAX</MaxButton>
+                                    </div>
+                                </Flexed>
+                            )}
+                        </Row>
+                        {days + hours + minutes + seconds <= 0 && (
+                            <>
+                                {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
+                                <CustomRow>
+                                    <SecondButtonContainer lg={3}>
+                                        <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
+                                    </SecondButtonContainer>
+                                    {match && (
+                                        <>
+                                            {' '}
+                                            <SecondButtonContainer lg={3}>
+                                                <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
+                                            </SecondButtonContainer>
+                                            <SecondButtonContainer lg={3}>
+                                                <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
+                                            </SecondButtonContainer>{' '}
+                                        </>
+                                    )}
+                                    {match == false && (
+                                        <>
+                                            <SecondButtonContainer lg={3}>
+                                                <Button1 onClick={claimTokens}>Claim Token</Button1>
+                                            </SecondButtonContainer>
+                                            {/* <SecondButtonContainer lg={3}>
+                                    <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
+                                </SecondButtonContainer> */}
+                                            <SecondButtonContainer lg={3}>
+                                                <Button1 onClick={getRefund}>Get Refund</Button1>
+                                            </SecondButtonContainer>
+
+                                            {/* <SecondButtonContainer lg={3}>
+                            <Button1 onClick={apiCall}> Save</Button1>
+                     </SecondButtonContainer> */}
+                                        </>
+                                    )}
+                                </CustomRow>
                             </>
                         )}
-                    </Wrapper>
-                    {loading && (
-                        <LoadingPanelContent>
-                            <LoadingPanel src="/images/Preloader.gif" />
-                        </LoadingPanelContent>
-                    )}
-                </>
-            ) : (
-                <EditPreSale />
+
+                        <Spacer />
+                    </>
+                )}
+            </Wrapper>
+            {loading && (
+                <LoadingPanelContent>
+                    <LoadingPanel src="/images/Preloader.gif" />
+                </LoadingPanelContent>
             )}
         </>
     )
@@ -542,7 +515,6 @@ const Logo = styled.img`
 `
 const Heading = styled.h1`
     text-align: center;
-    position: relative;
 `
 const Spacer = styled.div`
     height: 1rem;
@@ -617,12 +589,6 @@ const Button1 = styled.a`
     }
 `
 
-const EditButton = styled(Button)`
-    position: absolute;
-    right: 0;
-    top: 0;
-`
-
 const ColCenter = styled(Column)`
     display: flex;
     justify-content: center;
@@ -674,4 +640,4 @@ const mapStateToProps = (state) => {
         isConnected: state.auth.isConnected
     }
 }
-export default connect(mapStateToProps, null)(PreSaleDetail)
+export default connect(mapStateToProps, null)(EditPreSale)

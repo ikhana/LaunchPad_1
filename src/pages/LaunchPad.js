@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import web3 from 'web3'
 import styled from 'styled-components'
-import {Container, Row, Col} from 'styled-bootstrap-grid'
+import {Container, Row, Col, media} from 'styled-bootstrap-grid'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import DateTimePicker from 'react-datetime-picker'
 import {ethers} from 'ethers'
@@ -12,7 +12,7 @@ const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-
+var shortUrl = require('node-url-shortener')
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
@@ -44,13 +44,13 @@ const LaunchPad = () => {
     const [liquidity, setLiquidity] = useState('99')
     const [liquidityError, setLiquidityError] = useState(false)
     const [listingPrice, setListingPrice] = useState('0.11')
+    const [startTime, setStartTime] = useState(new Date())
+    const [endTime, setEndTime] = useState(new Date())
     const [listingPriceError, setListingPriceError] = useState(false)
     const [liquidityLockup, setLiquidityLockup] = useState(new Date())
     const [liquidityLockupError, setLiquidityLockupError] = useState(false)
     const [lpTokensDurationInDays, setLpTokensDurationInDays] = useState('10')
     const [lpTokensDurationInDaysError, setLpTokensDurationInDaysError] = useState(false)
-    const [startTime, setStartTime] = useState(new Date())
-    const [endTime, setEndTime] = useState(new Date())
     const [endTimeError, setEndTimeError] = useState(false)
     const [startTimeError, setStartTimeError] = useState(false)
     const [endTimeLessError, setEndTimeLessError] = useState(false)
@@ -67,6 +67,10 @@ const LaunchPad = () => {
     const [discordError, setDiscordError] = useState(false)
     const [twitterError, setTwitterError] = useState(false)
     const [websiteError, setWebsiteError] = useState(false)
+    const [shortDiscordLink, setShortDiscordLink] = useState('')
+    const [shortTelegramLink, setShortTelegramLink] = useState('')
+    const [shortTwitterLink, setShortTwitterLink] = useState('')
+    const [shortWebsiteLink, setShortWebsiteLink] = useState('')
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
     const [presalePrice, setPresalePrice] = useState('')
@@ -331,12 +335,14 @@ const LaunchPad = () => {
     }
 
     const createMyTokenPreSale = async () => {
+        
         if (!launchPadContract) {
-            alert('Please connect to chain id 97')
+            toast.error('Please connect to chain Id 97')
         }
+
         let tokensTuple = {
             tokenAddress: tokenAddress,
-            unsoldTokensDumpAddress: unsoldTokensDumpAddress, 
+            unsoldTokensDumpAddress: unsoldTokensDumpAddress,
             whitelistedAddresses: [],
             tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
             hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
@@ -352,24 +358,29 @@ const LaunchPad = () => {
             lpTokensLockDurationInDays: lpTokensDurationInDays,
             liquidityPercentageAllocation: liquidity
         }
+        
         let socialTuple = {
             saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
-            linkTelegram: bytes32({input: telegramLink, ignoreLength: true}).toLowerCase(),
-            linkDiscord: bytes32({input: discord, ignoreLength: true}).toLowerCase(),
-            linkTwitter: bytes32({input: twitter, ignoreLength: true}).toLowerCase(),
-            linkWebsite: bytes32({input: website, ignoreLength: true}).toLowerCase()
+            linkTelegram: bytes32({input: shortTelegramLink}).toLowerCase(),
+            linkDiscord: bytes32({input: shortDiscordLink}).toLowerCase(),
+            linkTwitter: bytes32({input: shortTwitterLink}).toLowerCase(),
+            linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
-        debugger
         try {
             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
             console.log(createPresale)
             const response = await createPresale.wait()
             const contractCreationToken = response.events[0].args[3]
+            console.log("=============", response)
             if (contractCreationToken) {
                 axios
                     .post(`${api}/pre_sale/add`, {
                         address: userAddress,
-                        token: contractCreationToken
+                        token: contractCreationToken,
+                        softCap:tokensTuple.softCapInWei,
+                        endTime:tokensTuple.closeTime,
+                        startTime: tokensTuple.openTime,
+                        saleTitle: socialTuple.saleTitle
                     })
                     .then((response) => {
                         if (response.data.status) {
@@ -396,28 +407,28 @@ const LaunchPad = () => {
                 <Col>
                     <Heading>Create Launchpad</Heading>
                 </Col>
-                <CardCol lg={3}>
+                <CardCol lg={3} md={3} sm={3} xs={3}>
                     <List>
                         <Card active={activeStep > 0 || activeStep > 4}>
                             <CardHeading>Add Token Address</CardHeading>
                         </Card>
                     </List>
                 </CardCol>
-                <CardCol lg={3}>
+                <CardCol lg={3} md={3} sm={3} xs={3}>
                     <List>
                         <Card active={activeStep > 1 || activeStep > 4}>
                             <CardHeading>Defi Launchpad Info</CardHeading>
                         </Card>
                     </List>
                 </CardCol>
-                <CardCol lg={3}>
+                <CardCol lg={3} md={3} sm={3} xs={3}>
                     <List>
                         <Card active={activeStep > 2 || activeStep > 4}>
                             <CardHeading>Add Additional Info </CardHeading>
                         </Card>
                     </List>
                 </CardCol>
-                <CardCol lg={3}>
+                <CardCol lg={3} md={3} sm={3} xs={3}>
                     <List>
                         <Card active={activeStep > 3 || activeStep > 4}>
                             <CardHeading>Finish and Review your information</CardHeading>
@@ -444,7 +455,7 @@ const LaunchPad = () => {
             </Row>
             <Spacer />
             <Row>
-                <Col lg={8} offset={2}>
+                <Col lg={8} lgOffset={2} mdOffset={2} smOffset={0} xsOffset={0}>
                     <Stepper>
                         <Item id="firstStep">
                             <StepperHead onClick={() => toggle(1)}>
@@ -769,8 +780,22 @@ const LaunchPad = () => {
                                             </Back>
                                             <Next
                                                 onClick={() => {
+                                                    shortUrl.short(discord, function (error, shortDiscordLink) {
+                                                        console.log(shortDiscordLink)
+                                                        setShortDiscordLink(shortDiscordLink)
+                                                    })
+                                                    shortUrl.short(twitter, function (error, shortTwitterLink) {
+                                                        console.log(shortTwitterLink)
+                                                        setShortTwitterLink(shortTwitterLink)
+                                                    })
+                                                    shortUrl.short(telegramLink, function (error, shortTelegramLink) {
+                                                        setShortTelegramLink(shortTelegramLink)
+                                                    })
+                                                    shortUrl.short(website, function (error, shortWebsiteLink) {
+                                                        setShortWebsiteLink(shortWebsiteLink)
+                                                    })
+
                                                     if (socialValiation()) {
-                                                        debugger
                                                         setStepThree(false)
                                                         setStepFour(true)
                                                         setActiveStep(4)
@@ -845,12 +870,33 @@ const CardCol = styled(Col)`
         right: -3rem;
         z-index: -1;
         border-top: 3px dotted #00bcd4;
+        ${media.xs`
+        left: 4rem;
+        
+      `}
+        ${media.sm`
+        left: 6rem;
+        
+      `}
+        ${media.md`
+        left: 11rem;
+        right: -3rem;
+      `}
     }
 `
 const List = styled.div`
     display: flex;
     margin: 1rem 0rem;
     justify-content: center;
+    ${media.xs`
+    justify-content: start;
+  `}
+    ${media.sm`
+    justify-content: start;
+  `}
+    ${media.md`
+    justify-content: center;
+  `}
 `
 const Card = styled.div`
     text-align: center;
@@ -865,11 +911,36 @@ const Card = styled.div`
     width: 8rem;
     height: 3rem;
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
+    ${media.xs`
+    padding: 0.5rem;
+    width: 4rem;
+    height: 2rem;
+  `}
+    ${media.sm`
+    padding: 1rem;
+    width: 8rem;
+    height: 3rem;
+  `}
+    ${media.md`
+    padding: 2rem;
+    width: 8rem;
+    height: 3rem;
+  `}
+   
 `
 
 const CardHeading = styled.div`
     font-weight: bold;
     font-size: 1rem;
+    ${media.xs`
+    font-size: 0.5rem;
+  `}
+    ${media.sm`
+    font-size: 0.7rem;
+  `}
+    ${media.md`
+    font-size: 1rem;
+  `}
 `
 const Spacer = styled.div`
     height: 3rem;
