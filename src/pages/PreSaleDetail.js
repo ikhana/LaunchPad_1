@@ -154,16 +154,16 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const _saleTitle = ethers.utils.parseBytes32String(saleTitleBytes)
         setSaleTitle(_saleTitle)
     }
-    // let updateTokensTuple = {
-    //     totalTokens: totalTokens,
-    //     tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
-    //     hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
-    //     softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
-    //     maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
-    //     minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
-    //     openTime: moment(startTime).unix().toString(),
-    //     closeTime: moment(endTime).unix().toString()
-    // }
+     /*let updateTokensTuple = {
+        totalTokens: totalTokens,
+        tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
+        hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
+        softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
+        maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
+        minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
+        openTime: moment(startTime).unix().toString(),
+        closeTime: moment(endTime).unix().toString()
+     }*/
 
     const investIn = async () => {
         if (!investementPreSale) {
@@ -226,14 +226,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         }
     }
 
-    const cancelAndTransferTokensToPresaleCreator = async () => {
+    /*const cancelAndTransferTokensToPresaleCreator = async () => {
         try {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
         } catch (error) {
             toast.error('Liquidity has not been added yet')
         }
-    }
+    }*/
 
     const collectFundsRaised = async () => {
         try {
@@ -278,12 +278,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 <Heading>
                                     {saleTitle?.toString()}
                                     <Spacer />
-                                    <EditButton
+                                    {/* <EditButton
                                         onClick={() => {
                                             setEditPreSale(true)
                                         }}>
                                         Edit
-                                    </EditButton>
+                                    </EditButton> */}
                                 </Heading>
 
                                 <CustomRow>
@@ -437,15 +437,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                     <>
                                         {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
                                         <CustomRow>
-                                            <SecondButtonContainer lg={3}>
+                                           {/* <SecondButtonContainer lg={3}>
                                                 <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                                            </SecondButtonContainer>
+                                </SecondButtonContainer>*/}
                                             {match && (
                                                 <>
                                                     {' '}
-                                                    <SecondButtonContainer lg={3}>
+                                                 {  /* <SecondButtonContainer lg={3}>
                                                         <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
-                                                    </SecondButtonContainer>
+                                            </SecondButtonContainer>*/}
                                                     <SecondButtonContainer lg={3}>
                                                         <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
                                                     </SecondButtonContainer>{' '}
@@ -454,14 +454,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                             {match == false && (
                                                 <>
                                                     <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={claimTokens}>Claim Token</Button1>
+                                                        <Button1 onClick={claimTokens}>Collect Token</Button1>
                                                     </SecondButtonContainer>
                                                     {/* <SecondButtonContainer lg={3}>
                                     <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
                                 </SecondButtonContainer> */}
-                                                    <SecondButtonContainer lg={3}>
+                                                {    /*<SecondButtonContainer lg={3}>
                                                         <Button1 onClick={getRefund}>Get Refund</Button1>
-                                                    </SecondButtonContainer>
+                            </SecondButtonContainer>*/}
 
                                                     {/* <SecondButtonContainer lg={3}>
                             <Button1 onClick={apiCall}> Save</Button1>
@@ -540,7 +540,7 @@ const Logo = styled.img`
     border-radius: 5rem;
     border: 1px solid #eee;
 `
-const Heading = styled.h1`
+const Heading = styled.h3`
     text-align: center;
     position: relative;
 `

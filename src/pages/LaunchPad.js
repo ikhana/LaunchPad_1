@@ -367,11 +367,13 @@ const LaunchPad = () => {
             linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
         try {
+            
             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
             console.log(createPresale)
             const response = await createPresale.wait()
+            console.log("=============", response.events[0])
             const contractCreationToken = response.events[0].args[3]
-            console.log("=============", response)
+            
             if (contractCreationToken) {
                 axios
                     .post(`${api}/pre_sale/add`, {
@@ -392,7 +394,7 @@ const LaunchPad = () => {
                     })
                     .catch(function (error) {})
             } else {
-                //show eror
+                console.log(error.message)
             }
         } catch (e) {
             alert(e.message)
