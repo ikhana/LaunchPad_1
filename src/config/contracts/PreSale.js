@@ -20,6 +20,18 @@ export const PreSaleContract = {
         {inputs: [{internalType: 'address', name: '', type: 'address'}], name: 'claimed', outputs: [{internalType: 'bool', name: '', type: 'bool'}], stateMutability: 'view', type: 'function'},
         {inputs: [], name: 'closeTime', outputs: [{internalType: 'uint256', name: '', type: 'uint256'}], stateMutability: 'view', type: 'function'},
         {inputs: [], name: 'collectFundsRaised', outputs: [], stateMutability: 'nonpayable', type: 'function'},
+        {
+            inputs: [
+                {internalType: 'uint256', name: '_closeTime', type: 'uint256'},
+                {internalType: 'uint256', name: '_maxInvestInWei', type: 'uint256'},
+                {internalType: 'uint256', name: '_minInvestInWei', type: 'uint256'},
+                {internalType: 'uint256', name: '_uniLiquidityAddingTime', type: 'uint256'}
+            ],
+            name: 'editInfoPresaleDev',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function'
+        },
         {inputs: [], name: 'getRefund', outputs: [], stateMutability: 'nonpayable', type: 'function'},
         {inputs: [], name: 'hardCapInWei', outputs: [{internalType: 'uint256', name: '', type: 'uint256'}], stateMutability: 'view', type: 'function'},
         {inputs: [], name: 'invest', outputs: [], stateMutability: 'payable', type: 'function'},

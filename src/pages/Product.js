@@ -47,13 +47,16 @@ const Product = () => {
                             return [...preValue, value]
                         })
                         if (value.startTime != undefined) {
-                            if(moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A')){
+                            if(moment.unix(value.startTime).format() >= moment().format()){
+                                debugger
                                 setUpComing(value)
                             }
-                            if(moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A')){
+                            if(moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format()){
+                                debugger
                                 setLive(value)
                             }
-                            if(moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A')){
+                            if(moment.unix(value.endTime).format() <= moment().format()){
+                                debugger
                                 setCompleted(value)
                             }
                         }
@@ -118,7 +121,7 @@ const Product = () => {
                                                             return (
                                                                 <>
                                                                     {' '}
-                                                                    {moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                    {moment.unix(value.startTime).format() >= moment().format() ? (
                                                                         <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'Upcoming'}
@@ -162,9 +165,10 @@ const Product = () => {
                                                 <Row>
                                                 {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
+                                                            debugger
                                                             return (
                                                                 <>
-                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A') && moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                    {moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format() ? (
                                                                         <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'live'}
@@ -205,6 +209,7 @@ const Product = () => {
                                     <STabPanel>
                                         <TabContent>
                                             <Container>
+                                            {completed.length > 0  &&
                                                 <StatusBar>
                                                     <StatusSuccess
                                                         active={status == 'success'}
@@ -220,14 +225,14 @@ const Product = () => {
                                                         }}>
                                                         Faild
                                                     </StatusFaild>
-                                                </StatusBar>
+                                                </StatusBar>}
                                                 <Row>
                                                    
                                                     {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
                                                             return (
                                                                 <>
-                                                                    {moment.unix(value.endTime).format('DD-MM-YYYY h:mm:ss A') <= moment().format('DD-MM-YYYY h:mm:ss A') ? (
+                                                                    {moment.unix(value.endTime).format() <= moment().format() ? (
                                                                         <CustomCol lg={6}>
                                                                             <Card
                                                                                 key={index + 'Completed'}

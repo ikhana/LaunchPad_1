@@ -1,5 +1,5 @@
 export const InvestementInfo = {
-    id: '0xB364142c128004827CB09630a234a94adE687400',
+    id: '0x45C52514993A30c8d53C0386248E8a702F7d0f99',
     abi: [
         {
             anonymous: false,
