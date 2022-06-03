@@ -8,20 +8,24 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
+import {saveTokenAddress} from '../actions/authActions'
 const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-// var shortUrl = require('node-url-shortener')
+import {LaunchPadContract} from '../config/contracts/LaunchPad'
+import {ERC20} from '../config/contracts/ERC20'
+var shortUrl = require('node-url-shortener')
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 import {api} from '../config/apiBaseUrl'
 
-const LaunchPad = () => {
+const LaunchPad = ({saveTokenAddressHandler}) => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
+    let signer = useSelector((state) => state.auth.signer)
     const launchPadContract = useSelector((state) => state.auth.launchPadContract)
     const [tokenAddress, setTokenAddress] = useState('')
     const [tokenAddressError, setTokenAddressError] = useState('false')
@@ -334,6 +338,18 @@ const LaunchPad = () => {
         return _isValid
     }
 
+    const setApprove = async () => {
+        try {
+            const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
+
+            const approve = await erc20.approve(LaunchPadContract.id, '10000000000000000000000000000')
+
+            await approve.wait()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const createMyTokenPreSale = async () => {
         if (!launchPadContract) {
             toast.error('Please connect to chain Id 97')
@@ -367,10 +383,11 @@ const LaunchPad = () => {
         }
         try {
             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
-            console.log(createPresale)
+
             const response = await createPresale.wait()
-            const contractCreationToken = response.events[0].args[3]
-            console.log('=============', response)
+            console.log(response.events[2].args[2])
+            const contractCreationToken = response.events[2].args[2] //response.events[0].args[3]
+
             if (contractCreationToken) {
                 axios
                     .post(`${api}/pre_sale/add`, {
@@ -391,7 +408,7 @@ const LaunchPad = () => {
                     })
                     .catch(function (error) {})
             } else {
-                //show eror..todo...
+                alert('contract failed')
             }
         } catch (e) {
             alert(e.message)
@@ -497,6 +514,8 @@ const LaunchPad = () => {
                                                         setStepTwo(true)
                                                         scrollToStepSecond()
                                                         setActiveStep(2)
+                                                        setApprove()
+                                                        saveTokenAddressHandler(tokenAddress)
                                                     } else {
                                                         setTokenAddressError(true)
                                                         setUnsoldTokensDumpAddressError(true)
@@ -642,8 +661,7 @@ const LaunchPad = () => {
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Start Time (LocalTime)</Label>
-                                                {/*<InputText value={startTime} onChange={(e)=>{setStartTime(e.target.value)}} onBlur={checkstartTime}/>*/}
-                                                {/* <DateTimePicker onSelect={(e)=>{setStartTime(e.target.value)}}  value={startTime} /> */}
+
                                                 <InputDate onChange={setStartTime} value={startTime} />
 
                                                 {startTimeError && <Alblur>Start Time need to be Before End Time</Alblur>}
@@ -657,7 +675,6 @@ const LaunchPad = () => {
                                             <CustomCol lg={6}>
                                                 <Label>Liquidity lockup (second)</Label>
                                                 <div>
-                                                    {/* <InputText value={liquidityLockup} onChange={(e)=>{setLiquidityLockup(e.target.value)}}  */}
                                                     <InputDate value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
                                                     <br />
                                                     {liquidityLockupLessError == true && <Alblur>Liquidity lockup need to be greater then End Time</Alblur>}
@@ -850,6 +867,7 @@ const LaunchPad = () => {
         </Container>
     )
 }
+
 const Heading = styled.h1`
     text-align: center;
 `
@@ -1074,6 +1092,8 @@ const mapStateToProps = (state) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => ({})
+const mapDispatchToProps = (dispatch) => ({
+    saveTokenAddressHandler: (data) => dispatch(saveTokenAddress(data))
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(LaunchPad)

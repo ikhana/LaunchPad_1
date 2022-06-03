@@ -14,6 +14,7 @@ import {api} from '../config/apiBaseUrl'
 import {setConnected, setDisconnected} from '../actions/authActions'
 import {toast} from 'react-toastify'
 import {useNavigate} from 'react-router-dom'
+import {useSelector} from 'react-redux'
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -21,6 +22,7 @@ axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Header = (props) => {
+    let preSaleTokenAddress = useSelector((state) => state.auth.preSaleTokenAddress)
     const [open, setOpen] = useState(false)
     const navigate = useNavigate()
 
@@ -95,6 +97,7 @@ const Header = (props) => {
             const chainId = await signer.getChainId()
             if (user) {
                 const launchPadContract = new ethers.Contract(LaunchPadContract.id, LaunchPadContract.abi, signer)
+                console.log(signer)
                 const investmentInfoRead = new ethers.Contract(InvestementInfo.id, InvestementInfo.abi, signer)
 
                 if (chainId.toString() == '97') {

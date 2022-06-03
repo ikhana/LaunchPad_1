@@ -5,6 +5,7 @@ import {Collapse} from 'react-bootstrap'
 import {useSelector} from 'react-redux'
 import {ethers} from 'ethers'
 import {getLocal} from 'web3modal'
+import DateTimePicker from 'react-datetime-picker'
 import {connect} from 'react-redux'
 import {api} from '../config/apiBaseUrl'
 import {PreSaleContract} from '../config/contracts/PreSale'
@@ -38,7 +39,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [investerCount, setInvesterCount] = useState('')
     const [totalInvestedAmount, setTotalInvestment] = useState('')
     const [preSaleCreatorAddress, setPreSaleCreatorAddress] = useState('')
-    const [match, setMatch] = useState(false)
+    const [isDeveloper, setIsDeveloper] = useState(false)
     const [investementPreSale, setInvestementPreSale] = useState(null)
     const [saleTitle, setSaleTitle] = useState('')
     const [tokenAddress, setTokenAddress] = useState('')
@@ -47,8 +48,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [loading, setLoading] = useState(false)
     const [closingTime, setClosingTime] = useState('')
     const [startingTime, setStartingTime] = useState('')
+    const [uniLiquidityAdingTime, setuniLiquidityAddingTime] = useState('')
+    const [liquidityDate, setLiquidityDate] = useState('')
     const [balance, setBalance] = useState('')
-    const [totalTokens, setTotalTokens] = useState('555000')
+    const [editCloseTime, setEditCLoseTime] = useState(new Date())
+    const [editMaxInvest, setEditMaxtInvest] = useState('0.3')
+    const [editMinInvest, setEditMinInvest] = useState('0.4')
+    const [editLiqTime, setEditLiqTime] = useState(new Date())
+    const [closeTimeeee, setCloseTimeeee] = useState(new Date())
     const navigate = useNavigate()
     const preSaleStartTime = startingTime
     const saleStartingTIme = startingTime
@@ -60,14 +67,24 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         if (signer) {
             if (user && user.tokens.length > 0) {
                 if (!preSaleViewToken) {
+                    //todo..show all project
                     preSaleViewToken = user.tokens[0].token
-                    setMatch(true)
+                    setIsDeveloper(true)
+                } else {
+                    for (let i = 0; i < user.tokens.length; i++) {
+                        if (preSaleViewToken == user.tokens[i].token) {
+                            setIsDeveloper(true)
+                        }
+                    }
                 }
-            } //todo.. if user view the page without login/or directly.. check in user tokens if match then its setmatch(true)
+            } //todo.. if user view the page without login/or directly.. check in user tokens if isDeveloper then its setIsDeveloper(true)
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
             setInvestementPreSale(_investementPreSale)
         }
     }, [signer])
+    useEffect(async () => {
+        alert(isDeveloper)
+    }, [isDeveloper])
 
     useEffect(async () => {
         if (investementPreSale) {
@@ -122,10 +139,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const _totalInvestorsCount = await investementPreSale.totalInvestorsCount()
         setInvesterCount(_totalInvestorsCount)
 
+        const liquidityAddingTime = await investementPreSale.uniLiquidityAddingTime()
+        setuniLiquidityAddingTime(liquidityAddingTime)
+
         const startDate = moment.unix(startTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setOpneTime(startDate)
         const endDate = moment.unix(endTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setCloseTime(endDate)
+        const liquidityAddingDate = moment.unix(uniLiquidityAdingTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
+        setLiquidityDate(liquidityAddingDate)
 
         const _hardCapInWei = ethers.utils.formatEther(hardCapInWei)
         setHardCapInWei(_hardCapInWei)
@@ -154,16 +176,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         const _saleTitle = ethers.utils.parseBytes32String(saleTitleBytes)
         setSaleTitle(_saleTitle)
     }
-    // let updateTokensTuple = {
-    //     totalTokens: totalTokens,
-    //     tokenPriceInWei: ethers.utils.parseUnits(tokenPrice, 18).toString(),
-    //     hardCapInWei: ethers.utils.parseUnits(hardCap, 18).toString(),
-    //     softCapInWei: ethers.utils.parseUnits(softCap, 18).toString(),
-    //     maxInvestInWei: ethers.utils.parseUnits(maximum, 18).toString(),
-    //     minInvestInWei: ethers.utils.parseUnits(minimum, 18).toString(),
-    //     openTime: moment(startTime).unix().toString(),
-    //     closeTime: moment(endTime).unix().toString()
-    // }
+    let updateTokensTuple = {
+        maxInvestInWei: ethers.utils.parseUnits(editMaxInvest, 18).toString(),
+        minInvestInWei: ethers.utils.parseUnits(editMinInvest, 18).toString(),
+        closeTime: moment(editCloseTime).unix().toString(),
+        liqAddingTime: moment(editLiqTime).unix().toString()
+    }
 
     const investIn = async () => {
         if (!investementPreSale) {
@@ -226,14 +244,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         }
     }
 
-    const cancelAndTransferTokensToPresaleCreator = async () => {
+    /*const cancelAndTransferTokensToPresaleCreator = async () => {
         try {
             const cancelAndTransferTokensToPresaleCreatorTx = await investementPreSale.cancelAndTransferTokensToPresaleCreator()
             await cancelAndTransferTokensToPresaleCreatorTx.wait()
         } catch (error) {
             toast.error('Liquidity has not been added yet')
         }
-    }
+    }*/
 
     const collectFundsRaised = async () => {
         try {
@@ -260,11 +278,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
-    const editGenralInfo = async () => {
+    const editInfoPresale = async () => {
         try {
-            const getRefundTx = await investementPreSale._setGenralInfo()
-            await getRefundTx.wait()
-        } catch (error) {}
+            console.log(updateTokensTuple)
+            const editInfoPresale = await investementPreSale.editInfoPresaleDev(updateTokensTuple.closeTime, updateTokensTuple.maxInvestInWei, updateTokensTuple.minInvestInWei, updateTokensTuple.liqAddingTime)
+
+            await editInfoPresale.wait()
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -278,12 +300,6 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 <Heading>
                                     {saleTitle?.toString()}
                                     <Spacer />
-                                    <EditButton
-                                        onClick={() => {
-                                            setEditPreSale(true)
-                                        }}>
-                                        Edit
-                                    </EditButton>
                                 </Heading>
 
                                 <CustomRow>
@@ -295,25 +311,25 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                             </ColCenter>
                                         </>
                                     )}
-                                    <ColCenter lg={8}>
-                                        {days + hours + minutes + seconds <= 0 && (
-                                            <>
-                                                {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
 
+                                    {days + hours + minutes + seconds <= 0 && (
+                                        <>
+                                            {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <ColCenter>Remaining time for Presale closing </ColCenter>}
+                                            <ColCenter lg={8}>
                                                 <CountdownTimer targetDate={closingTime} />
-                                            </>
-                                        )}
-                                    </ColCenter>
+                                            </ColCenter>
+                                        </>
+                                    )}
                                 </CustomRow>
                                 <Spacer />
                                 <Spacer />
 
                                 <Row>
                                     <Column lg={6}>
-                                        <Text>Maximum Invest per Address (BNB):</Text> <Content>{maxInvestInWei?.toString()}</Content>
+                                        <Text>Maximum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={maxInvestInWei} /> : <Content>{maxInvestInWei?.toString()}</Content>}
                                     </Column>
                                     <Column lg={6}>
-                                        <Text>Minimum Invest per Address (BNB):</Text> <Content>{minInvestInWei?.toString()}</Content>
+                                        <Text>Minimum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={minInvestInWei} /> : <Content>{minInvestInWei?.toString()}</Content>}
                                     </Column>
                                 </Row>
                                 <Spacer />
@@ -387,7 +403,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                     </Column>
                                     <Column lg={6}>
                                         <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
+                                        {/* {closeTime &&  <InputDate width="40"  value={moment(closeTime, "YYYY MM DD")} />} */}
                                     </Column>
+                                    {/* <Column lg={6}>
+                                        <Text>Liquidity Adding Time</Text> <Content>{liquidityDate?.toString()}</Content>
+                                         <InputDate width="40"  value={closeTimeeee} />
+                                    </Column> */}
                                 </Row>
                                 <Row>
                                     <Column>
@@ -416,59 +437,57 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 </Row>
                                 <Spacer />
                                 <Row>
-                                    {match == false && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && days + hours + minutes + seconds <= 0 && (
-                                        <Flexed lg={10}>
-                                            <ButtonContainer>
-                                                <Button onClick={investIn}>Invest</Button>
-                                            </ButtonContainer>
-                                            <div>
-                                                <InputText
-                                                    value={investAmount.toString()}
-                                                    onChange={(e) => {
-                                                        setInvestAmount(e.target.value)
-                                                    }}
-                                                />{' '}
-                                                <MaxButton onClick={getBalance}>MAX</MaxButton>
-                                            </div>
-                                        </Flexed>
+                                    {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && days + hours + minutes + seconds <= 0 && (
+                                        <>
+                                            {isDeveloper == false && (
+                                                <Flexed lg={10}>
+                                                    <ButtonContainer>
+                                                        <Button onClick={investIn}>Invest</Button>
+                                                    </ButtonContainer>
+                                                    <div>
+                                                        <InputText
+                                                            value={investAmount.toString()}
+                                                            onChange={(e) => {
+                                                                setInvestAmount(e.target.value)
+                                                            }}
+                                                        />{' '}
+                                                        <MaxButton onClick={getBalance}>MAX</MaxButton>
+                                                    </div>
+                                                </Flexed>
+                                            )}
+                                        </>
                                     )}
                                 </Row>
-                                {days + hours + minutes + seconds <= 0 && (
+                                {days + hours + minutes + seconds <= 0 && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds <= 0 && (
                                     <>
-                                        {closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 && <>Remaining time for Presale closing</>}
                                         <CustomRow>
-                                            <SecondButtonContainer lg={3}>
-                                                <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
-                                            </SecondButtonContainer>
-                                            {match && (
-                                                <>
-                                                    {' '}
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={cancelAndTransferTokensToPresaleCreator}>Cancel Presale</Button1>
-                                                    </SecondButtonContainer>
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={collectFundsRaised}>Collect Fund Raised</Button1>
-                                                    </SecondButtonContainer>{' '}
-                                                </>
-                                            )}
-                                            {match == false && (
-                                                <>
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={claimTokens}>Claim Token</Button1>
-                                                    </SecondButtonContainer>
-                                                    {/* <SecondButtonContainer lg={3}>
-                                    <Button1 onClick={readLaunchpadInfo}>Read Info</Button1>
-                                </SecondButtonContainer> */}
-                                                    <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={getRefund}>Get Refund</Button1>
-                                                    </SecondButtonContainer>
+                                            <>
+                                                <SecondButtonContainer lg={3}>
+                                                    <Button1 onClick={claimTokens}>Add Liquidity</Button1>
+                                                </SecondButtonContainer>
+                                            </>
+                                        </CustomRow>
 
-                                                    {/* <SecondButtonContainer lg={3}>
-                            <Button1 onClick={apiCall}> Save</Button1>
-                     </SecondButtonContainer> */}
+                                        <CustomRow>
+                                            {isDeveloper && (
+                                                <>
+                                                    <SecondButtonContainer lg={3}>
+                                                        <Button1 onClick={claimTokens}>Collect Funds</Button1>
+                                                    </SecondButtonContainer>
                                                 </>
                                             )}
                                         </CustomRow>
+                                        <CustomRow>
+                                            {isDeveloper == false && (
+                                                <>
+                                                    <SecondButtonContainer lg={3}>
+                                                        <Button1 onClick={claimTokens}>Collect Token</Button1>
+                                                    </SecondButtonContainer>
+                                                </>
+                                            )}
+                                        </CustomRow>
+                                        <Spacer />
+                                        <Spacer />
                                     </>
                                 )}
 
@@ -540,7 +559,7 @@ const Logo = styled.img`
     border-radius: 5rem;
     border: 1px solid #eee;
 `
-const Heading = styled.h1`
+const Heading = styled.h3`
     text-align: center;
     position: relative;
 `
@@ -551,13 +570,27 @@ const Spacer = styled.div`
 const InputText = styled.input`
     // outline:none;
     height: 2.4rem;
-    width: 100%;
+    width: ${({width}) => (width ? `${width}%` : '100%')};
     font-size: 1.1rem;
     padding: 0.4rem;
     border: 0.09rem solid #e3e2e2;
     border-radius: 0.3rem;
     box-sizing: border-box;
 `
+
+const InputDate = styled(DateTimePicker)`
+    // outline:none;
+    width: ${({width}) => (width ? `${width}%` : '100%')};
+    font-size: 1.1rem;
+    padding: 0.2rem;
+    border: 0.09rem solid #e3e2e2;
+    border-radius: 0.3rem;
+    box-sizing: border-box;
+    & div {
+        border: 0rem !important;
+    }
+`
+
 const Button = styled.a`
     width: 10rem;
     text-align: center;
@@ -616,11 +649,21 @@ const Button1 = styled.a`
         background: #05b5cc;
     }
 `
-
-const EditButton = styled(Button)`
-    position: absolute;
-    right: 0;
-    top: 0;
+const EditButton = styled.button`
+    width: 25%;
+    text-align: center;
+    padding: 0.5rem;
+    background: #00bcd4;
+    color: white;
+    border-radius: 0.4rem;
+    border: none;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    align-items: center;
+    &:hover {
+        background: #05b5cc;
+    }
 `
 
 const ColCenter = styled(Column)`
@@ -666,6 +709,176 @@ const Content = styled.p`
 const CustomRow = styled(Row)`
     display: flex;
     justify-content: center;
+`
+
+const CustomCol = styled(Col)`
+padding: 0rem 1rem;
+box - sizing: border - box;
+`
+
+const CardCol = styled(Col)`
+padding: 0rem;
+    &: not(: last - child)::after {
+    content: '';
+    position: absolute;
+    top: 50 %;
+    left: 11rem;
+    right: -3rem;
+    z - index: -1;
+    border - top: 3px dotted #00bcd4;
+        ${media.xs`
+        left: 4rem;
+        
+      `}
+        ${media.sm`
+        left: 6rem;
+        
+      `}
+        ${media.md`
+        left: 11rem;
+        right: -3rem;
+      `}
+}
+`
+const List = styled.div`
+display: flex;
+margin: 1rem 0rem;
+justify - content: center;
+    ${media.xs`
+    justify-content: start;
+  `}
+    ${media.sm`
+    justify-content: start;
+  `}
+    ${media.md`
+    justify-content: center;
+  `}
+`
+const Card = styled.div`
+text - align: center;
+position: relative;
+padding: 2rem;
+background: ${({active}) => (active ? '#00bcd4' : 'white')};
+color: ${({active}) => (active ? 'white' : 'black')};
+border - radius: 0.2rem;
+border: none;
+font - size: 1rem;
+margin: 0rem 0.5rem;
+width: 8rem;
+height: 3rem;
+box - shadow: 0 0 1px rgb(0 0 0 / 17 %), 0 4px 8px rgb(0 0 0 / 8 %), 0 8px 12px rgb(0 0 0 / 0 %), 0 12px 16px rgb(0 0 0 / 2 %);
+    ${media.xs`
+    padding: 0.5rem;
+    width: 4rem;
+    height: 2rem;
+  `}
+    ${media.sm`
+    padding: 1rem;
+    width: 8rem;
+    height: 3rem;
+  `}
+    ${media.md`
+    padding: 2rem;
+    width: 8rem;
+    height: 3rem;
+  `}
+`
+
+const CardHeading = styled.div`
+font - weight: bold;
+font - size: 1rem;
+    ${media.xs`
+    font-size: 0.5rem;
+  `}
+    ${media.sm`
+    font-size: 0.7rem;
+  `}
+    ${media.md`
+    font-size: 1rem;
+  `}
+`
+const FlexCenter = styled(Col)`
+display: flex;
+justify - content: center;
+`
+const Stepper = styled.ul``
+
+const Item = styled.li`
+list - style: none;
+`
+const StepperHead = styled.div`
+display: flex;
+align - items: center;
+cursor: pointer;
+`
+const StepperBody = styled.div`
+border - left: 0.2rem dotted #00bcd4;
+padding: 2rem 2rem 0rem 2rem;
+margin - left: 0.9rem;
+`
+const StepperBodyLast = styled(StepperBody)`
+border - left: none;
+padding: 2rem;
+margin - left: 0.9rem;
+display: flex;
+justify - content: center;
+`
+const StepperFooter = styled.div`
+display: flex;
+margin - top: 1rem;
+justify - content: flex - end;
+`
+const Step = styled.div`
+width: 2rem;
+background: #00bcd4;
+height: 2rem;
+display: flex;
+align - items: center;
+justify - content: center;
+border - radius: 2rem;
+color: white;
+margin - right: 1rem;
+cursor: pointer;
+`
+const Line = styled.span`
+width: 2rem;
+border - left: 0.2rem dotted #00bcd4;
+height: 2rem;
+display: flex;
+margin - left: 0.9rem;
+`
+const Back = styled(Button)`
+padding: 0.5rem 2rem!important;
+font - size: 0.9rem!important;
+background: #e91e63;
+    &:hover {
+    background: #d11555!important;
+}
+`
+const Next = styled(Button)`
+padding: 0.5rem 2rem!important;
+font - size: 0.9rem!important;
+`
+
+const Label = styled.p`
+margin - bottom: 0.5rem;
+font - size: 0.9rem;
+font - weight: bold;
+`
+const Select = styled.select`
+width: 100 %;
+height: 35px;
+background: white;
+color: gray;
+font - size: 14px;
+border: 0.09rem solid #e3e2e2;
+border - radius: 0.3rem;
+`
+
+const Alblur = styled.span`
+width: 100 %;
+font - size: 0.8rem;
+color: red;
 `
 
 const mapStateToProps = (state) => {

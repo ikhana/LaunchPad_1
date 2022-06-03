@@ -8,7 +8,8 @@ const initialState = {
     chainError: false,
     launchPadContract: null,
     investmentInfoRead: null,
-    signer: null
+    signer: null,
+    preSaleTokenAddress:null
 }
 
 export default function authReducer(state = initialState, action) {
@@ -29,6 +30,12 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...initialState
             }
+            case types.SAVE_TOKEN_ADDRESS:
+            return {
+                ...state,
+                preSaleTokenAddress:action.value
+            }
+            
 
         default:
             return state

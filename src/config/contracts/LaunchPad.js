@@ -1,5 +1,5 @@
 export const LaunchPadContract = {
-    id: '0x52576dd1F4a0cB5497E610183EbcF8f9016B5373',
+    id: '0x68796B5C8E897D62Cb232e7d59B517da2B07226a',
     abi: [
         {inputs: [{internalType: 'address', name: '_InfoAddress', type: 'address'}], stateMutability: 'nonpayable', type: 'constructor'},
         {
@@ -7,7 +7,6 @@ export const LaunchPadContract = {
             inputs: [
                 {indexed: false, internalType: 'bytes32', name: 'title', type: 'bytes32'},
                 {indexed: false, internalType: 'uint256', name: 'Id', type: 'uint256'},
-                {indexed: false, internalType: 'address', name: 'creator', type: 'address'},
                 {indexed: false, internalType: 'address', name: 'presalecontractaddress', type: 'address'}
             ],
             name: 'PresaleCreated',
@@ -58,10 +57,9 @@ export const LaunchPadContract = {
                 }
             ],
             name: 'createPresale',
-            outputs: [{internalType: 'address', name: '', type: 'address'}],
+            outputs: [],
             stateMutability: 'nonpayable',
             type: 'function'
-        },
-        {inputs: [], name: 'owner', outputs: [{internalType: 'address', name: '', type: 'address'}], stateMutability: 'view', type: 'function'}
+        }
     ]
 }

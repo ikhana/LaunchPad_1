@@ -18,3 +18,9 @@ export const setDisconnected = () => {
         type: types.DISCONNECTED_SUCCESS
     }
 }
+export const saveTokenAddress= (payload) => {
+    return {
+        type: types.SAVE_TOKEN_ADDRESS,
+        value: payload
+    }
+}
