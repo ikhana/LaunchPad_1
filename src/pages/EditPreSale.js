@@ -77,7 +77,7 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
 
     const getBalance = async () => {
         try {
-            const _balance = await signer.getBalance()   // to do .... get Gas Price 
+            const _balance = await signer.getBalance() // to do .... get Gas Price
             /*const gasFee = await ethers.getDefaultProvider().estimateGas({
                 // Wrapped ETH address
                 to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -252,8 +252,7 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
     return (
         <>
             <Wrapper>
-                {investementPreSale && !loading && ( 
-               
+                {investementPreSale && !loading && (
                     <>
                         {!isConnected && navigate('/')}
                         <Heading>

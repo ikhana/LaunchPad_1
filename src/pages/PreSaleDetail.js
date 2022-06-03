@@ -391,7 +391,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                 </Row>
                                 <Row>
                                     <Column>
-                                        <Heading>Social Details</Heading>
+                                        <Text>Social Details</Text>
                                     </Column>
                                 </Row>
                                 <Row>

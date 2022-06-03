@@ -11,8 +11,8 @@ import {useCountdown} from '../hooks/useCountdown'
 import moment from 'moment'
 import {TabList, Tab, TabPanel} from 'react-tabs'
 import {ethers} from 'ethers'
-
 import axios from 'axios'
+
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
@@ -44,6 +44,7 @@ const Product = () => {
                         setAllProducts((preValue) => {
                             return [...preValue, value]
                         })
+                        //todo... add Maximum Capital (BNB)
                         if (value.startTime != undefined) {
                             if (moment.unix(value.startTime).format('DD-MM-YYYY h:mm:ss A') >= moment().format('DD-MM-YYYY h:mm:ss A')) {
                                 setUpComing(value)

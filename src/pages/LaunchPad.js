@@ -12,7 +12,7 @@ const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
-var shortUrl = require('node-url-shortener')
+// var shortUrl = require('node-url-shortener')
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
@@ -335,7 +335,6 @@ const LaunchPad = () => {
     }
 
     const createMyTokenPreSale = async () => {
-        
         if (!launchPadContract) {
             toast.error('Please connect to chain Id 97')
         }
@@ -358,7 +357,7 @@ const LaunchPad = () => {
             lpTokensLockDurationInDays: lpTokensDurationInDays,
             liquidityPercentageAllocation: liquidity
         }
-        
+
         let socialTuple = {
             saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
             linkTelegram: bytes32({input: shortTelegramLink}).toLowerCase(),
@@ -371,14 +370,14 @@ const LaunchPad = () => {
             console.log(createPresale)
             const response = await createPresale.wait()
             const contractCreationToken = response.events[0].args[3]
-            console.log("=============", response)
+            console.log('=============', response)
             if (contractCreationToken) {
                 axios
                     .post(`${api}/pre_sale/add`, {
                         address: userAddress,
                         token: contractCreationToken,
-                        softCap:tokensTuple.softCapInWei,
-                        endTime:tokensTuple.closeTime,
+                        softCap: tokensTuple.softCapInWei,
+                        endTime: tokensTuple.closeTime,
                         startTime: tokensTuple.openTime,
                         saleTitle: socialTuple.saleTitle
                     })
@@ -392,7 +391,7 @@ const LaunchPad = () => {
                     })
                     .catch(function (error) {})
             } else {
-                //show eror
+                //show eror..todo...
             }
         } catch (e) {
             alert(e.message)
@@ -780,20 +779,20 @@ const LaunchPad = () => {
                                             </Back>
                                             <Next
                                                 onClick={() => {
-                                                    shortUrl.short(discord, function (error, shortDiscordLink) {
-                                                        console.log(shortDiscordLink)
-                                                        setShortDiscordLink(shortDiscordLink)
-                                                    })
-                                                    shortUrl.short(twitter, function (error, shortTwitterLink) {
-                                                        console.log(shortTwitterLink)
-                                                        setShortTwitterLink(shortTwitterLink)
-                                                    })
-                                                    shortUrl.short(telegramLink, function (error, shortTelegramLink) {
-                                                        setShortTelegramLink(shortTelegramLink)
-                                                    })
-                                                    shortUrl.short(website, function (error, shortWebsiteLink) {
-                                                        setShortWebsiteLink(shortWebsiteLink)
-                                                    })
+                                                    // shortUrl.short(discord, function (error, shortDiscordLink) {
+                                                    //     console.log(shortDiscordLink)
+                                                    setShortDiscordLink(discord)
+                                                    // })
+                                                    // shortUrl.short(twitter, function (error, shortTwitterLink) {
+                                                    //     console.log(shortTwitterLink)
+                                                    setShortTwitterLink(twitter)
+                                                    // })
+                                                    // shortUrl.short(telegramLink, function (error, shortTelegramLink) {
+                                                    setShortTelegramLink(telegramLink)
+                                                    // })
+                                                    // shortUrl.short(website, function (error, shortWebsiteLink) {
+                                                    setShortWebsiteLink(website)
+                                                    // })
 
                                                     if (socialValiation()) {
                                                         setStepThree(false)
@@ -872,11 +871,11 @@ const CardCol = styled(Col)`
         border-top: 3px dotted #00bcd4;
         ${media.xs`
         left: 4rem;
-        
+
       `}
         ${media.sm`
         left: 6rem;
-        
+
       `}
         ${media.md`
         left: 11rem;
@@ -926,7 +925,6 @@ const Card = styled.div`
     width: 8rem;
     height: 3rem;
   `}
-   
 `
 
 const CardHeading = styled.div`
