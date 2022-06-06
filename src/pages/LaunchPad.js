@@ -339,18 +339,17 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
     }
 
     const setApprove = async () => {
+        const maxEthPoolTokenAmount = (hardCap * liquidity) / 100
+        const maxLiqPoolTokenAmount = maxEthPoolTokenAmount / listingPrice
+        const maxTokensToBeSold = hardCap / tokenPrice
+        const _requiredTokenAmountInWei = (maxLiqPoolTokenAmount + maxTokensToBeSold).toString()
+
         try {
             const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-            if (erc20) {
-                const approve = await erc20.approve(LaunchPadContract.id, '10000000000000000000000000000')
-                if (approve) {
-                    await approve.wait()
-                } else {
-                    toast.error('Please approve tokens.')
-                }
-            } else {
-                toast.error('Something went wrong. Please try again later.')
-            }
+
+            const approve = await erc20.approve(LaunchPadContract.id, ethers.utils.parseUnits(_requiredTokenAmountInWei).toString())
+
+            await approve.wait()
         } catch (error) {
             toast.error('Please enter valid token address.')
         }
