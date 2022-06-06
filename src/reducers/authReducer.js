@@ -9,10 +9,11 @@ const initialState = {
     launchPadContract: null,
     investmentInfoRead: null,
     signer: null,
-    preSaleTokenAddress:null
+    preSaleTokenAddress: null
 }
 
 export default function authReducer(state = initialState, action) {
+    debugger
     switch (action.type) {
         case types.TRIGGER_CONNECT:
             return {
@@ -30,12 +31,16 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...initialState
             }
-            case types.SAVE_TOKEN_ADDRESS:
+        case types.SAVE_TOKEN_ADDRESS:
             return {
                 ...state,
-                preSaleTokenAddress:action.value
+                preSaleTokenAddress: action.value
             }
-            
+        case types.SAVE_USER:
+            return {
+                ...state,
+                user: action.value
+            }
 
         default:
             return state
