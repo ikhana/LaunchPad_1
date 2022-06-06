@@ -29,9 +29,7 @@ const IntroContent = ({user}) => {
                         </Linking>
                     </Flex>
                 </Col>
-                <Col lg={8} offset={2}>
-                    <Content>LaunchPad helps everyone to create their own tokens and token sales in few seconds. Tokens created on LaunchPad will be verified and published on explorer websites.</Content>
-                </Col>
+            
             </Row>
             <Spacer />
             <Row>

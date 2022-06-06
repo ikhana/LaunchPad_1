@@ -77,6 +77,8 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
     const [shortWebsiteLink, setShortWebsiteLink] = useState('')
     const [whiteList, setWhiteList] = useState(['0x108BC24F725B3AE247704926dA097349171ef059', '0x108BC24F725B3AE247704926dA097349171ef059'])
     const [name, setName] = useState('')
+    const [requiredTokenAmount,setRequiredTokens] = useState('')
+    const [requiredTokenAmountInWei,setRequiredTokensInWei] = useState('')
     const [presalePrice, setPresalePrice] = useState('')
     const [presalePriceError, setPresalePriceError] = useState(false)
     const navigate = useNavigate()
@@ -338,11 +340,29 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
         return _isValid
     }
 
+    const calculateTokens = () => {
+        maxEthPoolTokenAmount =  (hardCap*infoTuple.liquidity)/100 //_info.hardCapInWei.mul(_uniInfo.liquidityPercentageAllocation).div(100);
+        maxLiqPoolTokenAmount = maxEthPoolTokenAmount/listingPrice //
+        maxTokensToBeSold = hardCap/tokenPrice                //_info.hardCapInWei.mul(1e18).div(_info.tokenPriceInWei);
+        requiredTokenAmount = maxLiqPoolTokenAmount + maxTokensToBeSold                                 //maxLiqPoolTokenAmount.add(maxTokensToBeSold);
+        setRequiredTokens(requiredTokenAmount)
+    }
+
     const setApprove = async () => {
+       const maxEthPoolTokenAmount =  (hardCap*liquidity)/100 //_info.hardCapInWei.mul(_uniInfo.liquidityPercentageAllocation).div(100);
+       const  maxLiqPoolTokenAmount = maxEthPoolTokenAmount/listingPrice //
+       const  maxTokensToBeSold = hardCap/tokenPrice                //_info.hardCapInWei.mul(1e18).div(_info.tokenPriceInWei);
+       const  _requiredTokenAmountInWei = (maxLiqPoolTokenAmount + maxTokensToBeSold ).toString()
+      // setRequiredTokensInWei(_requiredTokenAmountInWei)
+      // const _requiredTokenAmount =  ethers.utils.parseEther(requiredTokenAmountInWei)                               //maxLiqPoolTokenAmount.add(maxTokensToBeSold);
+        setRequiredTokens(_requiredTokenAmountInWei)
+        console.log(_requiredTokenAmountInWei)
+        console.log(typeof(requiredTokenAmount))
+
         try {
             const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
 
-            const approve = await erc20.approve(LaunchPadContract.id, '10000000000000000000000000000')
+            const approve = await erc20.approve(LaunchPadContract.id, ethers.utils.parseUnits(_requiredTokenAmountInWei).toString())
 
             await approve.wait()
         } catch (error) {
