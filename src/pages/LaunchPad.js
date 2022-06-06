@@ -338,13 +338,12 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
         return _isValid
     }
 
-
     const setApprove = async () => {
-       const maxEthPoolTokenAmount =  (hardCap*liquidity)/100 
-       const  maxLiqPoolTokenAmount = maxEthPoolTokenAmount/listingPrice 
-       const  maxTokensToBeSold = hardCap/tokenPrice                
-       const  _requiredTokenAmountInWei = (maxLiqPoolTokenAmount + maxTokensToBeSold ).toString()
-     
+        const maxEthPoolTokenAmount = (hardCap * liquidity) / 100
+        const maxLiqPoolTokenAmount = maxEthPoolTokenAmount / listingPrice
+        const maxTokensToBeSold = hardCap / tokenPrice
+        const _requiredTokenAmountInWei = (maxLiqPoolTokenAmount + maxTokensToBeSold).toString()
+
         try {
             const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
 

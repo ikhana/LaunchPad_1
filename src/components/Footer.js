@@ -63,7 +63,7 @@ const Footer = () => {
 const Flex = styled.div`
     display: flex;
     justify-content: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem;
 `
 const Box = styled.div`
     padding: 80px 60px;
@@ -73,7 +73,7 @@ const Box = styled.div`
     // width: 100%;
 
     @media (max-width: 1000px) {
-        padding: 70px 30px;
+        padding: 100px 30px;
     }
 `
 
