@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import web3 from 'web3'
 import styled from 'styled-components'
 import {Container, Row, Col, media} from 'styled-bootstrap-grid'
@@ -419,6 +419,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
             alert(e.message)
         }
     }
+   
 
     return (
         <Container>
@@ -503,6 +504,8 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                         setUnsoldTokensDumpAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
+                                                {tokenAddressError == true && tokenAddress.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
+                                                {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
 
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
@@ -573,7 +576,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 />
                                                 {softCapError == true && softCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
-                                                {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
+                                                
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Hardcap (BNB)</Label>
@@ -590,7 +593,6 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 />
                                                 {hardCapError == true && hardCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
-                                                {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Minimum Purchase/Buyer (BNB)</Label>
@@ -1096,7 +1098,6 @@ const mapStateToProps = (state) => {
         isConnected: state.auth.isConnected
     }
 }
-
 const mapDispatchToProps = (dispatch) => ({
     saveTokenAddressHandler: (data) => dispatch(saveTokenAddress(data))
 })
