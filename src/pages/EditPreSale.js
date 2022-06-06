@@ -206,10 +206,14 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
-            if (error.data.message.includes('Not an investor')) {
-                toast.error('Only investors are aligible to claim tokens')
+            if (error.data) {
+                if (error.data.message.includes('Not an investor')) {
+                    toast.error('Only investors are aligible to claim tokens')
+                } else {
+                    toast.error(error.data.message)
+                }
             } else {
-                toast.error(error.data.message)
+                toast.error('Something went wrong. Please try again.')
             }
         }
     }
@@ -228,10 +232,14 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
             await collectFundsRaisedTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not presale creator')) {
-                toast.error('Only presale creater can withdraw funds')
-            } else if (error.data.message.includes('execution reverted')) {
-                toast.error('No funds to with draw')
+            if (error.data) {
+                if (error.data.message.includes('Not presale creator')) {
+                    toast.error('Only presale creater can withdraw funds')
+                } else if (error.data.message.includes('execution reverted')) {
+                    toast.error('No funds to with draw')
+                }
+            } else {
+                toast.error('Something went wrong. Please try again.')
             }
         }
     }
@@ -241,10 +249,14 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
             const getRefundTx = await investementPreSale.getRefund()
             await getRefundTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not an investor')) {
-                toast.error('Only investors are aligible to be refunded')
+            if (error.data) {
+                if (error.data.message.includes('Not an investor')) {
+                    toast.error('Only investors are aligible to be refunded')
+                } else {
+                    toast.error(error.data.message)
+                }
             } else {
-                toast.error(error.data.message)
+                toast.error('Something went wrong. Please try again.')
             }
         }
     }

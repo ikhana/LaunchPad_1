@@ -357,6 +357,7 @@ const STabs = styled(Tab)`
     width: 100%;
     color: black;
     list-style: none;
+    // cursor: pointer;
 `
 
 const STabList = styled(TabList)`
@@ -416,7 +417,6 @@ const StatusFaild = styled(StatusButton)`
 `
 const NotFoundText = styled.div`
     width: 100%;
-    text-align: center;
     display: flex;
     align-items: center;
     color: gray;

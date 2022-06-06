@@ -15,7 +15,7 @@ import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import {LaunchPadContract} from '../config/contracts/LaunchPad'
 import {ERC20} from '../config/contracts/ERC20'
-var shortUrl = require('node-url-shortener')
+// var shortUrl = require('node-url-shortener')
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
@@ -341,12 +341,18 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
     const setApprove = async () => {
         try {
             const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-
-            const approve = await erc20.approve(LaunchPadContract.id, '10000000000000000000000000000')
-
-            await approve.wait()
+            if (erc20) {
+                const approve = await erc20.approve(LaunchPadContract.id, '10000000000000000000000000000')
+                if (approve) {
+                    await approve.wait()
+                } else {
+                    toast.error('Please approve tokens.')
+                }
+            } else {
+                toast.error('Something went wrong. Please try again later.')
+            }
         } catch (error) {
-            console.log(error)
+            toast.error('Please enter valid token address.')
         }
     }
 
@@ -514,7 +520,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                         setStepTwo(true)
                                                         scrollToStepSecond()
                                                         setActiveStep(2)
-                                                        setApprove()
+                                                        // setApprove()
                                                         saveTokenAddressHandler(tokenAddress)
                                                     } else {
                                                         setTokenAddressError(true)
@@ -585,7 +591,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 />
                                                 {hardCapError == true && hardCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
-                                                {hardCap < softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
+                                                {hardCap <= softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Minimum Purchase/Buyer (BNB)</Label>
@@ -673,7 +679,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 {endTimeLessError == true && <Alblur>End Time need to be greater then Start Time</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
-                                                <Label>Liquidity lockup (second)</Label>
+                                                <Label>Liquidity lockup (Second)</Label>
                                                 <div>
                                                     <InputDate value={liquidityLockup} onChange={setLiquidityLockup} onBlur={checkliquidityLockup} />
                                                     <br />
@@ -708,6 +714,7 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                             </Back>
                                             <Next
                                                 onClick={() => {
+                                                    setApprove()
                                                     if (stepTwoValiation()) {
                                                         setStepTwo(false)
                                                         setStepThree(true)

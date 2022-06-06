@@ -29,8 +29,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [softCapInWei, setSoftCapInWei] = useState()
     const [closeTime, setCloseTime] = useState()
     const [openTime, setOpneTime] = useState()
-    const [maxInvestInWei, setMaxInvestInWei] = useState()
-    const [minInvestInWei, setMinInvetsInWei] = useState()
+    const [maxInvestInWei, setMaxInvestInWei] = useState('0.1')
+    const [minInvestInWei, setMinInvetsInWei] = useState('0.1')
     const [telegramLink, setTelegramLink] = useState()
     const [twitterLink, setTwitterLink] = useState()
     const [discordLink, setDiscordLink] = useState()
@@ -52,10 +52,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
     const [liquidityDate, setLiquidityDate] = useState('')
     const [balance, setBalance] = useState('')
     const [editCloseTime, setEditCLoseTime] = useState(new Date())
-    const [editMaxInvest, setEditMaxtInvest] = useState('0.3')
-    const [editMinInvest, setEditMinInvest] = useState('0.4')
     const [editLiqTime, setEditLiqTime] = useState(new Date())
-    const [closeTimeeee, setCloseTimeeee] = useState(new Date())
     const navigate = useNavigate()
     const preSaleStartTime = startingTime
     const saleStartingTIme = startingTime
@@ -77,14 +74,16 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                         }
                     }
                 }
-            } //todo.. if user view the page without login/or directly.. check in user tokens if isDeveloper then its setIsDeveloper(true)
+            }
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
+            alert(_investementPreSale)
             setInvestementPreSale(_investementPreSale)
         }
     }, [signer])
-    useEffect(async () => {
-        alert(isDeveloper)
-    }, [isDeveloper])
+
+    // useEffect(async () => {
+    // alert(isDeveloper)
+    // }, [isDeveloper])
 
     useEffect(async () => {
         if (investementPreSale) {
@@ -146,7 +145,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         setOpneTime(startDate)
         const endDate = moment.unix(endTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setCloseTime(endDate)
-        const liquidityAddingDate = moment.unix(uniLiquidityAdingTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
+        const liquidityAddingDate = moment.unix(liquidityAddingTime).format('dddd, MMMM Do, YYYY h:mm:ss A')
         setLiquidityDate(liquidityAddingDate)
 
         const _hardCapInWei = ethers.utils.formatEther(hardCapInWei)
@@ -177,8 +176,8 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
         setSaleTitle(_saleTitle)
     }
     let updateTokensTuple = {
-        maxInvestInWei: ethers.utils.parseUnits(editMaxInvest, 18).toString(),
-        minInvestInWei: ethers.utils.parseUnits(editMinInvest, 18).toString(),
+        maxInvestInWei: ethers.utils.parseUnits(maxInvestInWei, 18).toString(),
+        minInvestInWei: ethers.utils.parseUnits(minInvestInWei, 18).toString(),
         closeTime: moment(editCloseTime).unix().toString(),
         liqAddingTime: moment(editLiqTime).unix().toString()
     }
@@ -191,7 +190,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
         try {
-            const investTx = await investementPreSale.invest({value: ethers.utils.parseEther(investAmount)})
+            const investTx = await investementPreSale.invest({
+                value: ethers.utils.parseEther(investAmount)
+            })
             await investTx.wait()
         } catch (error) {
             if (error.data.message.includes('insufficient funds for transfer')) {
@@ -213,21 +214,24 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const addLiquidityAndLockLPTokensTx = await investementPreSale.addLiquidityAndLockLPTokens()
             await addLiquidityAndLockLPTokensTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Liquidity already added')) {
-                toast.error('Liquidity already added')
-            } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
-                toast.error('Make sure you are adding liquidity from presale creator address')
-            } else if (error.data.message.includes('Not presale creator')) {
-                toast.error('Make sure you are adding liquidity from presale creator address')
-            } else if (error.data.message.includes('Not presale creator or investor')) {
-                toast.error('Only Presale Creator or Investor can add liquidity')
-            } else if (error.data.message.includes('Soft cap not reached')) {
-                toast.error('Project has not reahced to minimum investment goal')
-            } else if (error.data.message.includes('Liquidity cannot be added yet')) {
-                toast.error('Can not add liquidity')
-            } else {
-                toast.error('No investment made, Liquidity can not be added')
+            if (error.data) {
+                if (error.data.message.includes('Liquidity already added')) {
+                    toast.error('Liquidity already added')
+                } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
+                    toast.error('Make sure you are adding liquidity from presale creator address')
+                } else if (error.data.message.includes('Not presale creator')) {
+                    toast.error('Make sure you are adding liquidity from presale creator address')
+                } else if (error.data.message.includes('Not presale creator or investor')) {
+                    toast.error('Only presale creator or investor can add liquidity')
+                } else if (error.data.message.includes('Soft cap not reached')) {
+                    toast.error('Project has not reahced to minimum investment goal')
+                } else if (error.data.message.includes('Liquidity cannot be added yet')) {
+                    toast.error('Can not add liquidity')
+                } else {
+                    toast.error('No investment made, liquidity can not be added')
+                }
             }
+            toast.error('Something went wrong. Please try again later.')
         }
     }
 
@@ -236,11 +240,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
-            if (error.data.message.includes('Not an investor')) {
-                toast.error('Only investors are aligible to claim tokens')
-            } else {
-                toast.error(error.data.message)
+            if (error.data) {
+                if (error.data.message.includes('Not an investor.')) {
+                    toast.error('Only investors are aligible to claim tokens.')
+                } else {
+                    toast.error(error.data.message)
+                }
             }
+            toast.error('Something went wrong. Please try again later.')
         }
     }
 
@@ -283,7 +290,22 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             console.log(updateTokensTuple)
             const editInfoPresale = await investementPreSale.editInfoPresaleDev(updateTokensTuple.closeTime, updateTokensTuple.maxInvestInWei, updateTokensTuple.minInvestInWei, updateTokensTuple.liqAddingTime)
 
-            await editInfoPresale.wait()
+            const response = await editInfoPresale.wait()
+            console.log(updateTokensTuple)
+
+            if (response.data.status) {
+                axios
+                    .post(`${api}/pre_sale/update`, {
+                        endTime: updateTokensTuple.closeTime
+                    })
+                    .then((response) => {
+                        if (response.data.status) {
+                            toast.success('Presale updated Successfully')
+                            navigate('/')
+                        }
+                    })
+                    .catch(function (error) {})
+            }
         } catch (error) {
             console.log(error)
         }
@@ -326,10 +348,40 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
                                 <Row>
                                     <Column lg={6}>
-                                        <Text>Maximum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={maxInvestInWei} /> : <Content>{maxInvestInWei?.toString()}</Content>}
+                                        <Text>Maximum Invest per Address (BNB):</Text>{' '}
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? (
+                                            <InputText
+                                                style={{marginLeft: '1rem'}}
+                                                width="40"
+                                                type="number"
+                                                min="0"
+                                                pattern="\d+"
+                                                value={maxInvestInWei}
+                                                onChange={(e) => {
+                                                    setMaxInvestInWei(e.target.value)
+                                                }}
+                                            />
+                                        ) : (
+                                            <Content>{maxInvestInWei?.toString()}</Content>
+                                        )}
                                     </Column>
                                     <Column lg={6}>
-                                        <Text>Minimum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={minInvestInWei} /> : <Content>{minInvestInWei?.toString()}</Content>}
+                                        <Text>Minimum Invest per Address (BNB):</Text>{' '}
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? (
+                                            <InputText
+                                                style={{marginLeft: '1rem'}}
+                                                width="40"
+                                                type="number"
+                                                min="0"
+                                                pattern="\d+"
+                                                value={minInvestInWei}
+                                                onChange={(e) => {
+                                                    setMinInvetsInWei(e.target.value)
+                                                }}
+                                            />
+                                        ) : (
+                                            <Content>{minInvestInWei?.toString()}</Content>
+                                        )}
                                     </Column>
                                 </Row>
                                 <Spacer />
@@ -401,14 +453,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                         <Text>Start Time:</Text>
                                         <Content>{openTime?.toString()}</Content>
                                     </Column>
+
                                     <Column lg={6}>
-                                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content>
-                                        {/* {closeTime &&  <InputDate width="40"  value={moment(closeTime, "YYYY MM DD")} />} */}
+                                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editCloseTime} onChange={setEditCLoseTime} /> : <Text></Text>}
                                     </Column>
-                                    {/* <Column lg={6}>
-                                        <Text>Liquidity Adding Time</Text> <Content>{liquidityDate?.toString()}</Content>
-                                         <InputDate width="40"  value={closeTimeeee} />
-                                    </Column> */}
+
+                                    <Column lg={6}>
+                                        <Text>Liquidity Adding Time:</Text> <Content>{liquidityDate?.toString()}</Content>
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editLiqTime} onChange={setEditLiqTime} /> : <Text></Text>}
+                                    </Column>
                                 </Row>
                                 <Row>
                                     <Column>
@@ -455,6 +508,13 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                                     </div>
                                                 </Flexed>
                                             )}
+                                            {isDeveloper && (
+                                                <Flexed lg={10}>
+                                                    <ButtonContainer>
+                                                        <Button onClick={editInfoPresale}>Edit Presale</Button>
+                                                    </ButtonContainer>
+                                                </Flexed>
+                                            )}
                                         </>
                                     )}
                                 </Row>
@@ -463,7 +523,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                         <CustomRow>
                                             <>
                                                 <SecondButtonContainer lg={3}>
-                                                    <Button1 onClick={claimTokens}>Add Liquidity</Button1>
+                                                    <Button1 onClick={addLiquidityAndLockLPTokens}>Add Liquidity</Button1>
                                                 </SecondButtonContainer>
                                             </>
                                         </CustomRow>
@@ -472,7 +532,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                             {isDeveloper && (
                                                 <>
                                                     <SecondButtonContainer lg={3}>
-                                                        <Button1 onClick={claimTokens}>Collect Funds</Button1>
+                                                        <Button1 onClick={collectFundsRaised}>Collect Funds</Button1>
                                                     </SecondButtonContainer>
                                                 </>
                                             )}
@@ -728,11 +788,11 @@ padding: 0rem;
     border - top: 3px dotted #00bcd4;
         ${media.xs`
         left: 4rem;
-        
+
       `}
         ${media.sm`
         left: 6rem;
-        
+
       `}
         ${media.md`
         left: 11rem;
