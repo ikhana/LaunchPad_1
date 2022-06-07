@@ -390,10 +390,10 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
             linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
         try {
-            // const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
-            // const response = await createPresale.wait()
-            // console.log(response.events[2].args[2])
-            const contractCreationToken = '0csdvbvddtttyyddnbsddugggyuusdsd' //\response.events[2].args[2] //response.events[0].args[3]
+             const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
+             const response = await createPresale.wait()
+             console.log(response.events[2].args[2])
+            const contractCreationToken = response.events[2].args[2] //response.events[0].args[3]
 
             if (contractCreationToken) {
                 axios
