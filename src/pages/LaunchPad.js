@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import web3 from 'web3'
 import styled from 'styled-components'
 import {Container, Row, Col, media} from 'styled-bootstrap-grid'
@@ -8,7 +8,7 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
-import {saveTokenAddress} from '../actions/authActions'
+import {saveTokenAddress, saveUser} from '../actions/authActions'
 const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
@@ -22,7 +22,7 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 import {api} from '../config/apiBaseUrl'
 
-const LaunchPad = ({saveTokenAddressHandler}) => {
+const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
     let signer = useSelector((state) => state.auth.signer)
@@ -387,11 +387,10 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
             linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
         try {
-            const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
-
-            const response = await createPresale.wait()
-            console.log(response.events[2].args[2])
-            const contractCreationToken = response.events[2].args[2] //response.events[0].args[3]
+            // const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
+            // const response = await createPresale.wait()
+            // console.log(response.events[2].args[2])
+            const contractCreationToken = '0csdvbvddtttyyddnbsddugggyuusdsd' //\response.events[2].args[2] //response.events[0].args[3]
 
             if (contractCreationToken) {
                 axios
@@ -405,10 +404,12 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                     })
                     .then((response) => {
                         if (response.data.status) {
-                            toast.success('Presale created successfully')
+                            user.tokens.push(response.data.data)
+                            saveUserHandler(user)
                             setStepFour(false)
                             setActiveStep(0)
-                            navigate('/')
+                            toast.success('Presale created successfully')
+                            navigate('/viewLaunchPad')
                         }
                     })
                     .catch(function (error) {})
@@ -503,6 +504,8 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                         setUnsoldTokensDumpAddress(e.target.value.toLowerCase())
                                                     }}
                                                 />
+                                                {tokenAddressError == true && tokenAddress.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
+                                                {tokenAddress && reg_expression.test(tokenAddress) === false && <Alblur>Please Enter a valid token address</Alblur>}
 
                                                 <Text>Create Pool Fee: 1 BNB or 1%</Text>
                                             </Col>
@@ -573,7 +576,6 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 />
                                                 {softCapError == true && softCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
-                                                {/* <Text>Softcap must be {'>'}= 50% of Hardcap!</Text> */}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Hardcap (BNB)</Label>
@@ -590,7 +592,6 @@ const LaunchPad = ({saveTokenAddressHandler}) => {
                                                 />
                                                 {hardCapError == true && hardCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {hardCap && reg_for_positive.test(hardCap) == false && <Alblur>HardCap must be Positive Number</Alblur>}
-                                                {hardCap <= softCap && <Alblur>Hardcap must be {'>'}= 50% of Softcap!</Alblur>}
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Minimum Purchase/Buyer (BNB)</Label>
@@ -1094,12 +1095,13 @@ const Alblur = styled.span`
 const mapStateToProps = (state) => {
     return {
         shouldConnect: state.auth.shouldConnect,
-        isConnected: state.auth.isConnected
+        isConnected: state.auth.isConnected,
+        user: state.auth.user
     }
 }
-
 const mapDispatchToProps = (dispatch) => ({
-    saveTokenAddressHandler: (data) => dispatch(saveTokenAddress(data))
+    saveTokenAddressHandler: (data) => dispatch(saveTokenAddress(data)),
+    saveUserHandler: (data) => dispatch(saveUser(data))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LaunchPad)
