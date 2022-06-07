@@ -16,6 +16,7 @@ export const PreSaleContract = {
         {inputs: [], name: 'addLiquidityAndLockLPTokens', outputs: [], stateMutability: 'nonpayable', type: 'function'},
         {inputs: [{internalType: 'address[]', name: '_whitelistedAddresses', type: 'address[]'}], name: 'addwhitelistedAddresses', outputs: [], stateMutability: 'nonpayable', type: 'function'},
         {inputs: [], name: 'cancelAndTransferTokensToPresaleCreator', outputs: [], stateMutability: 'nonpayable', type: 'function'},
+        {inputs: [], name: 'checkStatus', outputs: [{internalType: 'bool', name: '', type: 'bool'}], stateMutability: 'view', type: 'function'},
         {inputs: [], name: 'claimTokens', outputs: [], stateMutability: 'nonpayable', type: 'function'},
         {inputs: [{internalType: 'address', name: '', type: 'address'}], name: 'claimed', outputs: [{internalType: 'bool', name: '', type: 'bool'}], stateMutability: 'view', type: 'function'},
         {inputs: [], name: 'closeTime', outputs: [{internalType: 'uint256', name: '', type: 'uint256'}], stateMutability: 'view', type: 'function'},

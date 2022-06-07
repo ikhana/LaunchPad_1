@@ -11,13 +11,16 @@ import {useCountdown} from '../hooks/useCountdown'
 import moment from 'moment'
 import {TabList, Tab, TabPanel} from 'react-tabs'
 import {ethers} from 'ethers'
-
+import {PreSaleContract} from '../config/contracts/PreSale'
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.post['Accept'] = 'application/json'
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 const Product = () => {
+    const signer = useSelector((state) => state.auth.signer)
+    const user = useSelector((state) => state.auth.user)
+    const isConnected = useSelector((state) => state.auth.isConnected)
     const [activeTab, setActiveTab] = useState(1)
     const [status, setStatus] = useState('success')
     const [allProducts, setAllProducts] = useState([])
@@ -26,9 +29,10 @@ const Product = () => {
     const [completed, setCompleted] = useState([])
     const [preSaleViewToken, setPreSaleViewToken] = useState('')
     const [livePreSales, setLivePreSales] = useState([])
-    const [completedPreSales, setCompletedPreSales] = useState([])
+    const [completedPreSales, setCompletedPreSales] = useState(false)
     const [failesPreSales, setFailedPreSales] = useState([])
-    const isConnected = useSelector((state) => state.auth.isConnected)
+    const [saleComplete,setSaleComplete] =useState([])
+  
 
     
 
@@ -36,14 +40,23 @@ const Product = () => {
         viewAllProjects()
     }, [])
 
-    const viewAllProjects = () => {
+    const viewAllProjects =  () => {
         axios
             .get(`${api}/user/view_all_projects`)
             .then((response) => {
                 if (response.data.status) {
                     resetAllProducts()
-                    response.data.data.map((value, index) => {
-                        setAllProducts((preValue) => {
+                    response.data.data.map( (value, index) => {
+                        setAllProducts( (preValue) => {
+                          
+                            const _preSaleContract = new ethers.Contract(value.token,PreSaleContract.abi,signer)
+                            const trueOrFalse =   _preSaleContract.checkStatus()
+                            //setCompletedPreSales(trueOrFalse)
+                            console.log(trueOrFalse)
+                       
+
+                        
+                            
                             return [...preValue, value]
                         })
                         if (value.startTime != undefined) {

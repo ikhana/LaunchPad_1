@@ -14,7 +14,7 @@ import moment from 'moment'
 import CountdownTimer from '../components/CountdownTimer'
 import {useNavigate} from 'react-router-dom'
 import {useCountdown} from '../hooks/useCountdown'
-import EditPreSale from './EditPreSale'
+
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
