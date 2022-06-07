@@ -79,9 +79,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             setInvestementPreSale(_investementPreSale)
         }
     }, [signer])
-    useEffect(async () => {
-        alert(isDeveloper)
-    }, [isDeveloper])
+    // useEffect(async () => {
+    //     alert(isDeveloper)
+    // }, [isDeveloper])
 
     useEffect(async () => {
         if (investementPreSale) {
@@ -313,7 +313,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             {!editPreSale ? (
                 <>
                     <Wrapper>
-                        {investementPreSale && !loading && (
+                        {investementPreSale  && (
                             <>
                                 {!isConnected && navigate('/')}
                                 <Heading>

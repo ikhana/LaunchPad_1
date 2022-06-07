@@ -8,7 +8,7 @@ import {ethers} from 'ethers'
 import moment from 'moment'
 import {useSelector} from 'react-redux'
 import {connect} from 'react-redux'
-import {saveTokenAddress,saveUser} from '../actions/authActions'
+import {saveTokenAddress, saveUser} from '../actions/authActions'
 const bytes32 = require('bytes32')
 import {toast} from 'react-toastify'
 import axios from 'axios'
@@ -22,7 +22,7 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
 
 import {api} from '../config/apiBaseUrl'
 
-const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
+const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
     const isConnected = useSelector((state) => state.auth.isConnected)
     let userAddress = useSelector((state) => state.auth.address)
     let signer = useSelector((state) => state.auth.signer)
@@ -79,6 +79,9 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
     const [name, setName] = useState('')
     const [presalePrice, setPresalePrice] = useState('')
     const [presalePriceError, setPresalePriceError] = useState(false)
+    const [stapperStart, setStapperStart] = useState(false)
+
+    
     const navigate = useNavigate()
 
     const reg_expression = /^(0x)?[0-9a-f]{40}$/
@@ -390,7 +393,7 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
             // const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
             // const response = await createPresale.wait()
             // console.log(response.events[2].args[2])
-            const contractCreationToken = "0csdvbvddtttyyddnbsddugggyuusdsd";//\response.events[2].args[2] //response.events[0].args[3]
+            const contractCreationToken = '0csdvbvddtttyyddnbsddugggyuusdsd' //\response.events[2].args[2] //response.events[0].args[3]
 
             if (contractCreationToken) {
                 axios
@@ -404,7 +407,6 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
                     })
                     .then((response) => {
                         if (response.data.status) {
-                           
                             user.tokens.push(response.data.data)
                             saveUserHandler(user)
                             setStepFour(false)
@@ -421,7 +423,6 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
             alert(e.message)
         }
     }
-   
 
     return (
         <Container>
@@ -469,6 +470,7 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
                                 setStepOne(true)
                                 scrollToStepFirst()
                                 setActiveStep(1)
+                                setStapperStart(true)
                             } else {
                                 toast.error('Please connect your wallet first', {})
                             }
@@ -578,7 +580,6 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
                                                 />
                                                 {softCapError == true && softCap.trim() == '' ? <Alblur>Please fill this field</Alblur> : ''}
                                                 {softCap && reg_for_positive.test(softCap) == false && <Alblur>SoftCap must be Positive Number</Alblur>}
-                                                
                                             </CustomCol>
                                             <CustomCol lg={6}>
                                                 <Label>Hardcap (BNB)</Label>
@@ -838,36 +839,43 @@ const LaunchPad = ({saveTokenAddressHandler,user,saveUserHandler}) => {
                             <StepperHead onClick={() => toggle(4)}>
                                 <Step>4</Step>Submit KYC and AUDIT
                             </StepperHead>
-                            {stepFour && (
-                                <StepperBodyLast>
-                                    <Container>
-                                        <Row></Row>
-                                    </Container>
-                                    {activeStep > 3 && (
-                                        <StepperFooter>
-                                            <Back
-                                                onClick={() => {
-                                                    scrollToStepThird()
-                                                    setStepThree(true)
-                                                    setStepFour(false)
-                                                    setActiveStep(3)
-                                                }}>
-                                                Back
-                                            </Back>
-                                            <Next
-                                                onClick={() => {
-                                                    if (isConnected) {
-                                                        createMyTokenPreSale()
-                                                    } else {
-                                                        toast.error('Please connect your wallet first', {})
-                                                    }
-                                                }}>
-                                                Finish
-                                            </Next>
-                                        </StepperFooter>
-                                    )}
-                                </StepperBodyLast>
-                            )}
+                            {/* {stepFour && ( */}
+                            <StepperBodyLast>
+                                {/* <Container>
+                                    <Row></Row>
+                                </Container> */}
+                                {(activeStep > 3) ? (
+                                    <StepperFooter>
+                                        <Back
+                                            onClick={() => {
+                                                scrollToStepThird()
+                                                setStepThree(true)
+                                                setStepFour(false)
+                                                setActiveStep(3)
+                                            }}>
+                                            Back
+                                        </Back>
+                                        <Next
+                                            onClick={() => {
+                                                if (isConnected) {
+                                                    createMyTokenPreSale()
+                                                } else {
+                                                    toast.error('Please connect your wallet first', {})
+                                                }
+                                            }}>
+                                            Finish
+                                        </Next>
+                                    </StepperFooter>
+                                ) : (<>
+                                {stapperStart &&
+                                    <StepperFooter>
+                                        <DisableNext>
+                                            Finish
+                                        </DisableNext>
+                                    </StepperFooter>}
+                                    </>)}
+                            </StepperBodyLast>
+                            {/* )} */}
                         </Item>
                     </Stepper>
                 </Col>
@@ -1046,6 +1054,13 @@ const Next = styled(Button)`
     padding: 0.5rem 2rem !important;
     font-size: 0.9rem !important;
 `
+const DisableNext = styled(Next)`
+background: #d4d4d4;
+cursor:no-drop;
+&:hover {
+    background: #d4d4d4 !important;
+}
+`
 
 const Label = styled.p`
     margin-bottom: 0.5rem;
@@ -1103,7 +1118,7 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = (dispatch) => ({
     saveTokenAddressHandler: (data) => dispatch(saveTokenAddress(data)),
-    saveUserHandler:(data) => dispatch(saveUser(data))
+    saveUserHandler: (data) => dispatch(saveUser(data))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LaunchPad)

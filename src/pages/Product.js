@@ -48,15 +48,12 @@ const Product = () => {
                         })
                         if (value.startTime != undefined) {
                             if(moment.unix(value.startTime).format() >= moment().format()){
-                                debugger
                                 setUpComing(value)
                             }
                             if(moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format()){
-                                debugger
                                 setLive(value)
                             }
                             if(moment.unix(value.endTime).format() <= moment().format()){
-                                debugger
                                 setCompleted(value)
                             }
                         }
@@ -165,7 +162,6 @@ const Product = () => {
                                                 <Row>
                                                 {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
-                                                            debugger
                                                             return (
                                                                 <>
                                                                     {moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format() ? (
@@ -384,7 +380,7 @@ const STab = styled(Tab)`
     text-align: center;
     padding: 0.3rem 0rem 1rem 0rem;
     user-select: none;
-    cursor: arrow;
+    cursor: pointer;
     border-bottom: ${({active}) => (active ? `0.2rem solid #00bcd4 !important` : ``)};
     font-weight ${({active}) => (active ? `bold` : ``)};
 `
@@ -397,6 +393,9 @@ const STabPanel = styled.div`
 const TabContent = styled.div`
     min-height: 40vh;
     padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 STabPanel.tabsRole = 'TabPanel'
