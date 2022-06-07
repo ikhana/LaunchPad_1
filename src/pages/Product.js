@@ -60,7 +60,7 @@ const Product = () => {
                 }
             })
             .catch(function (error) {
-                //todo..show error to user
+                toast.error(error.message)
             })
     }
 
@@ -158,7 +158,6 @@ const Product = () => {
                                                 <Row>
                                                     {allProducts.map((value, index) => {
                                                         if (value.startTime != undefined) {
-                                                            debugger
                                                             return (
                                                                 <>
                                                                     {moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format() ? (
@@ -377,7 +376,7 @@ const STab = styled(Tab)`
     text-align: center;
     padding: 0.3rem 0rem 1rem 0rem;
     user-select: none;
-    cursor: arrow;
+    cursor: pointer;
     border-bottom: ${({active}) => (active ? `0.2rem solid #00bcd4 !important` : ``)};
     font-weight ${({active}) => (active ? `bold` : ``)};
 `
@@ -390,6 +389,9 @@ const STabPanel = styled.div`
 const TabContent = styled.div`
     min-height: 40vh;
     padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 STabPanel.tabsRole = 'TabPanel'

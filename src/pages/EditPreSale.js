@@ -155,9 +155,9 @@ const EditPreSale = ({address, isConnected, preSaleViewToken}) => {
 
     const investIn = async () => {
         if (!investementPreSale) {
-            alert('please connect your wallet first')
+            toast.error('please connect your wallet first')
             if (!investAmount) {
-                alert('Please enter the amount for investment')
+                toast.error('Please enter the amount for investment')
             }
         }
         try {

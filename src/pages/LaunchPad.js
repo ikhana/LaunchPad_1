@@ -79,6 +79,8 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
     const [name, setName] = useState('')
     const [presalePrice, setPresalePrice] = useState('')
     const [presalePriceError, setPresalePriceError] = useState(false)
+    const [stapperStart, setStapperStart] = useState(false)
+
     const navigate = useNavigate()
 
     const reg_expression = /^(0x)?[0-9a-f]{40}$/
@@ -304,7 +306,6 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
 
     const socialValiation = () => {
         let _isValid = true
-
         if (saleTitle.trim() == '') {
             _isValid = false
             setSaleTitleError(true)
@@ -343,12 +344,9 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
         const maxLiqPoolTokenAmount = maxEthPoolTokenAmount / listingPrice
         const maxTokensToBeSold = hardCap / tokenPrice
         const _requiredTokenAmountInWei = (maxLiqPoolTokenAmount + maxTokensToBeSold).toString()
-
         try {
             const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-
             const approve = await erc20.approve(LaunchPadContract.id, ethers.utils.parseUnits(_requiredTokenAmountInWei).toString())
-
             await approve.wait()
         } catch (error) {
             toast.error('Please enter valid token address.')
@@ -359,7 +357,6 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
         if (!launchPadContract) {
             toast.error('Please connect to chain Id 97')
         }
-
         let tokensTuple = {
             tokenAddress: tokenAddress,
             unsoldTokensDumpAddress: unsoldTokensDumpAddress,
@@ -378,7 +375,6 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
             lpTokensLockDurationInDays: lpTokensDurationInDays,
             liquidityPercentageAllocation: liquidity
         }
-
         let socialTuple = {
             saleTitle: bytes32({input: saleTitle, ignoreLength: true}).toLowerCase(),
             linkTelegram: bytes32({input: shortTelegramLink}).toLowerCase(),
@@ -387,10 +383,9 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
             linkWebsite: bytes32({input: shortWebsiteLink}).toLowerCase()
         }
         try {
-            // const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
-            // const response = await createPresale.wait()
-            // console.log(response.events[2].args[2])
-            const contractCreationToken = '0csdvbvddtttyyddnbsddugggyuusdsd' //\response.events[2].args[2] //response.events[0].args[3]
+            const createPresale = await launchPadContract.createPresale(tokensTuple, infoTuple, socialTuple)
+            const response = await createPresale.wait()
+            const contractCreationToken = response.events[2].args[2] //response.events[0].args[3]
 
             if (contractCreationToken) {
                 axios
@@ -412,12 +407,14 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
                             navigate('/viewLaunchPad')
                         }
                     })
-                    .catch(function (error) {})
+                    .catch(function (error) {
+                        toast.error(error.message)
+                    })
             } else {
-                alert('contract failed')
+                toast.error('Contract creation failed')
             }
-        } catch (e) {
-            alert(e.message)
+        } catch (error) {
+            toast.error(error.message)
         }
     }
 
@@ -467,6 +464,7 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
                                 setStepOne(true)
                                 scrollToStepFirst()
                                 setActiveStep(1)
+                                setStapperStart(true)
                             } else {
                                 toast.error('Please connect your wallet first', {})
                             }
@@ -836,36 +834,44 @@ const LaunchPad = ({saveTokenAddressHandler, user, saveUserHandler}) => {
                             <StepperHead onClick={() => toggle(4)}>
                                 <Step>4</Step>Submit KYC and AUDIT
                             </StepperHead>
-                            {stepFour && (
-                                <StepperBodyLast>
-                                    <Container>
-                                        <Row></Row>
-                                    </Container>
-                                    {activeStep > 3 && (
-                                        <StepperFooter>
-                                            <Back
-                                                onClick={() => {
-                                                    scrollToStepThird()
-                                                    setStepThree(true)
-                                                    setStepFour(false)
-                                                    setActiveStep(3)
-                                                }}>
-                                                Back
-                                            </Back>
-                                            <Next
-                                                onClick={() => {
-                                                    if (isConnected) {
-                                                        createMyTokenPreSale()
-                                                    } else {
-                                                        toast.error('Please connect your wallet first', {})
-                                                    }
-                                                }}>
-                                                Finish
-                                            </Next>
-                                        </StepperFooter>
-                                    )}
-                                </StepperBodyLast>
-                            )}
+                            {/* {stepFour && ( */}
+                            <StepperBodyLast>
+                                {/* <Container>
+                                    <Row></Row>
+                                </Container> */}
+                                {activeStep > 3 ? (
+                                    <StepperFooter>
+                                        <Back
+                                            onClick={() => {
+                                                scrollToStepThird()
+                                                setStepThree(true)
+                                                setStepFour(false)
+                                                setActiveStep(3)
+                                            }}>
+                                            Back
+                                        </Back>
+                                        <Next
+                                            onClick={() => {
+                                                if (isConnected) {
+                                                    createMyTokenPreSale()
+                                                } else {
+                                                    toast.error('Please connect your wallet first', {})
+                                                }
+                                            }}>
+                                            Finish
+                                        </Next>
+                                    </StepperFooter>
+                                ) : (
+                                    <>
+                                        {stapperStart && (
+                                            <StepperFooter>
+                                                <DisableNext>Finish</DisableNext>
+                                            </StepperFooter>
+                                        )}
+                                    </>
+                                )}
+                            </StepperBodyLast>
+                            {/* )} */}
                         </Item>
                     </Stepper>
                 </Col>
@@ -1043,6 +1049,13 @@ const Back = styled(Button)`
 const Next = styled(Button)`
     padding: 0.5rem 2rem !important;
     font-size: 0.9rem !important;
+`
+const DisableNext = styled(Next)`
+    background: #d4d4d4;
+    cursor: no-drop;
+    &:hover {
+        background: #d4d4d4 !important;
+    }
 `
 
 const Label = styled.p`

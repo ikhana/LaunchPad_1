@@ -93,11 +93,9 @@ const Header = (props) => {
             let address = await signer.getAddress()
             address = address.toLowerCase()
             const user = await doLogin(address)
-            console.log(user)
             const chainId = await signer.getChainId()
             if (user) {
                 const launchPadContract = new ethers.Contract(LaunchPadContract.id, LaunchPadContract.abi, signer)
-                console.log(signer)
                 const investmentInfoRead = new ethers.Contract(InvestementInfo.id, InvestementInfo.abi, signer)
 
                 if (chainId.toString() == '97') {
@@ -126,14 +124,14 @@ const Header = (props) => {
                         handleDisconnect()
                     })
                 } else {
-                    alert('Please connect to chain id 97')
+                    toast.error('Please connect to chain id 97')
                     props.setConnected({
                         isConnected: false,
                         chainError: true
                     })
                 }
             } else {
-                alert('Please connect to chain id 97')
+                toast.error('Please connect to chain id 97')
                 props.setConnected({
                     isConnected: false,
                     chainError: true

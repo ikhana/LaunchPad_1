@@ -76,14 +76,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                 }
             }
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
-            alert(_investementPreSale)
             setInvestementPreSale(_investementPreSale)
         }
     }, [signer])
-
-    // useEffect(async () => {
-    // alert(isDeveloper)
-    // }, [isDeveloper])
 
     useEffect(async () => {
         if (investementPreSale) {
@@ -184,9 +179,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
     const investIn = async () => {
         if (!investementPreSale) {
-            alert('please connect your wallet first')
+            toast.error('Please connect your wallet first')
             if (!investAmount) {
-                alert('Please enter the amount for investment')
+                toast.error('Please enter the amount for investment')
             }
         }
         try {
@@ -200,9 +195,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             } else if (error.data.message.includes('Closed')) {
                 toast.error('Presale is closed')
             } else if (error.data.message.includes('Not yet opened')) {
-                toast.error('Please wait !! Presale is not open yet')
+                toast.error('Please wait. Presale is not open yet')
             } else if (error.data.message.includes('Min investment not reached')) {
-                toast.error('Please see the miminmum investment requirement and enter the right amount')
+                toast.error('Please check the miminmum investment requirement and enter the right amount')
             } else {
                 toast.error(error.data.error)
             }
@@ -265,10 +260,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
             await collectFundsRaisedTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not presale creator')) {
-                toast.error('Only presale creater can withdraw funds')
-            } else if (error.data.message.includes('execution reverted')) {
-                toast.error('No funds to with draw')
+            if (error.data) {
+                if (error.data.message.includes('Not presale creator')) {
+                    toast.error('Only presale creater can withdraw funds')
+                } else if (error.data.message.includes('execution reverted')) {
+                    toast.error('No funds to with draw')
+                }
+            } else {
+                toast.error('Something went wrong. Please try again later.')
             }
         }
     }
@@ -285,14 +284,12 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
+
     const editInfoPresale = async () => {
         try {
-            console.log(updateTokensTuple)
             const editInfoPresale = await investementPreSale.editInfoPresaleDev(updateTokensTuple.closeTime, updateTokensTuple.maxInvestInWei, updateTokensTuple.minInvestInWei, updateTokensTuple.liqAddingTime)
-
             const response = await editInfoPresale.wait()
             console.log(updateTokensTuple)
-
             if (response.data.status) {
                 axios
                     .post(`${api}/pre_sale/update`, {
@@ -304,10 +301,15 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                             navigate('/')
                         }
                     })
-                    .catch(function (error) {})
+                    .catch(function (error) {
+                        toast.error(error.message)
+                    })
+            } else {
+                toast.error('Something went wrong. Please try again later.')
             }
         } catch (error) {
             console.log(error)
+            toast.error(error.message)
         }
     }
 
@@ -316,7 +318,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             {!editPreSale ? (
                 <>
                     <Wrapper>
-                        {investementPreSale && !loading && (
+                        {investementPreSale && (
                             <>
                                 {!isConnected && navigate('/')}
                                 <Heading>

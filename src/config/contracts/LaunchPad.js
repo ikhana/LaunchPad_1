@@ -1,5 +1,5 @@
 export const LaunchPadContract = {
-    id: '0x68796B5C8E897D62Cb232e7d59B517da2B07226a',
+    id: '0xad276f5D448e7f94bcDfE83a1758cC42381ae02C',
     abi: [
         {inputs: [{internalType: 'address', name: '_InfoAddress', type: 'address'}], stateMutability: 'nonpayable', type: 'constructor'},
         {

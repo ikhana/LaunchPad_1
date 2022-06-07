@@ -13,7 +13,6 @@ const initialState = {
 }
 
 export default function authReducer(state = initialState, action) {
-    debugger
     switch (action.type) {
         case types.TRIGGER_CONNECT:
             return {

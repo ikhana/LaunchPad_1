@@ -29,7 +29,6 @@ const IntroContent = ({user}) => {
                         </Linking>
                     </Flex>
                 </Col>
-            
             </Row>
             <Spacer />
             <Row>
