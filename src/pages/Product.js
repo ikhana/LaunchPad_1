@@ -31,42 +31,34 @@ const Product = () => {
     const [livePreSales, setLivePreSales] = useState([])
     const [completedPreSales, setCompletedPreSales] = useState(false)
     const [failesPreSales, setFailedPreSales] = useState([])
-    const [saleComplete,setSaleComplete] =useState([])
-  
-
-    
+    const [saleComplete, setSaleComplete] = useState([])
 
     useEffect(() => {
         viewAllProjects()
     }, [])
 
-    const viewAllProjects =  () => {
+    const viewAllProjects = () => {
         axios
             .get(`${api}/user/view_all_projects`)
             .then((response) => {
                 if (response.data.status) {
                     resetAllProducts()
-                    response.data.data.map( (value, index) => {
-                        setAllProducts( (preValue) => {
-                          
-                            const _preSaleContract = new ethers.Contract(value.token,PreSaleContract.abi,signer)
-                            const trueOrFalse =   _preSaleContract.checkStatus()
+                    response.data.data.map((value, index) => {
+                        setAllProducts((preValue) => {
+                            //const _preSaleContract = new ethers.Contract(value.token,PreSaleContract.abi,signer)
+                            //const trueOrFalse =   _preSaleContract.checkStatus()
                             //setCompletedPreSales(trueOrFalse)
-                            console.log(trueOrFalse)
-                       
-
-                        
-                            
+                            //console.log(trueOrFalse)
                             return [...preValue, value]
                         })
                         if (value.startTime != undefined) {
-                            if(moment.unix(value.startTime).format() >= moment().format()){
+                            if (moment.unix(value.startTime).format() >= moment().format()) {
                                 setUpComing(value)
                             }
-                            if(moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format()){
+                            if (moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format()) {
                                 setLive(value)
                             }
-                            if(moment.unix(value.endTime).format() <= moment().format()){
+                            if (moment.unix(value.endTime).format() <= moment().format()) {
                                 setCompleted(value)
                             }
                         }
@@ -81,8 +73,6 @@ const Product = () => {
     const resetAllProducts = () => {
         setAllProducts([])
     }
-
-
 
     return (
         <>
@@ -102,21 +92,21 @@ const Product = () => {
                                         onClick={() => {
                                             setActiveTab(1)
                                         }}
-                                        active={activeTab == 1}>
+                                        $active={activeTab.toString() == 1}>
                                         Upcoming
                                     </STab>
                                     <STab
                                         onClick={() => {
                                             setActiveTab(2)
                                         }}
-                                        active={activeTab == 2}>
+                                        $active={activeTab.toString() == 2}>
                                         Live
                                     </STab>
                                     <STab
                                         onClick={() => {
                                             setActiveTab(3)
                                         }}
-                                        active={activeTab == 3}>
+                                        $active={activeTab.toString() == 3}>
                                         Completed
                                     </STab>
                                 </STabList>
@@ -125,43 +115,34 @@ const Product = () => {
                                         <TabContent>
                                             <Container>
                                                 <Row>
-                                                {allProducts.map((value, index) => {
-                                                        if (value.startTime != undefined) {
-                                                           
+                                                    {allProducts.map((value, index) => {
+                                                        if (moment.unix(value?.startTime).format() >= moment().format()) {
                                                             return (
-                                                                <>
-                                                                    {' '}
-                                                                    {moment.unix(value.startTime).format() >= moment().format() ? (
-                                                                        <CustomCol lg={6}>
-                                                                            <Card
-                                                                                key={index + 'Upcoming'}
-                                                                                lg={12}
-                                                                                onClick={() => {
-                                                                                    if (isConnected) {
-                                                                                        setPreSaleViewToken(value.token)
-                                                                                    } else {
-                                                                                        toast.error('Please connect to wallet')
-                                                                                    }
-                                                                                }}>
-                                                                                <Content>
-                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
-                                                                                </Content>
-                                                                            </Card>
-                                                                        </CustomCol>
-                                                                    ) : (
-                                                                        ''
-                                                                    )}
-                                                                </>
+                                                                <CustomCol lg={6} key={index + 'Upcoming'}>
+                                                                        <Card
+                                                                            lg={12}
+                                                                            onClick={() => {
+                                                                                if (isConnected) {
+                                                                                    setPreSaleViewToken(value.token)
+                                                                                } else {
+                                                                                    toast.error('Please connect to wallet')
+                                                                                }
+                                                                            }}>
+                                                                            <Content>
+                                                                                <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Creator :</Label> {value.address ? value.address : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Token :</Label> {value.token ? value.token : '-'}
+                                                                            </Content>
+                                                                        </Card>
+                                                                </CustomCol>
                                                             )
                                                         }
                                                     })}
-                                                    {upComing.length == 0 ? <NotFoundText>No UpComing Projects Found</NotFoundText> :''}
+                                                    {upComing.length == 0 ? <NotFoundText>No UpComing Projects Found</NotFoundText> : ''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -173,42 +154,34 @@ const Product = () => {
                                         <TabContent>
                                             <Container>
                                                 <Row>
-                                                {allProducts.map((value, index) => {
-                                                        if (value.startTime != undefined) {
+                                                    {allProducts.map((value, index) => {
+                                                        if (moment.unix(value?.endTime).format() >= moment().format() && moment.unix(value?.startTime).format() <= moment().format()) {
                                                             return (
-                                                                <>
-                                                                    {moment.unix(value.endTime).format() >= moment().format() && moment.unix(value.startTime).format() <= moment().format() ? (
-                                                                        <CustomCol lg={6}>
-                                                                            <Card
-                                                                                key={index + 'live'}
-                                                                                lg={12}
-                                                                                onClick={() => {
-                                                                                    if (isConnected) {
-                                                                                        setPreSaleViewToken(value.token)
-                                                                                    } else {
-                                                                                        toast.error('Please connect to wallet')
-                                                                                    }
-                                                                                }}>
-                                                                                <Content>
-                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
-                                                                                </Content>
-                                                                            </Card>
-                                                                        </CustomCol>
-                                                                    ) : (
-                                                                         ''
-                                                                    )}
-                                                                </>
+                                                                <CustomCol lg={6} key={index + 'live'}>
+                                                                        <Card
+                                                                            lg={12}
+                                                                            onClick={() => {
+                                                                                if (isConnected) {
+                                                                                    setPreSaleViewToken(value.token)
+                                                                                } else {
+                                                                                    toast.error('Please connect to wallet')
+                                                                                }
+                                                                            }}>
+                                                                            <Content>
+                                                                                <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Creator :</Label> {value.address ? value.address : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Token :</Label> {value.token ? value.token : '-'}
+                                                                            </Content>
+                                                                        </Card>
+                                                                </CustomCol>
                                                             )
                                                         }
-                                                    
                                                     })}
-                                                   {live.length == 0 ? <NotFoundText>No Live Projects Found</NotFoundText> :''}
+                                                    {live.length == 0 ? <NotFoundText>No Live Projects Found</NotFoundText> : ''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -218,60 +191,53 @@ const Product = () => {
                                     <STabPanel>
                                         <TabContent>
                                             <Container>
-                                            {completed.length > 0  &&
-                                                <StatusBar>
-                                                    <StatusSuccess
-                                                        active={status == 'success'}
-                                                        onClick={() => {
-                                                            setStatus('success')
-                                                        }}>
-                                                        Success
-                                                    </StatusSuccess>{' '}
-                                                    <StatusFaild
-                                                        active={status == 'faild'}
-                                                        onClick={() => {
-                                                            setStatus('faild')
-                                                        }}>
-                                                        Faild
-                                                    </StatusFaild>
-                                                </StatusBar>}
+                                                {completed.length > 0 && (
+                                                    <StatusBar>
+                                                        <StatusSuccess
+                                                            active={status == 'success'}
+                                                            onClick={() => {
+                                                                setStatus('success')
+                                                            }}>
+                                                            Success
+                                                        </StatusSuccess>{' '}
+                                                        <StatusFaild
+                                                            active={status == 'faild'}
+                                                            onClick={() => {
+                                                                setStatus('faild')
+                                                            }}>
+                                                            Faild
+                                                        </StatusFaild>
+                                                    </StatusBar>
+                                                )}
                                                 <Row>
-                                                   
                                                     {allProducts.map((value, index) => {
-                                                        if (value.startTime != undefined) {
+                                                        if (moment.unix(value?.endTime).format() <= moment().format()) {
                                                             return (
-                                                                <>
-                                                                    {moment.unix(value.endTime).format() <= moment().format() ? (
-                                                                        <CustomCol lg={6}>
-                                                                            <Card
-                                                                                key={index + 'Completed'}
-                                                                                lg={12}
-                                                                                onClick={() => {
-                                                                                    if (isConnected) {
-                                                                                        setPreSaleViewToken(value.token)
-                                                                                    } else {
-                                                                                        toast.error('Please connect to wallet')
-                                                                                    }
-                                                                                }}>
-                                                                                <Content>
-                                                                                    <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Creator :</Label> {value.address ? value.address : '-'}
-                                                                                </Content>
-                                                                                <Content>
-                                                                                    <Label> Token :</Label> {value.token ? value.token : '-'}
-                                                                                </Content>
-                                                                            </Card>
-                                                                        </CustomCol>
-                                                                    ) : (
-                                                                       ''
-                                                                    )}
-                                                                </>
+                                                                <CustomCol lg={6} key={index + 'Completed'}>
+                                                                        <Card
+                                                                            lg={12}
+                                                                            onClick={() => {
+                                                                                if (isConnected) {
+                                                                                    setPreSaleViewToken(value.token)
+                                                                                } else {
+                                                                                    toast.error('Please connect to wallet')
+                                                                                }
+                                                                            }}>
+                                                                            <Content>
+                                                                                <Label> Sale Title :</Label> {value.saleTitle ? ethers.utils.parseBytes32String(value.saleTitle) : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Creator :</Label> {value.address ? value.address : '-'}
+                                                                            </Content>
+                                                                            <Content>
+                                                                                <Label> Token :</Label> {value.token ? value.token : '-'}
+                                                                            </Content>
+                                                                        </Card>
+                                                                </CustomCol>
                                                             )
                                                         }
                                                     })}
-                                                   {completed.length == 0 ? <NotFoundText>No Completed Projects Found</NotFoundText> :''}
+                                                    {completed.length == 0 ? <NotFoundText>No Completed Projects Found</NotFoundText> : ''}
                                                 </Row>
                                             </Container>
                                         </TabContent>
@@ -327,7 +293,7 @@ const Button = styled.a`
     text-align: center;
     padding: 0.8rem;
     background: #00bcd4;
-    background: ${({active, disabled}) => (active ? '#07bc0c' : disabled ? '#b9b6b6' : '#00bcd4')};
+    background: ${({active, disabled}) => (active ? '#07bc0c' : undefined, disabled ? '#b9b6b6' : '#00bcd4')};
     color: white;
     border-radius: 0.4rem;
     border: none;
@@ -336,7 +302,7 @@ const Button = styled.a`
     text-decoration: none;
     cursor: ${({disabled}) => (disabled ? 'no-drop' : 'pointer')};
     &:hover {
-        background: ${({active, disabled}) => (active ? '#06b30b' : disabled ? '#b9b6b6' : '#00bcd4')};
+        background: ${({active, disabled}) => (active ? '#06b30b' : undefined, disabled ? '#b9b6b6' : '#00bcd4')};
     }
 `
 const NewButton = styled(Button)`
@@ -394,8 +360,8 @@ const STab = styled(Tab)`
     padding: 0.3rem 0rem 1rem 0rem;
     user-select: none;
     cursor: pointer;
-    border-bottom: ${({active}) => (active ? `0.2rem solid #00bcd4 !important` : ``)};
-    font-weight ${({active}) => (active ? `bold` : ``)};
+    border-bottom: ${({$active}) => ($active ? `0.2rem solid #00bcd4 !important` : undefined)};
+    font-weight ${({$active}) => ($active ? `bold` : undefined)};
 `
 STab.tabsRole = 'Tab'
 
@@ -435,11 +401,11 @@ const StatusFaild = styled(StatusButton)`
     background: ${({active}) => (active ? `#d80a0a` : `#b9b6b6`)};
 `
 const NotFoundText = styled.div`
-   width:100%;
-   text-align:center;
-   display:flex;
-   align-items:center;
-   color:gray;
-   justify-content:center;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    color: gray;
+    justify-content: center;
 `
 export default Product

@@ -4,6 +4,7 @@ import {Container, Row, Col} from 'styled-bootstrap-grid'
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 
+
 const IntroContent = ({user}) => {
     return (
         <Wrapper>
@@ -29,7 +30,6 @@ const IntroContent = ({user}) => {
                         </Linking>
                     </Flex>
                 </Col>
-            
             </Row>
             <Spacer />
             <Row>
@@ -94,7 +94,7 @@ const ChainList = styled.div`
     height: 3rem;
     box-shadow: 0 0 1px rgb(0 0 0 / 17%), 0 4px 8px rgb(0 0 0 / 8%), 0 8px 12px rgb(0 0 0 / 0%), 0 12px 16px rgb(0 0 0 / 2%);
 `
-const Button = styled.a`
+const Button = styled.button`
     text-decoration: none;
     padding: 0.8rem;
     background: #00bcd4;

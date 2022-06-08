@@ -74,14 +74,11 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                         }
                     }
                 }
-            } //todo.. if user view the page without login/or directly.. check in user tokens if isDeveloper then its setIsDeveloper(true)
+            }
             const _investementPreSale = new ethers.Contract(preSaleViewToken, PreSaleContract.abi, signer)
             setInvestementPreSale(_investementPreSale)
         }
     }, [signer])
-    // useEffect(async () => {
-    //     alert(isDeveloper)
-    // }, [isDeveloper])
 
     useEffect(async () => {
         if (investementPreSale) {
@@ -182,9 +179,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
     const investIn = async () => {
         if (!investementPreSale) {
-            alert('please connect your wallet first')
+            toast.error('Please connect your wallet first')
             if (!investAmount) {
-                alert('Please enter the amount for investment')
+                toast.error('Please enter the amount for investment')
             }
         }
         try {
@@ -198,9 +195,9 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             } else if (error.data.message.includes('Closed')) {
                 toast.error('Presale is closed')
             } else if (error.data.message.includes('Not yet opened')) {
-                toast.error('Please wait !! Presale is not open yet')
+                toast.error('Please wait. Presale is not open yet')
             } else if (error.data.message.includes('Min investment not reached')) {
-                toast.error('Please see the miminmum investment requirement and enter the right amount')
+                toast.error('Please check the miminmum investment requirement and enter the right amount')
             } else {
                 toast.error(error.data.error)
             }
@@ -212,21 +209,24 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const addLiquidityAndLockLPTokensTx = await investementPreSale.addLiquidityAndLockLPTokens()
             await addLiquidityAndLockLPTokensTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Liquidity already added')) {
-                toast.error('Liquidity already added')
-            } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
-                toast.error('Make sure you are adding liquidity from presale creator address')
-            } else if (error.data.message.includes('Not presale creator')) {
-                toast.error('Make sure you are adding liquidity from presale creator address')
-            } else if (error.data.message.includes('Not presale creator or investor')) {
-                toast.error('Only Presale Creator or Investor can add liquidity')
-            } else if (error.data.message.includes('Soft cap not reached')) {
-                toast.error('Project has not reahced to minimum investment goal')
-            } else if (error.data.message.includes('Liquidity cannot be added yet')) {
-                toast.error('Can not add liquidity')
-            } else {
-                toast.error('No investment made, Liquidity can not be added')
+            if (error.data) {
+                if (error.data.message.includes('Liquidity already added')) {
+                    toast.error('Liquidity already added')
+                } else if (error.data.message.includes('Not whitelisted or not presale creator')) {
+                    toast.error('Make sure you are adding liquidity from presale creator address')
+                } else if (error.data.message.includes('Not presale creator')) {
+                    toast.error('Make sure you are adding liquidity from presale creator address')
+                } else if (error.data.message.includes('Not presale creator or investor')) {
+                    toast.error('Only presale creator or investor can add liquidity')
+                } else if (error.data.message.includes('Soft cap not reached')) {
+                    toast.error('Project has not reahced to minimum investment goal')
+                } else if (error.data.message.includes('Liquidity cannot be added yet')) {
+                    toast.error('Can not add liquidity')
+                } else {
+                    toast.error('No investment made, liquidity can not be added')
+                }
             }
+            toast.error('Something went wrong. Please try again later.')
         }
     }
 
@@ -235,11 +235,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const claimTokens = await investementPreSale.claimTokens()
             await claimTokens.wait()
         } catch (error) {
-            if (error.data.message.includes('Not an investor')) {
-                toast.error('Only investors are aligible to claim tokens')
-            } else {
-                toast.error(error.data.message)
+            if (error.data) {
+                if (error.data.message.includes('Not an investor.')) {
+                    toast.error('Only investors are aligible to claim tokens.')
+                } else {
+                    toast.error(error.data.message)
+                }
             }
+            toast.error('Something went wrong. Please try again later.')
         }
     }
 
@@ -257,10 +260,14 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             const collectFundsRaisedTx = await investementPreSale.collectFundsRaised()
             await collectFundsRaisedTx.wait()
         } catch (error) {
-            if (error.data.message.includes('Not presale creator')) {
-                toast.error('Only presale creater can withdraw funds')
-            } else if (error.data.message.includes('execution reverted')) {
-                toast.error('No funds to with draw')
+            if (error.data) {
+                if (error.data.message.includes('Not presale creator')) {
+                    toast.error('Only presale creater can withdraw funds')
+                } else if (error.data.message.includes('execution reverted')) {
+                    toast.error('No funds to with draw')
+                }
+            } else {
+                toast.error('Something went wrong. Please try again later.')
             }
         }
     }
@@ -277,34 +284,32 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             }
         }
     }
+
     const editInfoPresale = async () => {
         try {
-            console.log(updateTokensTuple)
             const editInfoPresale = await investementPreSale.editInfoPresaleDev(updateTokensTuple.closeTime, updateTokensTuple.maxInvestInWei, updateTokensTuple.minInvestInWei, updateTokensTuple.liqAddingTime)
-
-           const  response = await editInfoPresale.wait()
+            const response = await editInfoPresale.wait()
             console.log(updateTokensTuple)
-
-            if (response.data.status){
-
+            if (response.data.status) {
                 axios
-                .post(`${api}/pre_sale/update`, {
-                    endTime: updateTokensTuple.closeTime
-                })
-                .then((response) => {
-                    if (response.data.status) {
-                        toast.success('Presale updated Successfully')
-                        navigate('/')
-                    }
-                })
-                .catch(function (error) {})
+                    .post(`${api}/pre_sale/update`, {
+                        endTime: updateTokensTuple.closeTime
+                    })
+                    .then((response) => {
+                        if (response.data.status) {
+                            toast.success('Presale updated Successfully')
+                            navigate('/')
+                        }
+                    })
+                    .catch(function (error) {
+                        toast.error(error.message)
+                    })
+            } else {
+                toast.error('Something went wrong. Please try again later.')
             }
-        
-        }
-
-           
-         catch (error) {
+        } catch (error) {
             console.log(error)
+            toast.error(error.message)
         }
     }
 
@@ -313,7 +318,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
             {!editPreSale ? (
                 <>
                     <Wrapper>
-                        {investementPreSale  && (
+                        {investementPreSale && (
                             <>
                                 {!isConnected && navigate('/')}
                                 <Heading>
@@ -326,7 +331,7 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                         <>
                                             <ColCenter lg={8}>Remaining time for Presale opening</ColCenter>
                                             <ColCenter lg={8}>
-                                                <CountdownTimer targetDate={saleStartingTIme} />
+                                                <CountdownTimer targetDate={saleStartingTIme.toString()} />
                                             </ColCenter>
                                         </>
                                     )}
@@ -345,10 +350,40 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
 
                                 <Row>
                                     <Column lg={6}>
-                                        <Text>Maximum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={maxInvestInWei} onChange={(e)=>{setMaxInvestInWei(e.target.value)}} /> : <Content>{maxInvestInWei?.toString()}</Content>}
+                                        <Text>Maximum Invest per Address (BNB):</Text>{' '}
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? (
+                                            <InputText
+                                                style={{marginLeft: '1rem'}}
+                                                width="40"
+                                                type="number"
+                                                min="0"
+                                                pattern="\d+"
+                                                value={maxInvestInWei}
+                                                onChange={(e) => {
+                                                    setMaxInvestInWei(e.target.value)
+                                                }}
+                                            />
+                                        ) : (
+                                            <Content>{maxInvestInWei?.toString()}</Content>
+                                        )}
                                     </Column>
                                     <Column lg={6}>
-                                        <Text>Minimum Invest per Address (BNB):</Text> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputText style={{marginLeft: '1rem'}} width="40" type="number" min="0" pattern="\d+" value={minInvestInWei} onChange={(e)=>{setMinInvetsInWei(e.target.value)}} /> : <Content>{minInvestInWei?.toString()}</Content>}
+                                        <Text>Minimum Invest per Address (BNB):</Text>{' '}
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? (
+                                            <InputText
+                                                style={{marginLeft: '1rem'}}
+                                                width="40"
+                                                type="number"
+                                                min="0"
+                                                pattern="\d+"
+                                                value={minInvestInWei}
+                                                onChange={(e) => {
+                                                    setMinInvetsInWei(e.target.value)
+                                                }}
+                                            />
+                                        ) : (
+                                            <Content>{minInvestInWei?.toString()}</Content>
+                                        )}
                                     </Column>
                                 </Row>
                                 <Spacer />
@@ -422,16 +457,17 @@ const PreSaleDetail = ({address, isConnected, preSaleViewToken}) => {
                                     </Column>
 
                                     <Column lg={6}>
-                                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editCloseTime} onChange={setEditCLoseTime} /> :  <Text>:</Text> }
+                                        <Text>End Time:</Text> <Content>{closeTime?.toString()}</Content> {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editCloseTime} onChange={setEditCLoseTime} /> : <Text></Text>}
                                     </Column>
 
                                     <Column lg={6}>
-                                        <Text>Liquidity Adding Time:</Text> <Content>{liquidityDate?.toString()}</Content>{isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editLiqTime} onChange={setEditLiqTime} /> :   <Text> :</Text> }
+                                        <Text>Liquidity Adding Time:</Text> <Content>{liquidityDate?.toString()}</Content>
+                                        {isDeveloper && closingTimeDays + closingTimeHours + closingTimeMinutes + closingTimeSeconds >= 0 ? <InputDate width="40" value={editLiqTime} onChange={setEditLiqTime} /> : <Text></Text>}
                                     </Column>
                                 </Row>
                                 <Row>
                                     <Column>
-                                        <Heading>Social Details</Heading>
+                                        <Text>Social Details</Text>
                                     </Column>
                                 </Row>
                                 <Row>
@@ -754,11 +790,11 @@ padding: 0rem;
     border - top: 3px dotted #00bcd4;
         ${media.xs`
         left: 4rem;
-        
+
       `}
         ${media.sm`
         left: 6rem;
-        
+
       `}
         ${media.md`
         left: 11rem;

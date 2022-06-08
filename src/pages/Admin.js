@@ -15,7 +15,7 @@ const Admin = () => {
 
     const logGet = async () => {
         if (!investmentInfoRead) {
-            alert('you are trying to connect to a null contract')
+            toast.error('you are trying to connect to a null contract')
         }
 
         //const investmentFactoryRead = new ethers.Contract(investmentFactory.id, investmentFactory.abi, provider)

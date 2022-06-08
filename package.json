@@ -13,11 +13,11 @@
     "bytes32": "^0.0.3",
     "ethers": "^5.6.2",
     "moment": "^2.29.2",
-    "node-url-shortener": "^2.0.3",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.2",
     "react-datetime-picker": "^3.5.0",
     "react-dom": "^17.0.2",
+    "react-is": "^17.0.2",
     "react-redux": "^7.2.8",
     "react-responsive-modal": "^6.2.0",
     "react-router-dom": "^6.3.0",
@@ -72,6 +72,7 @@
     "hardhat-gas-reporter": "^1.0.4",
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
+    "react-error-overlay": "^6.0.9",
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.16"
   }

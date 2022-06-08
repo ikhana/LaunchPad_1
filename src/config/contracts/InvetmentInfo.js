@@ -22,7 +22,3 @@ export const InvestementInfo = {
         {inputs: [{internalType: 'address', name: 'newOwner', type: 'address'}], name: 'transferOwnership', outputs: [], stateMutability: 'nonpayable', type: 'function'}
     ]
 }
-//todo..purpose of this contract?
-// {"tokenAddress":"0xbd1EB6a307839a573702C86fA3b91ac8e46042B2","unsoldTokensDumpAddress":"0x000000000000000000000000000000000000dEaD","whitelistedAddresses":[],"tokenPriceInWei":"100000000000000000","hardCapInWei":"2000000000000000000","softCapInWei":"500000000000000000","maxInvestInWei":"500000000000000000","minInvestInWei”:"100000000000000000","openTime":"1651737507","closeTime":"1651741107"}
-//{"listingPriceInWei":"110000000000000000","liquidityAddingTime":"1648191598","lpTokensLockDurationInDays":"10","liquidityPercentageAllocation":"99"}
-// {"saleTitle":"0x4c61622070652061617469206861690000000000000000000000000000000000","linkTelegram":"0x4c61622070652061617469206861692064756100000000000000000000000000","linkDiscord":"0x4c6162207065206161746920686169206475612062616e000000000000000000","linkTwitter":"0x4c6162207065206161746920686169206475612062616e206b00000000000000","linkWebsite":"0x4c6162207065206161746920686169206475612062616e206b2074616d616e61"}
